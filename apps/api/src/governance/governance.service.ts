@@ -91,6 +91,14 @@ export class GovernanceService {
     return opinion;
   }
 
+  async addFinding(reviewId: string, input: { severity: string; category: string; title: string; description: string; remediation?: string }) {
+    const review = await this.prisma.governanceReview.findUnique({ where: { id: reviewId } });
+    if (!review) throw new NotFoundException('Governance review not found.');
+    const finding = await this.prisma.governanceFinding.create({ data: { reviewId, severity: input.severity, category: input.category, title: input.title, description: input.description, remediation: input.remediation } });
+    await this.audit.record({ actor: 'system', type: 'GOVERNANCE_FINDING_RECORDED', projectId: review.projectId, entityType: 'governance_review', entityId: reviewId, summary: input.title, data: { severity: input.severity, category: input.category } });
+    return finding;
+  }
+
   async finalizeReview(reviewId: string, input: {
     recommendation: string;
     dissent?: string;
