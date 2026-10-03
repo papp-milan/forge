@@ -320,6 +320,18 @@ Additional control-plane capabilities now include:
 
 The dashboard design direction is now a high-contrast Forge/Olympus command center influenced by comic/manga graphics, Persona-like visual energy and Hermes/Nous-style agent tooling. The UI uses bright agent colors, hard offset shadows, grain/noise, glow and directional motion rather than generic glassmorphism. UI concept sketches live in `/sketches`.
 
+### Branding sketches
+
+Forge's original logo exploration lives in `/sketches/logos`. The first five directions are intentionally monochrome/graphic and use `prefers-color-scheme` so the same SVG works in light and dark mode:
+
+- `01-anvil-mask.svg` — compact anvil emblem with a graphic mask/sigil
+- `02-forgemaster.svg` — forge-master silhouette built from hard geometric planes
+- `03-anvil-sigil.svg` — circular industrial sigil
+- `04-hammer-crown.svg` — hammer/anvil mark with a crown-like top
+- `05-industrial-smith.svg` — technical industrial anvil/smith mark
+
+The direction is intentionally inspired by the bold monochrome, manga/print character of Hermes/Nous branding while remaining an original Forge mark rather than copying the Hermes logo. The current source reference uses a stark black/white character mark; Nous' published branding guidance also emphasizes xerox/riso grain, constrained palettes and distressed print texture. citeturn0search0turn0search7
+
 ### Current delivery safeguards
 
 The worker loop respects the feature lifecycle gates:
