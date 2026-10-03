@@ -1944,3 +1944,93 @@ main {
     transform: none;
   }
 }
+
+
+/* =========================================================
+   Final agent pulse theme contract
+   This intentionally sits last so no legacy dark-mode rule
+   can override the light presentation.
+   ========================================================= */
+.forge-theme-light .forge-agent-pulse {
+  background: #fffaf0 !important;
+  color: #171411 !important;
+  border: 2px solid rgba(23,20,17,.18) !important;
+  box-shadow: 8px 8px 0 rgba(23,20,17,.16) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__title {
+  background: linear-gradient(90deg, rgba(227,38,46,.045), transparent 58%) !important;
+  border-bottom: 2px solid rgba(23,20,17,.14) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__title > span {
+  color: #b21c25 !important;
+}
+
+.forge-theme-light .forge-agent-pulse__grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 1.5rem !important;
+  padding: 1.5rem !important;
+  background: #f5eadb !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent {
+  border: 2px solid color-mix(in srgb, var(--agent-color) 58%, #171411 18%) !important;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--agent-color) 7%, #fffaf0), #fffaf0 72%) !important;
+  box-shadow: 7px 7px 0 var(--agent-color) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent::before {
+  background: var(--agent-color) !important;
+  box-shadow: none !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent::after {
+  color: color-mix(in srgb, var(--agent-color) 75%, #171411) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent .forge-ascii-agent {
+  background: color-mix(in srgb, var(--agent-color) 3%, #fffaf0) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent .forge-ascii-agent::before {
+  border-color: color-mix(in srgb, var(--agent-color) 36%, #171411 20%) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent .forge-ascii-agent::after {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 8px, rgba(23,20,17,.025) 9px, transparent 10px),
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--agent-color) 5%, transparent), transparent) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent .forge-ascii-agent pre {
+  text-shadow: 0 0 5px color-mix(in srgb, currentColor 24%, transparent) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__meta {
+  background: color-mix(in srgb, var(--agent-color) 6%, #fffaf0) !important;
+  border-top: 2px solid color-mix(in srgb, var(--agent-color) 25%, rgba(23,20,17,.12)) !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-agent-pulse__meta strong {
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-agent-pulse__meta span {
+  color: var(--agent-color) !important;
+}
+
+@media (max-width: 1200px) {
+  .forge-theme-light .forge-agent-pulse__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .forge-theme-light .forge-agent-pulse__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+    padding: 1rem !important;
+  }
+}
