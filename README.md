@@ -35,11 +35,11 @@ Team Lead    UI/UX   Engineering
 ## Current stack
 
 - **Web:** React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui, Base UI, Lucide, Inter
-- **Visual direction:** dark Forge/Olympus command center with grain, glow, agent-color accents and restrained motion
+- **Visual direction:** high-contrast Forge/Olympus command center inspired by comic/manga interfaces, Persona-like graphic energy and Hermes-style agent tooling; bright agent colors, hard shadows, grain/noise, glow and directional motion
 - **API:** NestJS 12, TypeScript, ESM, PostgreSQL, Prisma 7
 - **Automation:** GitHub App, GitHub webhooks, GitHub Issues/branches/PRs
 - **Employees:** Athena, Apollo, Hephaistos, Artemis, Nike, Atlas — each with a stable role color
-- **Agents:** Athena, Apollo, Hephaistos, Artemis
+- **Agents:** Athena, Apollo, Hephaistos, Artemis (with Nike/Atlas as DEVOPS workforce roles)
 - **Runtime:** Hermes Agent via structured `stream-json` execution
 - **Memory:** versionable files under `memory/`
 - **Audit:** daily JSONL audit log under `memory/audit/`
@@ -318,4 +318,11 @@ Additional control-plane capabilities now include:
 - **Worker simulation:** `POST /api/agents/worker/run-once` executes one worker cycle using the configured runtime.
 - **Memory location:** `FORGE_MEMORY_ROOT` can point Forge at an Obsidian vault or another persistent Markdown root.
 
-The dashboard design direction is now a dark Forge/Olympus command center with main-frame glow, grain/noise, agent color coding and motion. UI concept sketches live in `/sketches`.
+The dashboard design direction is now a high-contrast Forge/Olympus command center influenced by comic/manga graphics, Persona-like visual energy and Hermes/Nous-style agent tooling. The UI uses bright agent colors, hard offset shadows, grain/noise, glow and directional motion rather than generic glassmorphism. UI concept sketches live in `/sketches`.
+
+The dashboard also treats agents as visible characters rather than static rows:
+
+- **Animated tab transitions:** switching HQ tabs slides/skews the incoming view according to navigation direction.
+- **Agent theatre:** each employee has animated ASCII art with role-specific silhouettes.
+- **Live agent states:** agents sleep when they have no open work, animate as working when tasks are queued, and switch to a blocked state when assigned work is blocked.
+- **Reduced-motion support:** CSS animations are disabled when the user requests reduced motion.
