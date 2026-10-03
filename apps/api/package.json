@@ -12,6 +12,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
+    "prestart:dev": "prisma generate && prisma migrate deploy",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
     "lint": "oxlint --type-aware src/ test/",
