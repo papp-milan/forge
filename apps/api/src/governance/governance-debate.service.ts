@@ -38,7 +38,7 @@ export class GovernanceDebateService {
           role: perspective.role,
           stance: perspective.stance,
           rationale: `${perspective.rationale} ${prior}`,
-          evidence: perspective.evidence ?? [],
+          evidence: perspective.evidence ?? {},
           round,
         });
       }
@@ -59,6 +59,6 @@ export class GovernanceDebateService {
       ? `Dissent recorded: ${oppose} opposing and ${conditional} conditional perspective(s).`
       : null;
 
-    return this.governance.finalizeReview(reviewId, { recommendation, dissent });
+    return this.governance.finalizeReview(reviewId, { recommendation, dissent: dissent ?? undefined });
   }
 }
