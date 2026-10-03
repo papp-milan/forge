@@ -4,6 +4,7 @@ import { GithubModule } from '../github/github.module.js';
 import { MemoryModule } from '../memory/memory.module.js';
 import { AuditModule } from '../audit/audit.module.js';
 import { RuntimeModule } from '../runtime/runtime.module.js';
+import { FeaturesModule } from '../features/features.module.js';
 import { OrchestratorController } from './orchestrator.controller.js';
 import { OrchestratorService } from './orchestrator.service.js';
 import { TeamLeadController } from './team-lead.controller.js';
@@ -17,7 +18,7 @@ import { AgentDecisionController } from './agent-decision.controller.js';
 import { OrchestratorLoopService } from './orchestrator-loop.service.js';
 
 @Module({
-  imports: [PrismaModule, GithubModule, MemoryModule, AuditModule, RuntimeModule],
+  imports: [PrismaModule, GithubModule, MemoryModule, AuditModule, RuntimeModule, FeaturesModule],
   controllers: [
     OrchestratorController,
     TeamLeadController,
