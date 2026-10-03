@@ -11,12 +11,16 @@ export class AuditController {
     @Query('projectId') projectId?: string,
     @Query('type') type?: AuditEventType,
     @Query('limit') limit?: string,
+    @Query('before') before?: string,
   ) {
     const parsedLimit = limit ? Number(limit) : undefined;
+    const parsedBefore = before ? new Date(before) : undefined;
+
     return this.audit.list({
       projectId,
       type,
       limit: parsedLimit && Number.isFinite(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 500) : undefined,
+      before: parsedBefore && !Number.isNaN(parsedBefore.getTime()) ? parsedBefore : undefined,
     });
   }
 }
