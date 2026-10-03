@@ -15,6 +15,9 @@ import { RuntimeModule } from './runtime/runtime.module.js';
 import { AgentsModule } from './agents/agents.module.js';
 import { WorkforceModule } from './workforce/workforce.module.js';
 import { GovernanceModule } from './governance/governance.module.js';
+import { ApprovalsModule } from './approvals/approvals.module.js';
+import { ObservabilityModule } from './observability/observability.module.js';
+import { ReconciliationModule } from './reconciliation/reconciliation.module.js';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { GovernanceModule } from './governance/governance.module.js';
     AgentsModule,
     WorkforceModule,
     GovernanceModule,
+    ApprovalsModule,
+    ObservabilityModule,
+    ReconciliationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
