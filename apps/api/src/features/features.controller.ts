@@ -39,4 +39,29 @@ export class FeaturesController {
   remove(@Param('id') id: string) {
     return this.featuresService.remove(id);
   }
+
+  @Post(':id/plan')
+  plan(@Param('id') id: string) {
+    return this.featuresService.plan(id);
+  }
+
+  @Post(':id/start')
+  start(@Param('id') id: string) {
+    return this.featuresService.start(id);
+  }
+
+  @Post(':id/submit-for-qa')
+  submitForQa(@Param('id') id: string) {
+    return this.featuresService.submitForQa(id);
+  }
+
+  @Post(':id/approve-qa')
+  approveQa(@Param('id') id: string) {
+    return this.featuresService.approveQa(id);
+  }
+
+  @Post(':id/release')
+  release(@Param('id') id: string) {
+    return this.featuresService.release(id);
+  }
 }
