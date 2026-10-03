@@ -10,7 +10,7 @@ import {
 import { TasksService } from './tasks.service.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
-import { AssignTaskDto } from './dto/a.js';
+import { AssignTaskDto } from './dto/assign-task.dto.js';
 
 @Controller('api/tasks')
 export class TasksController {
