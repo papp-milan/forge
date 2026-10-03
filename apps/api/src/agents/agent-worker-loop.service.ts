@@ -110,12 +110,12 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
             repo,
             task.title,
             [
-              task.description ? `## Description\\n\\n${task.description}` : '',
+              task.description ? `## Description\n\n${task.description}` : '',
               task.acceptanceCriteria
-                ? `## Acceptance Criteria\\n\\n${task.acceptanceCriteria}`
+                ? `## Acceptance Criteria\n\n${task.acceptanceCriteria}`
                 : '',
-              '---\\n\\nManaged by **Forge**.',
-            ].filter(Boolean).join('\\n\\n'),
+              '---\n\nManaged by **Forge**.',
+            ].filter(Boolean).join('\n\n'),
           );
 
           await this.prisma.task.update({
@@ -170,6 +170,10 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       },
       orderBy: { createdAt: 'asc' },
       take: 3,
+      include: {
+        assignee: true,
+        feature: { select: { projectId: true } },
+      },
     });
 
     for (const task of tasks) {
@@ -212,7 +216,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         await this.audit.record({
           actor: 'artemis',
           type: 'QA_FAILED',
-          projectId: task.featureId,
+          projectId: task.feature.projectId,
           entityType: 'task',
           entityId: task.id,
           summary: `Artemis failed to review "${task.title}"`,
