@@ -50,6 +50,7 @@ type Employee = {
   name: string
   role: string
   status: string
+  color: string
 }
 
 type AuditEvent = {
@@ -486,7 +487,7 @@ function Overview({
 
       <section className="grid gap-6 xl:grid-cols-2">
         <MiniList title="Workforce" action="Employees →" onAction={() => onOpen('employees')}>
-          {employees.slice(0, 6).map((employee) => <div key={employee.id} className="flex justify-between border-b border-white/6 px-5 py-3 text-sm"><span>{employee.name}</span><span className="text-xs text-zinc-500">{employee.role}</span></div>)}
+          {employees.slice(0, 6).map((employee) => <div key={employee.id} className="flex items-center gap-2 border-b border-white/6 px-5 py-3 text-sm"><span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: employee.color }} /><span className="flex-1">{employee.name}</span><span className="text-xs text-zinc-500">{employee.role}</span></div>)}
           {employees.length === 0 && <EmptyState message="No employees registered yet." />}
         </MiniList>
         <MiniList title="Task board" action="Development →" onAction={() => onOpen('development')}>
@@ -521,7 +522,7 @@ function Employees({ employees, tasks }: { employees: Employee[]; tasks: Task[] 
       {employees.length === 0 && <EmptyState message="No employees registered yet." />}
       {employees.map((employee) => {
         const assigned = tasks.filter((task) => task.assignee?.id === employee.id)
-        return <div key={employee.id} className="flex items-center gap-4 border-b border-white/6 px-5 py-4"><span className="size-2 rounded-full bg-emerald-400" /><div className="flex-1"><div className="text-sm font-medium">{employee.name}</div><div className="mt-1 text-xs text-zinc-500">{employee.role} · {employee.status}</div></div><span className="text-xs text-zinc-500">{assigned.length} tasks</span></div>
+        return <div key={employee.id} className="flex items-center gap-4 border-b border-white/6 px-5 py-4"><span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: employee.color }} /><div className="flex-1"><div className="text-sm font-medium">{employee.name}</div><div className="mt-1 text-xs text-zinc-500">{employee.role} · {employee.status}</div></div><span className="text-xs text-zinc-500">{assigned.length} tasks</span></div>
       })}
     </Panel>
   )
