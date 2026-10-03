@@ -1,8 +1,8 @@
 {
   "name": "api",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Forge autonomous AI company control plane API",
+  "author": "Milán Papp",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
