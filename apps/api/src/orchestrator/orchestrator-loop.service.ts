@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { TeamLeadAgentService } from './team-lead-agent.service.js';
 import { ReconciliationService } from '../reconciliation/reconciliation.service.js';
+import { LeaseService } from '../runtime/lease.service.js';
 
 @Injectable()
 export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
@@ -20,6 +21,7 @@ export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly agent: TeamLeadAgentService,
     private readonly audit: AuditService,
     private readonly reconciliation: ReconciliationService,
+    private readonly lease: LeaseService,
   ) {}
 
   onModuleInit() {
@@ -43,6 +45,7 @@ export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
 
   private async cycle() {
     if (this.running) return;
+    if (!(await this.lease.acquire('forge:orchestrator-loop'))) return;
 
     this.running = true;
 
@@ -72,6 +75,7 @@ export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
       }
     } finally {
       this.running = false;
+      await this.lease.release('forge:orchestrator-loop');
     }
   }
 }
