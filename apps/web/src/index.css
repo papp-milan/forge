@@ -882,3 +882,92 @@ main {
     transform: none;
   }
 }
+
+.forge-agent-pulse {
+  border: 2px solid rgba(255,255,255,.14);
+  background: #08080a;
+  box-shadow: 8px 8px 0 rgba(0,0,0,.75);
+  position: relative;
+  overflow: hidden;
+}
+.forge-agent-pulse::after {
+  content: "LIVE";
+  position: absolute;
+  top: 10px;
+  right: -28px;
+  padding: 4px 30px;
+  background: var(--forge-pink);
+  color: #fff;
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .2em;
+  transform: rotate(38deg);
+}
+.forge-agent-pulse__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid rgba(255,255,255,.1);
+}
+.forge-agent-pulse__title > span {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--forge-acid);
+  letter-spacing: .16em;
+}
+.forge-agent-pulse__grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.forge-agent-pulse__agent {
+  min-width: 0;
+  border-right: 1px solid rgba(255,255,255,.08);
+  position: relative;
+}
+.forge-agent-pulse__agent .forge-ascii-agent {
+  min-height: 130px;
+  margin-top: 0;
+}
+.forge-agent-pulse__agent .forge-ascii-agent pre {
+  font-size: .8rem;
+  transform: scale(.9);
+}
+.forge-agent-pulse__meta {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  padding: .65rem .75rem .8rem;
+  border-top: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.025);
+}
+.forge-agent-pulse__meta strong {
+  font-size: .75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.forge-agent-pulse__meta span {
+  font-family: ui-monospace, monospace;
+  font-size: 8px;
+  color: var(--agent-color);
+  letter-spacing: .08em;
+}
+.forge-content section.rounded-2xl {
+  border-radius: 0 !important;
+  border-width: 2px;
+  background: linear-gradient(145deg, rgba(255,255,255,.04), transparent 34%), rgba(10,10,13,.94);
+  box-shadow: 8px 8px 0 rgba(0,0,0,.7);
+}
+.forge-content button.rounded-lg,
+.forge-content a.rounded-lg {
+  border-radius: 0 !important;
+}
+@media (max-width: 1100px) {
+  .forge-agent-pulse__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .forge-agent-pulse__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
