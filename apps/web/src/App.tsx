@@ -110,6 +110,8 @@ function App() {
   }
 
   useEffect(() => {
+    // Initial data synchronization intentionally updates multiple state slices.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load()
   }, [])
 
