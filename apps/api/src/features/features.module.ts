@@ -9,5 +9,6 @@ import { FeaturesService } from './features.service.js';
   imports: [GithubModule, AuditModule, RuntimeModule],
   controllers: [FeaturesController],
   providers: [FeaturesService],
+  exports: [FeaturesService],
 })
 export class FeaturesModule {}
