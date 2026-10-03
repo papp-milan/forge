@@ -78,6 +78,7 @@ function App() {
   const [busyId, setBusyId] = useState<string | null>(null)
   const [view, setView] = useState<'overview' | 'approvals' | 'employees' | 'development' | 'activity'>('overview')
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
+  const [selectedDecision, setSelectedDecision] = useState<Decision | null>(null)
 
   const load = async () => {
     setLoading(true)
@@ -244,9 +245,25 @@ function App() {
             />
           )}
 
-          {view === 'activity' && <ActivityView decisions={decisions} />}
+          {view === 'activity' && <ActivityView decisions={decisions} onOpen={setSelectedDecision} />}
         </div>
       </main>
+
+      {selectedDecision && (
+        <DecisionDetails
+          decision={selectedDecision}
+          busy={busyId === selectedDecision.id}
+          onClose={() => setSelectedDecision(null)}
+          onApprove={() => {
+            setSelectedDecision(null)
+            void resolve(selectedDecision.id, 'approve')
+          }}
+          onReject={() => {
+            setSelectedDecision(null)
+            void resolve(selectedDecision.id, 'reject')
+          }}
+        />
+      )
     </div>
   )
 }
@@ -372,7 +389,15 @@ function Overview({
 function Approvals({ pending, busyId, onApprove, onReject }: { pending: Decision[]; busyId: string | null; onApprove: (id: string) => void; onReject: (id: string) => void }) {
   return (
     <Panel title="CEO approvals" subtitle="Review decisions proposed by Forge agents.">
-      {pending.length === 0 ? <EmptyState message="Approval queue is clear." /> : pending.map((decision) => <DecisionRow key={decision.id} decision={decision} busy={busyId === decision.id} onApprove={() => onApprove(decision.id)} onReject={() => onReject(decision.id)} />)}
+      {pending.length === 0 ? <EmptyState message="Approval queue is clear." /> : pending.map((decision) => (
+        <DecisionRow
+          key={decision.id}
+          decision={decision}
+          busy={busyId === decision.id}
+          onApprove={() => onApprove(decision.id)}
+          onReject={() => onReject(decision.id)}
+        />
+      ))}
     </Panel>
   )
 }
@@ -403,8 +428,25 @@ function Development({ projects, tasks, selectedProjectId, onSelectProject }: { 
   )
 }
 
-function ActivityView({ decisions }: { decisions: Decision[] }) {
-  return <Panel title="Activity" subtitle="Persistent decisions produced by the company.">{decisions.length === 0 ? <EmptyState message="No agent activity yet." /> : decisions.map((decision) => <div key={decision.id} className="flex items-center gap-4 border-b border-white/6 px-5 py-4"><StatusDot status={decision.status} /><div className="flex-1"><div className="text-sm">{decision.title}</div><div className="mt-1 text-xs text-zinc-500">{decision.agent} · {decision.project.name} · {decision.priority}</div></div><span className="text-xs text-zinc-600">{new Date(decision.createdAt).toLocaleString()}</span></div>)}</Panel>
+function ActivityView({ decisions, onOpen }: { decisions: Decision[]; onOpen: (decision: Decision) => void }) {
+  return (
+    <Panel title="Activity" subtitle="Persistent decisions produced by the company.">
+      {decisions.length === 0 ? <EmptyState message="No agent activity yet." /> : decisions.map((decision) => (
+        <button
+          key={decision.id}
+          onClick={() => onOpen(decision)}
+          className="flex w-full cursor-pointer items-center gap-4 border-b border-white/6 px-5 py-4 text-left hover:bg-white/[0.025]"
+        >
+          <StatusDot status={decision.status} />
+          <div className="flex-1">
+            <div className="text-sm">{decision.title}</div>
+            <div className="mt-1 text-xs text-zinc-500">{decision.agent} · {decision.project.name} · {decision.priority}</div>
+          </div>
+          <span className="text-xs text-zinc-600">{new Date(decision.createdAt).toLocaleString()}</span>
+        </button>
+      ))}
+    </Panel>
+  )
 }
 
 function Panel({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
@@ -487,6 +529,100 @@ function DecisionRow({
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function DecisionDetails({
+  decision,
+  busy,
+  onClose,
+  onApprove,
+  onReject,
+}: {
+  decision: Decision
+  busy: boolean
+  onClose: () => void
+  onApprove: () => void
+  onReject: () => void
+}) {
+  const details = (value: unknown) => {
+    if (value == null) return 'None'
+    if (typeof value === 'string') return value
+    try {
+      return JSON.stringify(value, null, 2)
+    } catch {
+      return String(value)
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm"
+      onMouseDown={onClose}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="decision-details-title"
+        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/10 bg-[#111114] shadow-2xl"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-start justify-between border-b border-white/8 px-6 py-5">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-zinc-500">{decision.agent} · {decision.type}</div>
+            <h2 id="decision-details-title" className="mt-1 text-lg font-semibold">{decision.title}</h2>
+          </div>
+          <button onClick={onClose} aria-label="Close" className="cursor-pointer rounded-lg p-2 text-zinc-500 hover:bg-white/8 hover:text-white">
+            <X className="size-4" />
+          </button>
+        </div>
+
+        <div className="space-y-6 p-6">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-zinc-600">Reasoning</div>
+            <p className="mt-2 text-sm leading-6 text-zinc-300">{decision.reasoning}</p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <DetailStat label="Priority" value={decision.priority} />
+            <DetailStat label="Status" value={decision.status} />
+            <DetailStat label="Project" value={decision.project.name} />
+          </div>
+
+          <div>
+            <div className="text-xs uppercase tracking-wider text-zinc-600">Evidence</div>
+            <pre className="mt-2 overflow-x-auto rounded-xl border border-white/8 bg-black/20 p-4 text-xs leading-5 text-zinc-400">{details(decision.evidence)}</pre>
+          </div>
+
+          <div>
+            <div className="text-xs uppercase tracking-wider text-zinc-600">Proposed actions</div>
+            <pre className="mt-2 overflow-x-auto rounded-xl border border-white/8 bg-black/20 p-4 text-xs leading-5 text-zinc-400">{details(decision.actions)}</pre>
+          </div>
+
+          {decision.status === 'PENDING' && (
+            <div className="flex gap-2 border-t border-white/8 pt-5">
+              <button onClick={onApprove} disabled={busy} className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50">
+                <Check className="size-4" />
+                Approve & execute
+              </button>
+              <button onClick={onReject} disabled={busy} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-300 hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-50">
+                <X className="size-4" />
+                Reject
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function DetailStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-white/8 bg-white/[0.025] p-4">
+      <div className="text-[10px] uppercase tracking-wider text-zinc-600">{label}</div>
+      <div className="mt-1 truncate text-sm text-zinc-300">{value}</div>
     </div>
   )
 }
