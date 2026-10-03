@@ -304,3 +304,18 @@ Decisions, worker execution, QA, releases, and failures should leave an inspecta
 ## Project status
 
 Forge is in active foundational development. The control plane, GitHub integration, agent decision flow, autonomous loops, specialized workers, audit system, and Hermes runtime integration are now in place and being extended toward a continuously operating AI software company.
+
+## Current runtime and autonomy additions
+
+Forge can now run without Hermes installed locally. Set `AGENT_RUNTIME="deterministic"` for a safe simulation runtime; set `AGENT_RUNTIME="hermes"` once Hermes is available. The deterministic runtime is intentionally side-effect-light: worker tasks can progress through the engineering/QA state machine without creating real pull requests.
+
+Additional control-plane capabilities now include:
+
+- **Workforce intelligence:** `GET /api/workforce` reports active work, blocked work, utilization and bottlenecks per employee.
+- **GitHub synchronization:** `POST /api/github/sync/projects/:projectId` reconciles open issues, pull requests, branches and recent commits with Forge task state.
+- **Agent runtime abstraction:** workers use a runtime interface rather than depending directly on Hermes.
+- **Memory lifecycle:** agents/system code can record facts, decisions and learnings into the Markdown/Obsidian-compatible memory tree.
+- **Worker simulation:** `POST /api/agents/worker/run-once` executes one worker cycle using the configured runtime.
+- **Memory location:** `FORGE_MEMORY_ROOT` can point Forge at an Obsidian vault or another persistent Markdown root.
+
+The dashboard design direction is now a dark Forge/Olympus command center with main-frame glow, grain/noise, agent color coding and motion. UI concept sketches live in `/sketches`.
