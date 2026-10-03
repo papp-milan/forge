@@ -25,7 +25,7 @@ export class PermissionPolicyService {
     if (!allowed || (!allowed.has('*') && !allowed.has(action.type))) {
       throw new ForbiddenException(`Agent ${agent} is not permitted to execute ${action.type}.`);
     }
-    if (action.type === 'RELEASE_FEATURE' && agent.toUpperCase() !== 'CEO') {
+    if (action.type === 'RELEASE_FEATURE' && !['CEO', 'SYSTEM'].includes(agent.toUpperCase())) {
       throw new ForbiddenException('Feature release execution is CEO-gated.');
     }
   }
