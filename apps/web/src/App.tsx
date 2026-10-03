@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Activity, AlertTriangle, Check, CircleDot, ExternalLink, Cpu, GitPullRequest,
   LayoutDashboard, RefreshCw, Sun, Moon, ShieldCheck, Users, X, Zap,
 } from 'lucide-react'
-import { api } from './api/client'
 import type { AuditEvent, Decision, Employee, Feature, Project, Task } from './types/forge'
 import { useForgeData } from './hooks/useForgeData'
 
