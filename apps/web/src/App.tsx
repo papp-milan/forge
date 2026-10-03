@@ -1232,7 +1232,7 @@ function Metric({
     >
       <div className="flex items-center justify-between">
         <div className="text-xs uppercase tracking-wider text-zinc-500">{label}</div>
-        <span className={emphasis ? 'text-amber-300' : 'text-zinc-500'}>{icon}</span>
+        <span className="text-zinc-500">{icon}</span>
       </div>
       <div className="mt-3 text-3xl font-semibold tracking-tight">{value}</div>
     </div>
