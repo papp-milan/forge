@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '../api/client'
 import type { AuditEvent, Decision, Employee, Feature, Project, Task } from '../types/forge'
 
@@ -11,18 +11,26 @@ export function useForgeData() {
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const activeController = useRef<AbortController | null>(null)
 
   const load = useCallback(async () => {
+    activeController.current?.abort()
+    const controller = new AbortController()
+    activeController.current = controller
     setLoading(true)
     setError(null)
+
     const results = await Promise.allSettled([
-      api<Project[]>('/api/projects'),
-      api<Decision[]>('/api/agent-decisions'),
-      api<Task[]>('/api/tasks'),
-      api<Feature[]>('/api/features'),
-      api<Employee[]>('/api/employees'),
-      api<AuditEvent[]>('/api/audit?limit=100'),
+      api<Project[]>('/api/projects', { signal: controller.signal }),
+      api<Decision[]>('/api/agent-decisions', { signal: controller.signal }),
+      api<Task[]>('/api/tasks', { signal: controller.signal }),
+      api<Feature[]>('/api/features', { signal: controller.signal }),
+      api<Employee[]>('/api/employees', { signal: controller.signal }),
+      api<AuditEvent[]>('/api/audit?limit=100', { signal: controller.signal }),
     ])
+
+    if (controller.signal.aborted) return
+
     const [projectResult, decisionResult, taskResult, featureResult, employeeResult, auditResult] = results
     if (results.some((result) => result.status === 'rejected')) setError('Some Forge services are unavailable.')
     if (projectResult.status === 'fulfilled') setProjects(projectResult.value)
@@ -35,17 +43,18 @@ export function useForgeData() {
   }, [])
 
   useEffect(() => {
-    // Initial synchronization intentionally hydrates several independent slices.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load()
+
     const refresh = () => {
       if (document.visibilityState === 'visible') void load()
     }
     const interval = window.setInterval(refresh, 30000)
     document.addEventListener('visibilitychange', refresh)
+
     return () => {
       window.clearInterval(interval)
       document.removeEventListener('visibilitychange', refresh)
+      activeController.current?.abort()
     }
   }, [load])
 
