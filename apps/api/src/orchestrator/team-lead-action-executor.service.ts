@@ -120,8 +120,6 @@ export class TeamLeadActionExecutorService {
       tasks: action.tasks,
     });
 
-    const execution = await this.teamLeadService.approveProposal(pitch.id);
-
     await this.memory.remember({
       scope: 'projects',
       subject: 'pitch-' + pitch.id,
@@ -133,12 +131,9 @@ export class TeamLeadActionExecutorService {
     });
 
     return {
-      status: execution.manpower.sufficient ? 'EXECUTED' : 'BLOCKED',
+      status: 'EXECUTED',
       actionType: action.type,
-      result: execution,
-      reason: execution.manpower.sufficient
-        ? undefined
-        : `Missing manpower: ${execution.manpower.missingRoles.join(', ')}`,
+      result: { pitchId: pitch.id, status: 'PENDING_APPROVAL' },
     };
   }
 
