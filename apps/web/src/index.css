@@ -146,3 +146,21 @@
 .forge-logo-mark{display:grid;place-items:center;width:36px;height:36px;border:1px solid rgba(255,255,255,.14);border-radius:10px;color:#08080a;background:linear-gradient(145deg,#fff,#aaa)}
 .forge-nav-active{background:linear-gradient(90deg,rgba(167,139,250,.12),rgba(167,139,250,.02));box-shadow:inset 2px 0 0 #a78bfa}
 .forge-topbar{background:rgba(7,7,10,.78);backdrop-filter:blur(20px)}
+
+body{overflow-x:hidden;background:radial-gradient(circle at 72% 4%,rgba(124,58,237,.1),transparent 28rem),radial-gradient(circle at 15% 82%,rgba(239,68,68,.055),transparent 24rem),#07070a}
+body:before{content:"";position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.025;background:repeating-linear-gradient(0deg,rgba(255,255,255,.8) 0,rgba(255,255,255,.8) 1px,transparent 1px,transparent 3px);mix-blend-mode:overlay}
+body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(circle at 50% 25%,black,transparent 72%)}
+.forge-live-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .45rem;border:1px solid rgba(52,211,153,.16);border-radius:999px;background:rgba(52,211,153,.035);color:#a7f3d0;font-size:8px;letter-spacing:.16em}
+.forge-action-button{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.025);transition:background 160ms ease,border-color 160ms ease,transform 160ms ease}
+.forge-action-button:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);transform:translateY(-1px)}
+.forge-hero{padding:clamp(1.25rem,3vw,2.5rem);border:1px solid rgba(255,255,255,.08);background:radial-gradient(circle at 86% 18%,rgba(167,139,250,.12),transparent 22rem),linear-gradient(135deg,rgba(255,255,255,.045),rgba(255,255,255,.012) 58%,rgba(255,255,255,.025));box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 30px 100px rgba(0,0,0,.2)}
+.forge-signal-panel{min-height:230px;padding:1rem;border-left:1px solid rgba(255,255,255,.07);background:radial-gradient(circle at 50% 45%,rgba(167,139,250,.07),transparent 65%)}
+.forge-ascii{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;letter-spacing:-.08em;animation:forge-flicker 5s ease-in-out infinite}
+.forge-scan-line{display:block;width:34px;height:1px;background:#a78bfa;box-shadow:0 0 12px #a78bfa;animation:forge-scan 2.2s ease-in-out infinite}
+.forge-status-pill{display:inline-flex;align-items:center;gap:.45rem;padding:.45rem .65rem;border:1px solid rgba(255,255,255,.07);border-radius:7px;background:rgba(255,255,255,.025);font-size:9px;letter-spacing:.12em;color:#777782}
+.forge-agent-chip{display:inline-flex;align-items:center;gap:.45rem;padding:.45rem .65rem;border:1px solid rgba(255,255,255,.07);border-radius:7px;background:rgba(255,255,255,.025);font-size:10px;text-transform:uppercase;letter-spacing:.08em;transition:transform 160ms ease,background 160ms ease}
+.forge-agent-chip:hover{transform:translateY(-2px);background:rgba(167,139,250,.07)}
+@keyframes forge-flicker{0%,100%{opacity:.78;transform:translateY(0)}50%{opacity:1;transform:translateY(-1px)}}
+@keyframes forge-scan{0%,100%{transform:scaleX(.65);opacity:.45}50%{transform:scaleX(1.35);opacity:1}}
+@media (max-width:1023px){.forge-signal-panel{border-left:0;border-top:1px solid rgba(255,255,255,.07);padding-top:1.5rem}}
+@media (prefers-reduced-motion:reduce){.forge-ascii,.forge-scan-line{animation:none}}
