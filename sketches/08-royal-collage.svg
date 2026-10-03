@@ -1,0 +1,23 @@
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+      <rect width="1200" height="760" fill="burgundy"/>
+      <pattern id="p" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M12 0V24M0 12H24" stroke="gold" stroke-width="1" opacity=".12"/></pattern>
+      <rect width="1200" height="760" fill="url(#p)"/>
+      <rect x="55" y="70" width="990" height="590" fill="cream" stroke="gold" stroke-width="12"/><polygon points="120,560 350,90 620,560" fill="gold" opacity=".92"/><circle cx="820" cy="270" r="165" fill="burgundy" stroke="gold" stroke-width="10"/>
+      <g font-family="Inter, Arial, sans-serif" fill="burgundy" font-weight="900">
+        <text x="92" y="140" font-size="28" letter-spacing="5">ROYAL COLLAGE</text>
+        <text x="92" y="235" font-size="92" transform="rotate(-3 92 235)">FORGE</text>
+        <text x="92" y="285" font-size="30" letter-spacing="8">AI COMPANY / CONTROL PLANE</text>
+      </g>
+      <g font-family="Inter, Arial, sans-serif" font-weight="900">
+        <text x="92" y="705" font-size="20" fill="cream" letter-spacing="4">ATHENA • APOLLO • HEPHAISTOS • ARTEMIS • NIKE • ATLAS</text>
+        <text x="1090" y="710" text-anchor="end" font-size="18" fill="gold">SKETCH 08</text>
+      </g>
+      <g font-family="monospace" fill="cream" opacity=".9">
+        <text x="540" y="410" font-size="24">PROJECTS</text><text x="540" y="450" font-size="20">ACTIVE / 04</text>
+        <text x="760" y="410" font-size="24">AGENTS</text><text x="760" y="450" font-size="20">ONLINE / 06</text>
+        <text x="540" y="515" font-size="24">DECISIONS</text><text x="540" y="555" font-size="20">WAITING / 02</text>
+        <text x="760" y="515" font-size="24">BUILD</text><text x="760" y="555" font-size="20">HEALTHY / 98%</text>
+      </g>
+      <path d="M0 720H1200" stroke="gold" stroke-width="4"/>
+    </svg>
