@@ -140,6 +140,15 @@ export class GovernanceService {
     return updated;
   }
 
+  async resolveHumanReview(reviewId: string, comment: string) {
+    const review = await this.prisma.governanceReview.findUnique({ where: { id: reviewId } });
+    if (!review) throw new NotFoundException('Governance review not found.');
+    if (review.status !== 'REQUIRES_HUMAN_REVIEW') throw new BadRequestException('Review is not awaiting human review.');
+    const resolved = await this.prisma.governanceReview.update({ where: { id: reviewId }, data: { status: 'RESOLVED', recommendation: (review.recommendation ?? '') + '\\n\\nHuman review: ' + comment } , include: { opinions: true, findings: true } });
+    await this.audit.record({ actor: 'ceo', type: 'GOVERNANCE_REVIEW_FINALIZED', projectId: review.projectId, entityType: 'governance_review', entityId: reviewId, summary: 'Governance review resolved by human authority', data: { comment } });
+    return resolved;
+  }
+
   async getReview(reviewId: string) {
     const review = await this.prisma.governanceReview.findUnique({
       where: { id: reviewId },
