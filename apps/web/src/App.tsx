@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import type { AuditEvent, Decision, Employee, Feature, Project, Task } from './types/forge'
 import { useForgeData } from './hooks/useForgeData'
+import { api } from './api/client'
 
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
 
