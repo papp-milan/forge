@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { HermesRuntimeService } from '../runtime/hermes-runtime.service.js';
+import { AgentRuntimeService } from '../runtime/hermes-runtime.service.js';
 import { WorkspaceService } from './workspace.service.js';
 import { AuditService } from '../audit/audit.service.js';
 
@@ -10,7 +10,7 @@ export interface QaResult { passed: boolean; summary: string; findings: string[]
 export class ArtemisService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly hermes: HermesRuntimeService,
+    private readonly runtime: AgentRuntimeService,
     private readonly workspaces: WorkspaceService,
     private readonly audit: AuditService,
   ) {}
@@ -29,7 +29,7 @@ export class ArtemisService {
     await this.audit.record({ actor: 'artemis', type: 'QA_STARTED', projectId: task.feature.projectId, entityType: 'task', entityId: task.id, summary: task.title, data: { repository: workspace.repository, branch: workspace.branch } });
 
     try {
-      const result = await this.hermes.run({ cwd: workspace.cwd, env: workspace.env, maxTurns: 40, prompt: this.buildPrompt(task) });
+      const result = await this.runtime.run({ cwd: workspace.cwd, env: workspace.env, maxTurns: 40, prompt: this.buildPrompt(task) });
       const qa = this.parseResult(result.text);
       await this.audit.record({ actor: 'artemis', type: qa.passed ? 'QA_PASSED' : 'QA_FAILED', projectId: task.feature.projectId, entityType: 'task', entityId: task.id, summary: qa.summary || task.title, data: { branch: workspace.branch, sessionId: result.sessionId, exitCode: result.exitCode, findings: qa.findings } });
 
