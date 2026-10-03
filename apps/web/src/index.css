@@ -1262,3 +1262,279 @@ main {
 .forge-theme-light .forge-character-poster__image {
   filter: saturate(1.05) contrast(1.05);
 }
+
+
+/* =========================================================
+   Final theme normalization — light mode must never inherit
+   dark utility surfaces from the original dashboard.
+   ========================================================= */
+.forge-theme-light .forge-shell,
+.forge-theme-light .forge-main,
+.forge-theme-light .forge-content {
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-main {
+  background:
+    radial-gradient(ellipse 55% 42% at 90% 4%, rgba(227,38,46,.075), transparent 70%),
+    radial-gradient(ellipse 45% 38% at 4% 82%, rgba(240,138,32,.055), transparent 70%),
+    #f3eadb !important;
+}
+
+.forge-theme-light .forge-topbar {
+  background: rgba(255,250,242,.97) !important;
+  color: #171411 !important;
+  border-bottom-color: rgba(23,20,17,.16) !important;
+}
+
+.forge-theme-light .forge-content::before {
+  color: rgba(23,20,17,.18) !important;
+}
+
+.forge-theme-light .forge-sidebar {
+  background: #efe5d5 !important;
+  color: #171411 !important;
+  border-right-color: rgba(23,20,17,.18) !important;
+}
+
+.forge-theme-light .forge-sidebar .text-zinc-500,
+.forge-theme-light .forge-sidebar .text-zinc-600 {
+  color: #655a50 !important;
+}
+
+/* Neutral Tailwind surfaces */
+.forge-theme-light .bg-white,
+.forge-theme-light [class~="bg-white"] {
+  background-color: #fffaf0 !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light .text-black,
+.forge-theme-light [class~="text-black"] {
+  color: #171411 !important;
+}
+
+.forge-theme-light .bg-\[\#111114\] {
+  background-color: #fffaf0 !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light [class*="bg-black/"] {
+  background-color: rgba(23,20,17,.055) !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light [class*="bg-white/"] {
+  background-color: rgba(23,20,17,.035) !important;
+}
+
+.forge-theme-light [class*="hover:bg-white/"]:hover {
+  background-color: rgba(23,20,17,.07) !important;
+}
+
+.forge-theme-light [class*="border-white/"] {
+  border-color: rgba(23,20,17,.14) !important;
+}
+
+.forge-theme-light [class*="divide-white/"] > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(23,20,17,.11) !important;
+}
+
+/* Typography */
+.forge-theme-light .text-white {
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-nav-item--active,
+.forge-theme-light .forge-nav-item--active .text-white,
+.forge-theme-light .forge-nav-item--active [class*="text-"] {
+  color: #fff !important;
+}
+
+.forge-theme-light [class*="text-zinc-100"] { color: #171411 !important; }
+.forge-theme-light [class*="text-zinc-200"] { color: #2f2924 !important; }
+.forge-theme-light [class*="text-zinc-300"] { color: #403831 !important; }
+.forge-theme-light [class*="text-zinc-400"] { color: #5f554b !important; }
+.forge-theme-light [class*="text-zinc-500"] { color: #71655a !important; }
+.forge-theme-light [class*="text-zinc-600"] { color: #837468 !important; }
+.forge-theme-light [class*="text-zinc-700"] { color: #65594f !important; }
+
+.forge-theme-light [class*="hover:text-white"]:hover {
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-nav-item--active:hover,
+.forge-theme-light .forge-nav-item--active:hover [class*="text-"] {
+  color: #fff !important;
+}
+
+/* Cards, panels and inline project/task surfaces */
+.forge-theme-light .forge-panel,
+.forge-theme-light .forge-metric,
+.forge-theme-light .forge-agent-pulse,
+.forge-theme-light .forge-agent-card,
+.forge-theme-light main section > div[class*="rounded-2xl"],
+.forge-theme-light main section > div[class*="rounded-xl"],
+.forge-theme-light .forge-content section[class*="rounded-2xl"],
+.forge-theme-light .forge-content section[class*="rounded-xl"] {
+  background: #fffaf0 !important;
+  color: #171411 !important;
+  border-color: rgba(23,20,17,.16) !important;
+}
+
+.forge-theme-light .forge-metric {
+  box-shadow: 7px 7px 0 rgba(23,20,17,.16) !important;
+}
+
+.forge-theme-light .forge-panel {
+  box-shadow: 8px 8px 0 rgba(23,20,17,.16) !important;
+}
+
+.forge-theme-light .forge-agent-pulse {
+  background: #171411 !important;
+  color: #fffaf0 !important;
+}
+
+.forge-theme-light .forge-agent-pulse .forge-agent-pulse__title {
+  border-bottom-color: rgba(255,255,255,.14) !important;
+}
+
+.forge-theme-light .forge-agent-pulse .forge-agent-pulse__agent {
+  border-right-color: rgba(255,255,255,.1) !important;
+}
+
+.forge-theme-light .forge-agent-pulse .forge-agent-pulse__meta {
+  background: rgba(255,255,255,.055) !important;
+  border-top-color: rgba(255,255,255,.12) !important;
+}
+
+.forge-theme-light .forge-agent-pulse .forge-kicker {
+  color: #ff6b72 !important;
+}
+
+.forge-theme-light .forge-agent-pulse__title > span {
+  color: #d7ff00 !important;
+}
+
+.forge-theme-light .forge-decision-row {
+  border-color: rgba(23,20,17,.1) !important;
+}
+
+.forge-theme-light .forge-decision-row:hover {
+  background: linear-gradient(90deg, rgba(227,38,46,.08), transparent 65%) !important;
+}
+
+/* Form controls */
+.forge-theme-light input,
+.forge-theme-light textarea,
+.forge-theme-light select,
+.forge-theme-light option {
+  background: #fffaf0 !important;
+  color: #171411 !important;
+  border-color: rgba(23,20,17,.2) !important;
+}
+
+.forge-theme-light option {
+  background: #fffaf0 !important;
+}
+
+.forge-theme-light pre {
+  background: #f0e6d7 !important;
+  color: #3b332d !important;
+}
+
+/* Modals and overlays */
+.forge-theme-light .forge-modal {
+  background: #fffaf0 !important;
+  color: #171411 !important;
+  border-color: #171411 !important;
+}
+
+.forge-theme-light .fixed.bg-black\/70,
+.forge-theme-light [class*="bg-black/70"] {
+  background: rgba(0,0,0,.58) !important;
+}
+
+.forge-theme-light .forge-character-poster {
+  color: #171411;
+}
+
+.forge-theme-light .forge-character-poster__image {
+  filter: saturate(1.08) contrast(1.04);
+}
+
+/* =========================================================
+   Character poster — use the reference's editorial/anime
+   composition instead of treating the artwork as an icon.
+   ========================================================= */
+.forge-character-poster {
+  min-height: 315px;
+  border: 2px solid #171717;
+  box-shadow: 8px 8px 0 #171717;
+  background: #f5ead8;
+}
+
+.forge-character-poster__art {
+  min-height: 225px;
+  height: 225px;
+  background:
+    radial-gradient(circle at 76% 22%, color-mix(in srgb, var(--agent-color) 45%, white), transparent 24%),
+    linear-gradient(135deg, #fffaf0 0 43%, color-mix(in srgb, var(--agent-color) 80%, #111) 43% 73%, #171717 73%);
+}
+
+.forge-character-poster__image {
+  width: 100%;
+  height: 100%;
+  min-height: 225px;
+  object-fit: cover;
+  object-position: center top;
+  mix-blend-mode: normal;
+  filter: saturate(1.08) contrast(1.06);
+}
+
+.forge-character-poster__art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(125deg, transparent 0 35%, rgba(255,255,255,.16) 36%, transparent 39%),
+    repeating-linear-gradient(0deg, transparent 0 7px, rgba(0,0,0,.08) 8px, transparent 9px);
+  mix-blend-mode: multiply;
+}
+
+.forge-character-poster__dialogue {
+  margin: -20px .75rem .8rem;
+  padding: .85rem 1rem .75rem;
+  background: #171717;
+  border: 2px solid #fff;
+  clip-path: polygon(0 9%, 94% 0, 100% 87%, 5% 100%);
+  box-shadow: 7px 7px 0 var(--agent-color);
+}
+
+.forge-character-poster__name {
+  font-size: .7rem;
+  font-weight: 950;
+}
+
+.forge-character-poster__line {
+  font-size: .82rem;
+  line-height: 1.25;
+}
+
+.forge-character-poster__burst {
+  z-index: 6;
+  top: 13px;
+  right: -3px;
+  background: #171717;
+  border: 2px solid #fff;
+  box-shadow: 4px 4px 0 var(--agent-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-character-poster,
+  .forge-character-poster__dialogue,
+  .forge-character-poster__burst {
+    transform: none;
+  }
+}
