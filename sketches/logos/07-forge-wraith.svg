@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><style>
+.bg{fill:#fff}.ink{fill:#0a0a0a}.accent{fill:#d7ff00}@media(prefers-color-scheme:dark){.bg{fill:#0a0a0a}.ink{fill:#fff}.accent{fill:#ffb000}}
+</style></defs><rect class="bg" width="512" height="512"/>
+<!-- ghosted smith -->
+<path class="ink" opacity=".18" d="M244 70h54v170h-54zM208 119c0-31 28-55 63-55s63 24 63 55-28 55-63 55-63-24-63-55z"/>
+<path class="ink" d="M222 102l34-37 34 37-13 57h-42z"/>
+<path class="ink" d="M195 180l61 24 61-24 24 118-45 14-19-69 6 75h-54l6-75-19 69-45-14z"/>
+<!-- raised hammer -->
+<path class="ink" d="M305 88l22-17 91 116-22 17z"/>
+<path class="accent" d="M383 78h59v31h-59z"/>
+<!-- anvil -->
+<path class="ink" d="M73 337h366l-31 48H104zM135 385h242l-27 42H162zM181 427h150l-23 34H204z"/>
+<path class="accent" d="M226 315h60l-14 22h-32z"/>
+</svg>
