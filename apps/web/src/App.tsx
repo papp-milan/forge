@@ -488,7 +488,12 @@ function Overview({
             const blocked = openTasks.some((task) => task.status === 'BLOCKED')
             const state: AgentAsciiState = employee.status !== 'ACTIVE' ? 'OFFLINE' : blocked ? 'BLOCKED' : openTasks.length ? 'WORKING' : 'SLEEPING'
             return (
-              <div key={employee.id} className="forge-agent-pulse__agent" style={{ '--agent-color': employee.color } as React.CSSProperties}>
+              <div
+  key={employee.id}
+  className="forge-agent-pulse__agent"
+  data-agent-state={state}
+  style={{ '--agent-color': employee.color } as React.CSSProperties}
+>
                 <AgentAscii role={employee.role} name={employee.name} state={state} color={employee.color} />
                 <div className="forge-agent-pulse__meta">
                   <strong>{employee.name}</strong>
