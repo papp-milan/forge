@@ -124,6 +124,19 @@ export class TeamLeadAgentService {
 
 
   private analyze(context: TeamLeadContext): TeamLeadDecision {
+    if (context.health.readyForRelease.length > 0) {
+      const feature = context.health.readyForRelease[0];
+      return {
+        type: 'RELEASE_FEATURE',
+        priority: 'HIGH',
+        title: 'Release QA-approved feature',
+        reasoning: 'A feature has completed task-level QA and is waiting for the CEO release gate.',
+        evidence: [`Feature "${feature.title}" is in QA and all tracked tasks are complete.`],
+        actions: [{ type: 'RELEASE_FEATURE', featureId: feature.id }],
+        requiresCeoApproval: true,
+      };
+    }
+
     if (context.signals.inconsistencies.length > 0) {
       return {
         type: 'ESCALATE',
@@ -158,7 +171,7 @@ export class TeamLeadAgentService {
               'Blocked tasks require investigation before additional work should be assigned.',
           },
         ],
-        requiresCeoApproval: false,
+        requiresCeoApproval: true,
       };
     }
 
