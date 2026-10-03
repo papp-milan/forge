@@ -53,6 +53,14 @@ export class AgentRunService {
     });
   }
 
+  async recoverStale(maxAgeMs = Math.max(Number(process.env['AGENT_RUN_STALE_MS'] ?? 900_000), 60_000)) {
+    const cutoff = new Date(Date.now() - maxAgeMs);
+    return this.prisma.agentRun.updateMany({
+      where: { status: 'RUNNING', startedAt: { lt: cutoff } },
+      data: { status: 'FAILED', error: 'Agent run exceeded the stale-run timeout.', completedAt: new Date() },
+    });
+  }
+
   async recentForTask(taskId: string, limit = 10) {
     return this.prisma.agentRun.findMany({ where: { taskId }, orderBy: { createdAt: 'desc' }, take: limit });
   }
