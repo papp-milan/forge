@@ -126,7 +126,7 @@ export class TeamLeadActionExecutorService {
       type: 'decision',
       source: 'team_lead',
       confidence: 'high',
-      content: 'Athena created and approved the pitch "' + action.title + '". Problem: ' +
+      content: 'Athena created the pitch "' + action.title + '". CEO approval is still required. Problem: ' +
         action.problem + ' Solution: ' + action.solution + ' Impact: ' + action.impact,
     });
 
