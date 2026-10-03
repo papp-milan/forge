@@ -14,6 +14,7 @@ import { AuditModule } from './audit/audit.module.js';
 import { RuntimeModule } from './runtime/runtime.module.js';
 import { AgentsModule } from './agents/agents.module.js';
 import { WorkforceModule } from './workforce/workforce.module.js';
+import { GovernanceModule } from './governance/governance.module.js';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { WorkforceModule } from './workforce/workforce.module.js';
     RuntimeModule,
     AgentsModule,
     WorkforceModule,
+    GovernanceModule,
   ],
   controllers: [AppController],
   providers: [AppService],
