@@ -53,6 +53,7 @@ enum TaskStatus {
 enum AgentDecisionStatus {
   PENDING
   APPROVED
+  EXECUTING
   REJECTED
   EXECUTED
   BLOCKED
@@ -258,6 +259,16 @@ model AgentDecision {
   @@index([status])
   @@index([agent])
   @@index([createdAt])
+}
+
+model RuntimeLease {
+  key       String   @id
+  owner     String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
 }
 
 model AgentRun {
