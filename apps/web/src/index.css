@@ -184,3 +184,19 @@ main button[class*="rounded-lg"]:hover:not(:disabled){transform:translateY(-1px)
 @keyframes forge-line{0%,100%{opacity:.25;transform:scaleX(.7)}50%{opacity:.8;transform:scaleX(1)}}
 @media(max-width:1023px){header:after{display:none}}
 @media(prefers-reduced-motion:reduce){header:after,main>div:before{animation:none}}
+
+@media(min-width:1024px){
+  aside{width:76px!important;overflow:hidden}
+  aside:hover{width:240px!important}
+  main{padding-left:76px!important}
+  aside>div:first-child>div:last-child,
+  aside nav button>span:nth-child(2),
+  aside nav button>span:nth-child(3),
+  aside>div:last-child>div{opacity:0;width:0;overflow:hidden;transition:opacity 140ms ease}
+  aside:hover>div:first-child>div:last-child,
+  aside:hover nav button>span:nth-child(2),
+  aside:hover nav button>span:nth-child(3),
+  aside:hover>div:last-child>div{opacity:1;width:auto}
+  aside nav button{justify-content:center!important}
+  aside:hover nav button{justify-content:flex-start!important}
+}
