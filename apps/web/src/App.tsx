@@ -80,7 +80,7 @@ type Decision = {
   project: Project
 }
 
-const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+const API = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:3000' : '')
 
 const DEFAULT_CREW: Employee[] = [
   { id: 'fallback-athena', name: 'Athena', role: 'TEAM_LEAD', status: 'ACTIVE', color: '#8b5cf6' },
