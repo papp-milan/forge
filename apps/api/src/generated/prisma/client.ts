@@ -61,3 +61,8 @@ export type Feature = Prisma.FeatureModel
  * 
  */
 export type Pitch = Prisma.PitchModel
+/**
+ * Model PitchReview
+ * 
+ */
+export type PitchReview = Prisma.PitchReviewModel

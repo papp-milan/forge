@@ -400,7 +400,8 @@ export const ModelName = {
   Project: 'Project',
   Employee: 'Employee',
   Feature: 'Feature',
-  Pitch: 'Pitch'
+  Pitch: 'Pitch',
+  PitchReview: 'PitchReview'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "project" | "employee" | "feature" | "pitch"
+    modelProps: "project" | "employee" | "feature" | "pitch" | "pitchReview"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -716,6 +717,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PitchReview: {
+      payload: Prisma.$PitchReviewPayload<ExtArgs>
+      fields: Prisma.PitchReviewFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PitchReviewFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchReviewPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PitchReviewFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchReviewPayload>
+        }
+        findFirst: {
+          args: Prisma.PitchReviewFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchReviewPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PitchReviewFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchReviewPayload>
+        }
+        findMany: {
+          args: Prisma.PitchReviewFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchReviewPayload>[]
+        }
+        create: {
+          args: Prisma.PitchReviewCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchReviewPayload>
+        }
+        createMany: {
+          args: Prisma.PitchReviewCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PitchReviewCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchReviewPayload>[]
+        }
+        delete: {
+          args: Prisma.PitchReviewDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchReviewPayload>
+        }
+        update: {
+          args: Prisma.PitchReviewUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchReviewPayload>
+        }
+        deleteMany: {
+          args: Prisma.PitchReviewDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PitchReviewUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PitchReviewUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchReviewPayload>[]
+        }
+        upsert: {
+          args: Prisma.PitchReviewUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchReviewPayload>
+        }
+        aggregate: {
+          args: Prisma.PitchReviewAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePitchReview>
+        }
+        groupBy: {
+          args: Prisma.PitchReviewGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PitchReviewGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PitchReviewCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PitchReviewCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -801,10 +876,22 @@ export const PitchScalarFieldEnum = {
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  featureId: 'featureId'
+  featureId: 'featureId',
+  projectId: 'projectId'
 } as const
 
 export type PitchScalarFieldEnum = (typeof PitchScalarFieldEnum)[keyof typeof PitchScalarFieldEnum]
+
+
+export const PitchReviewScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  comment: 'comment',
+  createdAt: 'createdAt',
+  pitchId: 'pitchId'
+} as const
+
+export type PitchReviewScalarFieldEnum = (typeof PitchReviewScalarFieldEnum)[keyof typeof PitchReviewScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -918,6 +1005,20 @@ export type EnumPitchStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'PitchStatus[]'
  */
 export type ListEnumPitchStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PitchStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PitchReviewAction'
+ */
+export type EnumPitchReviewActionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PitchReviewAction'>
+    
+
+
+/**
+ * Reference to a field of type 'PitchReviewAction[]'
+ */
+export type ListEnumPitchReviewActionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PitchReviewAction[]'>
     
 
 
@@ -1089,6 +1190,7 @@ export type GlobalOmitConfig = {
   employee?: Prisma.EmployeeOmit
   feature?: Prisma.FeatureOmit
   pitch?: Prisma.PitchOmit
+  pitchReview?: Prisma.PitchReviewOmit
 }
 
 /* Types for Logging */

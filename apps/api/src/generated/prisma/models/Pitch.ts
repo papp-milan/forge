@@ -33,6 +33,7 @@ export type PitchMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   featureId: string | null
+  projectId: string | null
 }
 
 export type PitchMaxAggregateOutputType = {
@@ -44,6 +45,7 @@ export type PitchMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   featureId: string | null
+  projectId: string | null
 }
 
 export type PitchCountAggregateOutputType = {
@@ -55,6 +57,7 @@ export type PitchCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   featureId: number
+  projectId: number
   _all: number
 }
 
@@ -68,6 +71,7 @@ export type PitchMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   featureId?: true
+  projectId?: true
 }
 
 export type PitchMaxAggregateInputType = {
@@ -79,6 +83,7 @@ export type PitchMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   featureId?: true
+  projectId?: true
 }
 
 export type PitchCountAggregateInputType = {
@@ -90,6 +95,7 @@ export type PitchCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   featureId?: true
+  projectId?: true
   _all?: true
 }
 
@@ -174,6 +180,7 @@ export type PitchGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   featureId: string | null
+  projectId: string
   _count: PitchCountAggregateOutputType | null
   _min: PitchMinAggregateOutputType | null
   _max: PitchMaxAggregateOutputType | null
@@ -206,7 +213,10 @@ export type PitchWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Pitch"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Pitch"> | Date | string
   featureId?: Prisma.StringNullableFilter<"Pitch"> | string | null
+  projectId?: Prisma.StringFilter<"Pitch"> | string
   feature?: Prisma.XOR<Prisma.FeatureNullableScalarRelationFilter, Prisma.FeatureWhereInput> | null
+  project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
+  reviews?: Prisma.PitchReviewListRelationFilter
 }
 
 export type PitchOrderByWithRelationInput = {
@@ -218,7 +228,10 @@ export type PitchOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   featureId?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   feature?: Prisma.FeatureOrderByWithRelationInput
+  project?: Prisma.ProjectOrderByWithRelationInput
+  reviews?: Prisma.PitchReviewOrderByRelationAggregateInput
 }
 
 export type PitchWhereUniqueInput = Prisma.AtLeast<{
@@ -233,7 +246,10 @@ export type PitchWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Pitch"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Pitch"> | Date | string
   featureId?: Prisma.StringNullableFilter<"Pitch"> | string | null
+  projectId?: Prisma.StringFilter<"Pitch"> | string
   feature?: Prisma.XOR<Prisma.FeatureNullableScalarRelationFilter, Prisma.FeatureWhereInput> | null
+  project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
+  reviews?: Prisma.PitchReviewListRelationFilter
 }, "id">
 
 export type PitchOrderByWithAggregationInput = {
@@ -245,6 +261,7 @@ export type PitchOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   featureId?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   _count?: Prisma.PitchCountOrderByAggregateInput
   _max?: Prisma.PitchMaxOrderByAggregateInput
   _min?: Prisma.PitchMinOrderByAggregateInput
@@ -262,6 +279,7 @@ export type PitchScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Pitch"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Pitch"> | Date | string
   featureId?: Prisma.StringNullableWithAggregatesFilter<"Pitch"> | string | null
+  projectId?: Prisma.StringWithAggregatesFilter<"Pitch"> | string
 }
 
 export type PitchCreateInput = {
@@ -273,6 +291,8 @@ export type PitchCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   feature?: Prisma.FeatureCreateNestedOneWithoutPitchesInput
+  project: Prisma.ProjectCreateNestedOneWithoutPitchesInput
+  reviews?: Prisma.PitchReviewCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateInput = {
@@ -284,6 +304,8 @@ export type PitchUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   featureId?: string | null
+  projectId: string
+  reviews?: Prisma.PitchReviewUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUpdateInput = {
@@ -295,6 +317,8 @@ export type PitchUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   feature?: Prisma.FeatureUpdateOneWithoutPitchesNestedInput
+  project?: Prisma.ProjectUpdateOneRequiredWithoutPitchesNestedInput
+  reviews?: Prisma.PitchReviewUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateInput = {
@@ -306,6 +330,8 @@ export type PitchUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   featureId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  reviews?: Prisma.PitchReviewUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchCreateManyInput = {
@@ -317,6 +343,7 @@ export type PitchCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   featureId?: string | null
+  projectId: string
 }
 
 export type PitchUpdateManyMutationInput = {
@@ -338,6 +365,7 @@ export type PitchUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   featureId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type PitchListRelationFilter = {
@@ -359,6 +387,7 @@ export type PitchCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   featureId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
 }
 
 export type PitchMaxOrderByAggregateInput = {
@@ -370,6 +399,7 @@ export type PitchMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   featureId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
 }
 
 export type PitchMinOrderByAggregateInput = {
@@ -381,6 +411,54 @@ export type PitchMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   featureId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
+}
+
+export type PitchScalarRelationFilter = {
+  is?: Prisma.PitchWhereInput
+  isNot?: Prisma.PitchWhereInput
+}
+
+export type PitchCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.PitchCreateWithoutProjectInput, Prisma.PitchUncheckedCreateWithoutProjectInput> | Prisma.PitchCreateWithoutProjectInput[] | Prisma.PitchUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutProjectInput | Prisma.PitchCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.PitchCreateManyProjectInputEnvelope
+  connect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
+}
+
+export type PitchUncheckedCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.PitchCreateWithoutProjectInput, Prisma.PitchUncheckedCreateWithoutProjectInput> | Prisma.PitchCreateWithoutProjectInput[] | Prisma.PitchUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutProjectInput | Prisma.PitchCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.PitchCreateManyProjectInputEnvelope
+  connect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
+}
+
+export type PitchUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.PitchCreateWithoutProjectInput, Prisma.PitchUncheckedCreateWithoutProjectInput> | Prisma.PitchCreateWithoutProjectInput[] | Prisma.PitchUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutProjectInput | Prisma.PitchCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.PitchUpsertWithWhereUniqueWithoutProjectInput | Prisma.PitchUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.PitchCreateManyProjectInputEnvelope
+  set?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
+  disconnect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
+  delete?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
+  connect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
+  update?: Prisma.PitchUpdateWithWhereUniqueWithoutProjectInput | Prisma.PitchUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.PitchUpdateManyWithWhereWithoutProjectInput | Prisma.PitchUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.PitchScalarWhereInput | Prisma.PitchScalarWhereInput[]
+}
+
+export type PitchUncheckedUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.PitchCreateWithoutProjectInput, Prisma.PitchUncheckedCreateWithoutProjectInput> | Prisma.PitchCreateWithoutProjectInput[] | Prisma.PitchUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutProjectInput | Prisma.PitchCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.PitchUpsertWithWhereUniqueWithoutProjectInput | Prisma.PitchUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.PitchCreateManyProjectInputEnvelope
+  set?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
+  disconnect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
+  delete?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
+  connect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
+  update?: Prisma.PitchUpdateWithWhereUniqueWithoutProjectInput | Prisma.PitchUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.PitchUpdateManyWithWhereWithoutProjectInput | Prisma.PitchUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.PitchScalarWhereInput | Prisma.PitchScalarWhereInput[]
 }
 
 export type PitchCreateNestedManyWithoutFeatureInput = {
@@ -429,6 +507,85 @@ export type EnumPitchStatusFieldUpdateOperationsInput = {
   set?: $Enums.PitchStatus
 }
 
+export type PitchCreateNestedOneWithoutReviewsInput = {
+  create?: Prisma.XOR<Prisma.PitchCreateWithoutReviewsInput, Prisma.PitchUncheckedCreateWithoutReviewsInput>
+  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutReviewsInput
+  connect?: Prisma.PitchWhereUniqueInput
+}
+
+export type PitchUpdateOneRequiredWithoutReviewsNestedInput = {
+  create?: Prisma.XOR<Prisma.PitchCreateWithoutReviewsInput, Prisma.PitchUncheckedCreateWithoutReviewsInput>
+  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutReviewsInput
+  upsert?: Prisma.PitchUpsertWithoutReviewsInput
+  connect?: Prisma.PitchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PitchUpdateToOneWithWhereWithoutReviewsInput, Prisma.PitchUpdateWithoutReviewsInput>, Prisma.PitchUncheckedUpdateWithoutReviewsInput>
+}
+
+export type PitchCreateWithoutProjectInput = {
+  id?: string
+  title: string
+  description: string
+  rationale?: string | null
+  status?: $Enums.PitchStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  feature?: Prisma.FeatureCreateNestedOneWithoutPitchesInput
+  reviews?: Prisma.PitchReviewCreateNestedManyWithoutPitchInput
+}
+
+export type PitchUncheckedCreateWithoutProjectInput = {
+  id?: string
+  title: string
+  description: string
+  rationale?: string | null
+  status?: $Enums.PitchStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  featureId?: string | null
+  reviews?: Prisma.PitchReviewUncheckedCreateNestedManyWithoutPitchInput
+}
+
+export type PitchCreateOrConnectWithoutProjectInput = {
+  where: Prisma.PitchWhereUniqueInput
+  create: Prisma.XOR<Prisma.PitchCreateWithoutProjectInput, Prisma.PitchUncheckedCreateWithoutProjectInput>
+}
+
+export type PitchCreateManyProjectInputEnvelope = {
+  data: Prisma.PitchCreateManyProjectInput | Prisma.PitchCreateManyProjectInput[]
+  skipDuplicates?: boolean
+}
+
+export type PitchUpsertWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.PitchWhereUniqueInput
+  update: Prisma.XOR<Prisma.PitchUpdateWithoutProjectInput, Prisma.PitchUncheckedUpdateWithoutProjectInput>
+  create: Prisma.XOR<Prisma.PitchCreateWithoutProjectInput, Prisma.PitchUncheckedCreateWithoutProjectInput>
+}
+
+export type PitchUpdateWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.PitchWhereUniqueInput
+  data: Prisma.XOR<Prisma.PitchUpdateWithoutProjectInput, Prisma.PitchUncheckedUpdateWithoutProjectInput>
+}
+
+export type PitchUpdateManyWithWhereWithoutProjectInput = {
+  where: Prisma.PitchScalarWhereInput
+  data: Prisma.XOR<Prisma.PitchUpdateManyMutationInput, Prisma.PitchUncheckedUpdateManyWithoutProjectInput>
+}
+
+export type PitchScalarWhereInput = {
+  AND?: Prisma.PitchScalarWhereInput | Prisma.PitchScalarWhereInput[]
+  OR?: Prisma.PitchScalarWhereInput[]
+  NOT?: Prisma.PitchScalarWhereInput | Prisma.PitchScalarWhereInput[]
+  id?: Prisma.StringFilter<"Pitch"> | string
+  title?: Prisma.StringFilter<"Pitch"> | string
+  description?: Prisma.StringFilter<"Pitch"> | string
+  rationale?: Prisma.StringNullableFilter<"Pitch"> | string | null
+  status?: Prisma.EnumPitchStatusFilter<"Pitch"> | $Enums.PitchStatus
+  createdAt?: Prisma.DateTimeFilter<"Pitch"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Pitch"> | Date | string
+  featureId?: Prisma.StringNullableFilter<"Pitch"> | string | null
+  projectId?: Prisma.StringFilter<"Pitch"> | string
+}
+
 export type PitchCreateWithoutFeatureInput = {
   id?: string
   title: string
@@ -437,6 +594,8 @@ export type PitchCreateWithoutFeatureInput = {
   status?: $Enums.PitchStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  project: Prisma.ProjectCreateNestedOneWithoutPitchesInput
+  reviews?: Prisma.PitchReviewCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateWithoutFeatureInput = {
@@ -447,6 +606,8 @@ export type PitchUncheckedCreateWithoutFeatureInput = {
   status?: $Enums.PitchStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  projectId: string
+  reviews?: Prisma.PitchReviewUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchCreateOrConnectWithoutFeatureInput = {
@@ -475,18 +636,114 @@ export type PitchUpdateManyWithWhereWithoutFeatureInput = {
   data: Prisma.XOR<Prisma.PitchUpdateManyMutationInput, Prisma.PitchUncheckedUpdateManyWithoutFeatureInput>
 }
 
-export type PitchScalarWhereInput = {
-  AND?: Prisma.PitchScalarWhereInput | Prisma.PitchScalarWhereInput[]
-  OR?: Prisma.PitchScalarWhereInput[]
-  NOT?: Prisma.PitchScalarWhereInput | Prisma.PitchScalarWhereInput[]
-  id?: Prisma.StringFilter<"Pitch"> | string
-  title?: Prisma.StringFilter<"Pitch"> | string
-  description?: Prisma.StringFilter<"Pitch"> | string
-  rationale?: Prisma.StringNullableFilter<"Pitch"> | string | null
-  status?: Prisma.EnumPitchStatusFilter<"Pitch"> | $Enums.PitchStatus
-  createdAt?: Prisma.DateTimeFilter<"Pitch"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Pitch"> | Date | string
-  featureId?: Prisma.StringNullableFilter<"Pitch"> | string | null
+export type PitchCreateWithoutReviewsInput = {
+  id?: string
+  title: string
+  description: string
+  rationale?: string | null
+  status?: $Enums.PitchStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  feature?: Prisma.FeatureCreateNestedOneWithoutPitchesInput
+  project: Prisma.ProjectCreateNestedOneWithoutPitchesInput
+}
+
+export type PitchUncheckedCreateWithoutReviewsInput = {
+  id?: string
+  title: string
+  description: string
+  rationale?: string | null
+  status?: $Enums.PitchStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  featureId?: string | null
+  projectId: string
+}
+
+export type PitchCreateOrConnectWithoutReviewsInput = {
+  where: Prisma.PitchWhereUniqueInput
+  create: Prisma.XOR<Prisma.PitchCreateWithoutReviewsInput, Prisma.PitchUncheckedCreateWithoutReviewsInput>
+}
+
+export type PitchUpsertWithoutReviewsInput = {
+  update: Prisma.XOR<Prisma.PitchUpdateWithoutReviewsInput, Prisma.PitchUncheckedUpdateWithoutReviewsInput>
+  create: Prisma.XOR<Prisma.PitchCreateWithoutReviewsInput, Prisma.PitchUncheckedCreateWithoutReviewsInput>
+  where?: Prisma.PitchWhereInput
+}
+
+export type PitchUpdateToOneWithWhereWithoutReviewsInput = {
+  where?: Prisma.PitchWhereInput
+  data: Prisma.XOR<Prisma.PitchUpdateWithoutReviewsInput, Prisma.PitchUncheckedUpdateWithoutReviewsInput>
+}
+
+export type PitchUpdateWithoutReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  rationale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumPitchStatusFieldUpdateOperationsInput | $Enums.PitchStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  feature?: Prisma.FeatureUpdateOneWithoutPitchesNestedInput
+  project?: Prisma.ProjectUpdateOneRequiredWithoutPitchesNestedInput
+}
+
+export type PitchUncheckedUpdateWithoutReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  rationale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumPitchStatusFieldUpdateOperationsInput | $Enums.PitchStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  featureId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type PitchCreateManyProjectInput = {
+  id?: string
+  title: string
+  description: string
+  rationale?: string | null
+  status?: $Enums.PitchStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  featureId?: string | null
+}
+
+export type PitchUpdateWithoutProjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  rationale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumPitchStatusFieldUpdateOperationsInput | $Enums.PitchStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  feature?: Prisma.FeatureUpdateOneWithoutPitchesNestedInput
+  reviews?: Prisma.PitchReviewUpdateManyWithoutPitchNestedInput
+}
+
+export type PitchUncheckedUpdateWithoutProjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  rationale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumPitchStatusFieldUpdateOperationsInput | $Enums.PitchStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  featureId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviews?: Prisma.PitchReviewUncheckedUpdateManyWithoutPitchNestedInput
+}
+
+export type PitchUncheckedUpdateManyWithoutProjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  rationale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumPitchStatusFieldUpdateOperationsInput | $Enums.PitchStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  featureId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PitchCreateManyFeatureInput = {
@@ -497,6 +754,7 @@ export type PitchCreateManyFeatureInput = {
   status?: $Enums.PitchStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  projectId: string
 }
 
 export type PitchUpdateWithoutFeatureInput = {
@@ -507,6 +765,8 @@ export type PitchUpdateWithoutFeatureInput = {
   status?: Prisma.EnumPitchStatusFieldUpdateOperationsInput | $Enums.PitchStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneRequiredWithoutPitchesNestedInput
+  reviews?: Prisma.PitchReviewUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateWithoutFeatureInput = {
@@ -517,6 +777,8 @@ export type PitchUncheckedUpdateWithoutFeatureInput = {
   status?: Prisma.EnumPitchStatusFieldUpdateOperationsInput | $Enums.PitchStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  reviews?: Prisma.PitchReviewUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateManyWithoutFeatureInput = {
@@ -527,8 +789,38 @@ export type PitchUncheckedUpdateManyWithoutFeatureInput = {
   status?: Prisma.EnumPitchStatusFieldUpdateOperationsInput | $Enums.PitchStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projectId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
+
+/**
+ * Count Type PitchCountOutputType
+ */
+
+export type PitchCountOutputType = {
+  reviews: number
+}
+
+export type PitchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  reviews?: boolean | PitchCountOutputTypeCountReviewsArgs
+}
+
+/**
+ * PitchCountOutputType without action
+ */
+export type PitchCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PitchCountOutputType
+   */
+  select?: Prisma.PitchCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * PitchCountOutputType without action
+ */
+export type PitchCountOutputTypeCountReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PitchReviewWhereInput
+}
 
 
 export type PitchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -540,7 +832,11 @@ export type PitchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   createdAt?: boolean
   updatedAt?: boolean
   featureId?: boolean
+  projectId?: boolean
   feature?: boolean | Prisma.Pitch$featureArgs<ExtArgs>
+  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  reviews?: boolean | Prisma.Pitch$reviewsArgs<ExtArgs>
+  _count?: boolean | Prisma.PitchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["pitch"]>
 
 export type PitchSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -552,7 +848,9 @@ export type PitchSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   createdAt?: boolean
   updatedAt?: boolean
   featureId?: boolean
+  projectId?: boolean
   feature?: boolean | Prisma.Pitch$featureArgs<ExtArgs>
+  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["pitch"]>
 
 export type PitchSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -564,7 +862,9 @@ export type PitchSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   createdAt?: boolean
   updatedAt?: boolean
   featureId?: boolean
+  projectId?: boolean
   feature?: boolean | Prisma.Pitch$featureArgs<ExtArgs>
+  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["pitch"]>
 
 export type PitchSelectScalar = {
@@ -576,23 +876,31 @@ export type PitchSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   featureId?: boolean
+  projectId?: boolean
 }
 
-export type PitchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "rationale" | "status" | "createdAt" | "updatedAt" | "featureId", ExtArgs["result"]["pitch"]>
+export type PitchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "rationale" | "status" | "createdAt" | "updatedAt" | "featureId" | "projectId", ExtArgs["result"]["pitch"]>
 export type PitchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   feature?: boolean | Prisma.Pitch$featureArgs<ExtArgs>
+  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  reviews?: boolean | Prisma.Pitch$reviewsArgs<ExtArgs>
+  _count?: boolean | Prisma.PitchCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PitchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   feature?: boolean | Prisma.Pitch$featureArgs<ExtArgs>
+  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
 export type PitchIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   feature?: boolean | Prisma.Pitch$featureArgs<ExtArgs>
+  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
 
 export type $PitchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Pitch"
   objects: {
     feature: Prisma.$FeaturePayload<ExtArgs> | null
+    project: Prisma.$ProjectPayload<ExtArgs>
+    reviews: Prisma.$PitchReviewPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -603,6 +911,7 @@ export type $PitchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     createdAt: Date
     updatedAt: Date
     featureId: string | null
+    projectId: string
   }, ExtArgs["result"]["pitch"]>
   composites: {}
 }
@@ -998,6 +1307,8 @@ readonly fields: PitchFieldRefs;
 export interface Prisma__PitchClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   feature<T extends Prisma.Pitch$featureArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$featureArgs<ExtArgs>>): Prisma.Prisma__FeatureClient<runtime.Types.Result.GetResult<Prisma.$FeaturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  reviews<T extends Prisma.Pitch$reviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PitchReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1035,6 +1346,7 @@ export interface PitchFieldRefs {
   readonly createdAt: Prisma.FieldRef<"Pitch", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Pitch", 'DateTime'>
   readonly featureId: Prisma.FieldRef<"Pitch", 'String'>
+  readonly projectId: Prisma.FieldRef<"Pitch", 'String'>
 }
     
 
@@ -1452,6 +1764,30 @@ export type Pitch$featureArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   include?: Prisma.FeatureInclude<ExtArgs> | null
   where?: Prisma.FeatureWhereInput
+}
+
+/**
+ * Pitch.reviews
+ */
+export type Pitch$reviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PitchReview
+   */
+  select?: Prisma.PitchReviewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PitchReview
+   */
+  omit?: Prisma.PitchReviewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PitchReviewInclude<ExtArgs> | null
+  where?: Prisma.PitchReviewWhereInput
+  orderBy?: Prisma.PitchReviewOrderByWithRelationInput | Prisma.PitchReviewOrderByWithRelationInput[]
+  cursor?: Prisma.PitchReviewWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PitchReviewScalarFieldEnum | Prisma.PitchReviewScalarFieldEnum[]
 }
 
 /**

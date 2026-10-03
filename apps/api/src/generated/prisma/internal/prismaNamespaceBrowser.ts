@@ -54,7 +54,8 @@ export const ModelName = {
   Project: 'Project',
   Employee: 'Employee',
   Feature: 'Feature',
-  Pitch: 'Pitch'
+  Pitch: 'Pitch',
+  PitchReview: 'PitchReview'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -119,10 +120,22 @@ export const PitchScalarFieldEnum = {
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  featureId: 'featureId'
+  featureId: 'featureId',
+  projectId: 'projectId'
 } as const
 
 export type PitchScalarFieldEnum = (typeof PitchScalarFieldEnum)[keyof typeof PitchScalarFieldEnum]
+
+
+export const PitchReviewScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  comment: 'comment',
+  createdAt: 'createdAt',
+  pitchId: 'pitchId'
+} as const
+
+export type PitchReviewScalarFieldEnum = (typeof PitchReviewScalarFieldEnum)[keyof typeof PitchReviewScalarFieldEnum]
 
 
 export const SortOrder = {

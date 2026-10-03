@@ -178,6 +178,23 @@ export type EnumPitchStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumPitchStatusFilter<$PrismaModel>
 }
 
+export type EnumPitchReviewActionFilter<$PrismaModel = never> = {
+  equals?: $Enums.PitchReviewAction | Prisma.EnumPitchReviewActionFieldRefInput<$PrismaModel>
+  in?: $Enums.PitchReviewAction[] | Prisma.ListEnumPitchReviewActionFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PitchReviewAction[] | Prisma.ListEnumPitchReviewActionFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPitchReviewActionFilter<$PrismaModel> | $Enums.PitchReviewAction
+}
+
+export type EnumPitchReviewActionWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PitchReviewAction | Prisma.EnumPitchReviewActionFieldRefInput<$PrismaModel>
+  in?: $Enums.PitchReviewAction[] | Prisma.ListEnumPitchReviewActionFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PitchReviewAction[] | Prisma.ListEnumPitchReviewActionFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPitchReviewActionWithAggregatesFilter<$PrismaModel> | $Enums.PitchReviewAction
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPitchReviewActionFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPitchReviewActionFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -353,6 +370,23 @@ export type NestedEnumPitchStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPitchStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPitchStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumPitchReviewActionFilter<$PrismaModel = never> = {
+  equals?: $Enums.PitchReviewAction | Prisma.EnumPitchReviewActionFieldRefInput<$PrismaModel>
+  in?: $Enums.PitchReviewAction[] | Prisma.ListEnumPitchReviewActionFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PitchReviewAction[] | Prisma.ListEnumPitchReviewActionFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPitchReviewActionFilter<$PrismaModel> | $Enums.PitchReviewAction
+}
+
+export type NestedEnumPitchReviewActionWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PitchReviewAction | Prisma.EnumPitchReviewActionFieldRefInput<$PrismaModel>
+  in?: $Enums.PitchReviewAction[] | Prisma.ListEnumPitchReviewActionFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PitchReviewAction[] | Prisma.ListEnumPitchReviewActionFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPitchReviewActionWithAggregatesFilter<$PrismaModel> | $Enums.PitchReviewAction
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPitchReviewActionFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPitchReviewActionFilter<$PrismaModel>
 }
 
 

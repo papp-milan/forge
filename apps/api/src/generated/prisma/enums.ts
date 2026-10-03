@@ -48,3 +48,12 @@ export const FeatureStatus = {
 } as const
 
 export type FeatureStatus = (typeof FeatureStatus)[keyof typeof FeatureStatus]
+
+
+export const PitchReviewAction = {
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CHANGES_REQUESTED: 'CHANGES_REQUESTED'
+} as const
+
+export type PitchReviewAction = (typeof PitchReviewAction)[keyof typeof PitchReviewAction]

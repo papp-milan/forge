@@ -46,6 +46,7 @@ model Project {
   updatedAt DateTime @updatedAt
 
   features Feature[]
+  pitches Pitch[]
 }
 
 model Employee {
@@ -86,4 +87,26 @@ model Pitch {
 
   featureId String?
   feature   Feature? @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  reviews PitchReview[]
+}
+
+enum PitchReviewAction {
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
+model PitchReview {
+  id        String            @id @default(cuid())
+  action    PitchReviewAction
+  comment   String?
+
+  createdAt DateTime @default(now())
+
+  pitchId String
+  pitch   Pitch @relation(fields: [pitchId], references: [id], onDelete: Cascade)
 }
