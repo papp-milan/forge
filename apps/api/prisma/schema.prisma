@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EmployeeRole {
+  TEAM_LEAD
+  UI_UX
+  ENGINEER
+  QA
+  DEVOPS
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PitchStatus {
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
+enum FeatureStatus {
+  PROPOSED
+  PLANNED
+  IN_PROGRESS
+  QA
+  READY_FOR_REVIEW
+  RELEASED
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  repository  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  features Feature[]
+}
+
+model Employee {
+  id          String         @id @default(cuid())
+  name        String
+  role        EmployeeRole
+  status      EmployeeStatus @default(ACTIVE)
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Feature {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  status      FeatureStatus @default(PROPOSED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  pitches Pitch[]
+}
+
+model Pitch {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  rationale   String?
+  status      PitchStatus @default(PENDING_APPROVAL)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  featureId String?
+  feature   Feature? @relation(fields: [featureId], references: [id], onDelete: Cascade)
+}
