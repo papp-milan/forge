@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+<rect width="1200" height="800" fill="#f7eddb"/><path d="M760 0h440v800H690z" fill="#172235"/><path d="M0 0h710l-120 800H0z" fill="#fffaf0"/>
+<text x="48" y="70" font-family="Arial Black,sans-serif" font-size="30">FORGE // CHARACTER SKETCH 04</text>
+<text x="48" y="105" font-family="monospace" font-size="17">APOLLO — UI / UX</text>
+<g>
+<path d="M355 180q65-75 128 5l-10 70-112 5z" fill="#151515"/>
+<path d="M378 198q42-38 84 0l-5 55-75 4z" fill="#d6ad8e"/>
+<path d="M353 170l22-45 33 31 41-52 48 64-48 14z" fill="#367bc5"/>
+<path d="M360 286l-45 142 68 29 43-107 48 110 74-26-67-151z" fill="#1c1c1c"/>
+<path d="M346 330l-96 62 27 38 101-69z" fill="#367bc5"/>
+<path d="M530 335l108 40-15 39-112-39z" fill="#151515"/>
+<path d="M405 456l-28 180h55l25-180zM470 456l20 180h55l-20-180z" fill="#151515"/>
+<path d="M382 635h68v18h-75zM490 635h65v18h-72z" fill="#367bc5"/>
+</g>
+<!-- design cards -->
+<rect x="780" y="165" width="270" height="175" rx="12" fill="#fff" stroke="#367bc5" stroke-width="7"/><rect x="805" y="195" width="105" height="16" fill="#367bc5"/><rect x="805" y="235" width="205" height="12" fill="#222"/><rect x="805" y="260" width="170" height="12" fill="#bbb"/><circle cx="1000" cy="300" r="18" fill="#e22"/>
+<path d="M90 620l600-58 22 170-585 68z" fill="#111"/>
+<path d="M115 620h190v52h-200z" fill="#367bc5"/>
+<text x="135" y="657" font-family="Arial Black,sans-serif" font-size="23" fill="#fff">APOLLO</text>
+<text x="135" y="705" font-family="Arial Black,sans-serif" font-size="27" fill="#fff">"Make it feel obvious. Then make it beautiful."</text>
+<text x="780" y="520" font-family="Arial Black,sans-serif" font-size="66" fill="#fff" transform="rotate(-7 780 520)">STYLE!</text>
+</svg>

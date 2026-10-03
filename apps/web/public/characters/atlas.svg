@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+<rect width="1200" height="800" fill="#f3ead9"/><path d="M0 0h1200v800H0z" fill="#fff9ee"/><path d="M700 0h500v800H610z" fill="#142b3d"/>
+<text x="48" y="70" font-family="Arial Black,sans-serif" font-size="30">FORGE // CHARACTER SKETCH 06</text>
+<text x="48" y="105" font-family="monospace" font-size="17">ATLAS — DEVOPS / INFRASTRUCTURE</text>
+<g>
+<path d="M350 178q70-74 134 5l-15 76-108 2z" fill="#151515"/>
+<path d="M375 198q43-38 87 0l-7 57-75 2z" fill="#b98b6b"/>
+<path d="M350 169l30-40 29 31 49-43 42 60-52 14z" fill="#2f82c9"/>
+<path d="M357 285l-58 146 74 25 45-110 49 112 76-26-72-152z" fill="#202020"/>
+<path d="M337 333l-95 48 20 43 107-52z" fill="#2f82c9"/>
+<path d="M535 332l125-24 10 45-126 31z" fill="#171717"/>
+<path d="M403 455l-28 181h55l24-181zM470 455l24 181h54l-23-181z" fill="#151515"/>
+<path d="M380 636h70v17h-76zM494 636h64l5 17h-73z" fill="#2f82c9"/>
+</g>
+<!-- infrastructure blocks -->
+<g fill="#2f82c9"><rect x="790" y="180" width="230" height="54"/><rect x="750" y="270" width="310" height="54"/><rect x="815" y="360" width="200" height="54"/></g>
+<g fill="#fff" font-family="monospace" font-size="20"><text x="815" y="214">CLUSTER: ONLINE</text><text x="780" y="304">DEPLOY: STABLE</text><text x="840" y="394">LOAD: 42%</text></g>
+<path d="M75 620l615-62 20 170-595 72z" fill="#111"/>
+<path d="M100 620h190v52H90z" fill="#2f82c9"/>
+<text x="120" y="657" font-family="Arial Black,sans-serif" font-size="23" fill="#fff">ATLAS</text>
+<text x="120" y="705" font-family="Arial Black,sans-serif" font-size="28" fill="#fff">"The pipeline is solid. Keep building."</text>
+<text x="790" y="650" font-family="Arial Black,sans-serif" font-size="68" fill="#fff" transform="rotate(-8 790 650)">HOLD.</text>
+</svg>

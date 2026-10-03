@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+<rect width="1200" height="800" fill="#f4ecdc"/><path d="M700 0h500v800H620z" fill="#17261e"/><path d="M0 0h680l-80 800H0z" fill="#fff9ed"/>
+<text x="48" y="70" font-family="Arial Black,sans-serif" font-size="30">FORGE // CHARACTER SKETCH 03</text>
+<text x="48" y="105" font-family="monospace" font-size="17">ARTEMIS — QA / QUALITY</text>
+<g>
+<path d="M360 175q65-70 125 5l-12 72-105-5z" fill="#1b1b1b"/>
+<path d="M382 195q40-36 82 2l-7 55-72-5z" fill="#ead7c0"/>
+<path d="M355 168l35-43 22 35 48-40 37 55-49 15z" fill="#2ca86b"/>
+<path d="M365 285l-50 145 66 28 45-110 48 112 72-26-64-151z" fill="#202020"/>
+<path d="M345 332l-112 30 12 42 123-27z" fill="#2ca86b"/>
+<path d="M528 340l105-20 10 42-116 25z" fill="#202020"/>
+<path d="M404 456l-24 180h54l22-180zM470 456l18 180h54l-19-180z" fill="#171717"/>
+<path d="M380 635h70v18h-76zM488 635h63l5 18h-73z" fill="#2ca86b"/>
+</g>
+<!-- inspection ring -->
+<circle cx="805" cy="300" r="125" fill="none" stroke="#2ca86b" stroke-width="18"/><circle cx="805" cy="300" r="72" fill="none" stroke="#fff" stroke-width="5"/>
+<path d="M760 302l28 28 65-76" fill="none" stroke="#2ca86b" stroke-width="18"/>
+<path d="M80 620l610-65 18 165-590 72z" fill="#111"/>
+<path d="M105 620h200v52H96z" fill="#2ca86b"/>
+<text x="125" y="657" font-family="Arial Black,sans-serif" font-size="23" fill="#fff">ARTEMIS</text>
+<text x="125" y="705" font-family="Arial Black,sans-serif" font-size="27" fill="#fff">"The feature is in testing. Don't ship yet."</text>
+<text x="755" y="540" font-family="Arial Black,sans-serif" font-size="60" fill="#fff" transform="rotate(-7 755 540)">CHECK.</text>
+</svg>

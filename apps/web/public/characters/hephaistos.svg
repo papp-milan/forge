@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+<rect width="1200" height="800" fill="#f7ecd9"/><path d="M0 0h1200v800H0z" fill="#fff8ea"/>
+<path d="M0 600L280 300l320 180-170 320H0z" fill="#e22"/><path d="M620 0h580v800H520z" fill="#151515"/>
+<text x="50" y="70" font-family="Arial Black,sans-serif" font-size="30">FORGE // CHARACTER SKETCH 02</text>
+<text x="50" y="105" font-family="monospace" font-size="17">HEPHAISTOS — ENGINEERING</text>
+<g>
+<path d="M375 180q70-70 137 4l-14 72-111 10z" fill="#171717"/>
+<path d="M392 194q43-35 87 3l-8 53-71 8z" fill="#b98767"/>
+<path d="M370 160l25-43 27 38 35-48 45 57-40 10z" fill="#e22"/>
+<path d="M362 286l-58 150 75 25 54-104 51 104 77-28-72-150z" fill="#242424"/>
+<path d="M304 360l-80 45 22 48 104-55z" fill="#e22"/>
+<path d="M530 365l125-80 24 42-124 95z" fill="#171717"/>
+<path d="M647 276l-18-65 29-9 30 69z" fill="#e22"/>
+<path d="M415 454l-25 180h55l23-180zM480 454l26 180h54l-28-180z" fill="#111"/>
+<path d="M390 635h64l-2 18h-72zM500 635h64l6 18h-75z" fill="#e22"/>
+</g>
+<!-- hammer -->
+<path d="M690 165l120 210" stroke="#e22" stroke-width="24"/><path d="M650 120h130v65H650z" fill="#171717" transform="rotate(28 715 150)"/>
+<path d="M715 370q100 50 160 0v80H715z" fill="#e22" opacity=".75"/>
+<path d="M70 620l600-55 20 170-590 50z" fill="#111"/>
+<path d="M95 620h220v52H85z" fill="#e22"/>
+<text x="110" y="657" font-family="Arial Black,sans-serif" font-size="23" fill="#fff">HEPHAISTOS</text>
+<text x="110" y="705" font-family="Arial Black,sans-serif" font-size="28" fill="#fff">"Give me the issue. I'll build the fix."</text>
+<text x="810" y="665" font-family="Arial Black,sans-serif" font-size="72" fill="#fff" transform="rotate(-8 810 665)">BUILD!</text>
+</svg>

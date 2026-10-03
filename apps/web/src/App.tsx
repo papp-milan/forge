@@ -640,17 +640,30 @@ const CHARACTER_DIALOGUE: Record<string, { line: string; action: string }> = {
 
 function CharacterPoster({ employee, state, openTasks, totalTasks }: { employee: Employee; state: AgentAsciiState; openTasks: number; totalTasks: number }) {
   const dialogue = CHARACTER_DIALOGUE[employee.name] ?? { line: 'Forge is waiting for the next move.', action: 'STANDBY' }
+  const characterSlug = employee.name.toLowerCase()
   return (
     <div className="forge-character-poster" style={{ '--agent-color': employee.color } as React.CSSProperties}>
       <div className="forge-character-poster__burst">{dialogue.action}!</div>
       <div className="forge-character-poster__art">
-        <div className="forge-character-poster__sun" />
-        <AgentAscii role={employee.role} name={employee.name} state={state} color={employee.color} />
+        <img
+          src={`/characters/${characterSlug}.svg`}
+          alt=""
+          className="forge-character-poster__image"
+        />
+        <div className="forge-character-poster__live">
+          <span className={`forge-agent-state forge-agent-state--${state.toLowerCase()}`}>
+            <span className="forge-agent-state__dot" />
+            {state}
+          </span>
+        </div>
       </div>
       <div className="forge-character-poster__dialogue">
         <div className="forge-character-poster__name">{employee.name}</div>
         <div className="forge-character-poster__line">“{dialogue.line}”</div>
-        <div className="forge-character-poster__meta"><span>{state}</span><span>{openTasks.toString().padStart(2, '0')} OPEN / {totalTasks.toString().padStart(2, '0')} TOTAL</span></div>
+        <div className="forge-character-poster__meta">
+          <span>{openTasks.toString().padStart(2, '0')} OPEN</span>
+          <span>{totalTasks.toString().padStart(2, '0')} TOTAL</span>
+        </div>
       </div>
     </div>
   )
