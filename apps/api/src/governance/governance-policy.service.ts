@@ -24,4 +24,8 @@ export class GovernancePolicyService {
   async hasBlockingReviews(projectId: string, subjectId: string) {
     return this.governance.hasBlockingReview(projectId, subjectId);
   }
+
+  async blockingReviewsForSubjects(projectId: string, subjectIds: string[]) {
+    return this.governance.blockingReviewsForSubjects(projectId, subjectIds);
+  }
 }
