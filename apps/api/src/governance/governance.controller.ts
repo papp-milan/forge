@@ -40,6 +40,11 @@ export class GovernanceController {
     return this.governance.addOpinion(reviewId, body);
   }
 
+  @Post('reviews/:reviewId/findings')
+  addFinding(@Param('reviewId') reviewId: string, @Body() body: { severity: string; category: string; title: string; description: string; remediation?: string }) {
+    return this.governance.addFinding(reviewId, body);
+  }
+
   @Post('reviews/:reviewId/finalize')
   finalizeReview(@Param('reviewId') reviewId: string, @Body() body: {
     recommendation: string;
