@@ -62,6 +62,101 @@ export class TeamLeadService {
       },
     });
   }
+ 
+  async approveProposal(pitchId: string, comment?: string) {
+    const pitch = await this.prisma.pitch.findUnique({
+      where: { id: pitchId },
+      include: { taskSuggestions: true },
+    });
+
+    if (!pitch) {
+      throw new BadRequestException('Pitch not found');
+    }
+
+    if (pitch.status !== 'PENDING_APPROVAL') {
+      throw new BadRequestException(
+        `Pitch cannot be approved from status ${pitch.status}`,
+      );
+    }
+
+    const employees = await this.prisma.employee.findMany({
+      where: { status: 'ACTIVE' },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return this.prisma.$transaction(async (tx) => {
+      const feature = await tx.feature.create({
+        data: {
+          title: pitch.title,
+          description: pitch.description,
+          projectId: pitch.projectId,
+          status: 'PLANNED',
+        },
+      });
+
+      const review = await tx.pitchReview.create({
+        data: {
+          action: 'APPROVED',
+          comment,
+          pitchId,
+        },
+      });
+
+      const assignedRoleCounts = new Map<string, number>();
+      const tasks = [];
+
+      for (const suggestion of pitch.taskSuggestions) {
+        const candidates = employees.filter(
+          (employee) => employee.role === suggestion.role,
+        );
+
+        const index = assignedRoleCounts.get(suggestion.role) ?? 0;
+        const employee = candidates[index % Math.max(candidates.length, 1)];
+
+        tasks.push(
+          await tx.task.create({
+            data: {
+              title: suggestion.title,
+              description: suggestion.description,
+              acceptanceCriteria: suggestion.acceptanceCriteria,
+              featureId: feature.id,
+              status: employee ? 'TODO' : 'BLOCKED',
+              assigneeId: employee?.id,
+            },
+            include: { assignee: true },
+          }),
+        );
+
+        if (employee) {
+          assignedRoleCounts.set(suggestion.role, index + 1);
+        }
+      }
+
+      const shortages = pitch.taskSuggestions
+        .filter(
+          (suggestion) =>
+            !employees.some((employee) => employee.role === suggestion.role),
+        )
+        .map((suggestion) => suggestion.role);
+
+      return {
+        pitch: await tx.pitch.update({
+          where: { id: pitchId },
+          data: {
+            status: 'APPROVED',
+            featureId: feature.id,
+          },
+        }),
+        feature,
+        tasks,
+        manpower: {
+          sufficient: shortages.length === 0,
+          missingRoles: [...new Set(shortages)],
+        },
+        review,
+      };
+    });
+  }
 
   async getRevisionContext(pitchId: string) {
     const pitch = await this.prisma.pitch.findUnique({
