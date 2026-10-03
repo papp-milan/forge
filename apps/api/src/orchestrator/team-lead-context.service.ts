@@ -100,7 +100,7 @@ export class TeamLeadContextService {
     );
 
     const readyForRelease = project.features
-      .filter((feature) => feature.status === 'QA')
+      .filter((feature) => feature.status === 'READY_FOR_REVIEW')
       .map((feature) => ({
         id: feature.id,
         title: feature.title,
