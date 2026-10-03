@@ -270,8 +270,8 @@ function App() {
 
         <div className="border-t border-white/8 p-4">
           <div className="flex items-center gap-2 text-xs text-zinc-500">
-            <span className="size-2 rounded-full bg-emerald-400" />
-            Control plane online
+            <span className={`size-2 rounded-full ${employees.length ? 'bg-emerald-400' : 'bg-red-400'}`} />
+            {employees.length ? `Crew online · ${employees.length} agents` : 'Crew offline · retrying'}
           </div>
         </div>
       </aside>
@@ -451,7 +451,7 @@ function Overview({
             <div className="forge-kicker">OLYMPUS / AGENT PULSE</div>
             <h2 className="mt-1 text-xl font-black uppercase tracking-[-0.04em]">The company is alive.</h2>
           </div>
-          <span>{employees.filter((employee) => employee.status === 'ACTIVE').length.toString().padStart(2, '0')} ACTIVE</span>
+          <span>{employees.filter((employee) => employee.status === 'ACTIVE').length.toString().padStart(2, '0')} ACTIVE · {employees.length.toString().padStart(2, '0')} CREW</span>
         </div>
         <div className="forge-agent-pulse__grid">
           {employees.slice(0, 6).map((employee) => {
