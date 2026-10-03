@@ -79,4 +79,18 @@ export class AgentRunService {
   async recentForTask(taskId: string, limit = 10) {
     return this.prisma.agentRun.findMany({ where: { taskId }, orderBy: { createdAt: 'desc' }, take: limit });
   }
+
+  async latestForTasks(taskIds: string[]) {
+    if (taskIds.length === 0) return new Map<string, Awaited<ReturnType<typeof this.recentForTask>>[number]>()
+
+    const runs = await this.prisma.agentRun.findMany({
+      where: { taskId: { in: taskIds } },
+      orderBy: { createdAt: 'desc' },
+    })
+    const latest = new Map<string, (typeof runs)[number]>()
+    for (const run of runs) {
+      if (run.taskId && !latest.has(run.taskId)) latest.set(run.taskId, run)
+    }
+    return latest
+  }
 }

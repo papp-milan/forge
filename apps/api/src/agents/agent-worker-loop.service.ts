@@ -66,6 +66,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     if (!(await this.lease.acquire('forge:agent-worker-loop'))) return;
 
     this.running = true;
+    this.github.beginCycle();
 
     try {
       await this.recoverStaleRuns();
@@ -85,6 +86,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         },
       });
     } finally {
+      this.github.endCycle();
       this.running = false;
       await this.lease.release('forge:agent-worker-loop');
     }
@@ -113,9 +115,10 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       include: { feature: { select: { projectId: true } } },
     });
 
+    const latestRuns = await this.agentRuns.latestForTasks(tasks.map((task) => task.id));
+
     for (const task of tasks) {
-      const runs = await this.agentRuns.recentForTask(task.id, 1);
-      const latest = runs[0];
+      const latest = latestRuns.get(task.id);
       if (!latest || latest.attempt >= latest.maxAttempts || latest.status !== 'FAILED') continue;
 
       await this.prisma.task.update({
@@ -149,10 +152,16 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       orderBy: { createdAt: 'asc' },
     });
 
+    const governanceByProject = new Map<string, Map<string, string[]>>();
+    for (const projectId of new Set(tasks.map((task) => task.feature.projectId))) {
+      const subjectIds = tasks.filter((task) => task.feature.projectId === projectId).map((task) => task.featureId);
+      governanceByProject.set(projectId, await this.governance.blockingReviewsForSubjects(projectId, [...new Set(subjectIds)]));
+    }
+
     for (const task of tasks) {
       if (task.branchName) continue;
 
-      if ((await this.governance.hasBlockingReviews(task.feature.projectId, task.featureId)).length > 0) continue;
+      if ((governanceByProject.get(task.feature.projectId)?.get(task.featureId)?.length ?? 0) > 0) continue;
 
       const repository = task.feature.project.repository;
       if (!repository) continue;
@@ -246,14 +255,21 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       },
     });
 
+    const latestRuns = await this.agentRuns.latestForTasks(tasks.map((task) => task.id));
+    const governanceByProject = new Map<string, Map<string, string[]>>();
+    for (const projectId of new Set(tasks.map((task) => task.feature.projectId))) {
+      const subjectIds = tasks.filter((task) => task.feature.projectId === projectId).map((task) => task.feature.id);
+      governanceByProject.set(projectId, await this.governance.blockingReviewsForSubjects(projectId, [...new Set(subjectIds)]));
+    }
+
     for (const task of tasks) {
-      if ((await this.governance.hasBlockingReviews(task.feature.projectId, task.feature.id)).length > 0) continue;
+      if ((governanceByProject.get(task.feature.projectId)?.get(task.feature.id)?.length ?? 0) > 0) continue;
       const run = await this.agentRuns.start({
         agent: task.assignee?.role === 'UI_UX' ? 'apollo' : 'hephaistos',
         kind: 'ENGINEERING',
         projectId: task.feature.projectId,
         taskId: task.id,
-        attempt: ((await this.agentRuns.recentForTask(task.id, 1))[0]?.attempt ?? 0) + 1,
+        attempt: (latestRuns.get(task.id)?.attempt ?? 0) + 1,
         context: { title: task.title, runtime: this.runtime.mode() },
       });
       try {
@@ -363,9 +379,15 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       include: { tasks: true },
     });
 
+    const governanceByProject = new Map<string, Map<string, string[]>>();
+    for (const projectId of new Set(features.map((feature) => feature.projectId))) {
+      const subjectIds = features.filter((feature) => feature.projectId === projectId).map((feature) => feature.id);
+      governanceByProject.set(projectId, await this.governance.blockingReviewsForSubjects(projectId, [...new Set(subjectIds)]));
+    }
+
     for (const feature of features) {
       if (feature.tasks.length === 0) continue;
-      if ((await this.governance.hasBlockingReviews(feature.projectId, feature.id)).length > 0) continue;
+      if ((governanceByProject.get(feature.projectId)?.get(feature.id)?.length ?? 0) > 0) continue;
 
       const hasActiveWork = feature.tasks.some((task) =>
         ['TODO', 'IN_PROGRESS', 'IN_REVIEW'].includes(task.status),

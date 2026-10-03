@@ -6,6 +6,8 @@ import { resolve } from 'node:path';
 @Injectable()
 export class GithubService {
   private readonly app: App;
+  private readonly cycleCache = new Map<string, unknown>();
+  private cycleActive = false;
 
   constructor() {
     const appId = process.env['GITHUB_APP_ID'];
@@ -30,6 +32,29 @@ export class GithubService {
     });
   }
 
+  beginCycle() {
+    this.cycleCache.clear();
+    this.cycleActive = true;
+  }
+
+  endCycle() {
+    this.cycleCache.clear();
+    this.cycleActive = false;
+  }
+
+  private async cached<T>(key: string, loader: () => Promise<T>): Promise<T> {
+    if (!this.cycleActive) return loader();
+    const existing = this.cycleCache.get(key);
+    if (existing !== undefined) return existing as T;
+    const value = await loader();
+    this.cycleCache.set(key, value);
+    return value;
+  }
+
+  private invalidateCycleCache() {
+    this.cycleCache.clear();
+  }
+
   private async getClient() {
     const installationId = process.env['GITHUB_INSTALLATION_ID'];
 
@@ -50,20 +75,17 @@ export class GithubService {
   }
 
   async getRepository(owner: string, repo: string) {
-    const octokit = await this.getClient();
-
-    const { data } = await octokit.request('GET /repos/{owner}/{repo}', {
-      owner,
-      repo,
+    return this.cached(`repository:${owner}/${repo}`, async () => {
+      const octokit = await this.getClient();
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}', { owner, repo });
+      return {
+        name: data.name,
+        fullName: data.full_name,
+        private: data.private,
+        url: data.html_url,
+        defaultBranch: data.default_branch,
+      };
     });
-
-    return {
-      name: data.name,
-      fullName: data.full_name,
-      private: data.private,
-      url: data.html_url,
-      defaultBranch: data.default_branch,
-    };
   }
 
   async getIssues(owner: string, repo: string) {
@@ -92,45 +114,30 @@ export class GithubService {
   }
 
   async getPullRequests(owner: string, repo: string, state: 'open' | 'closed' | 'all' = 'open') {
-    const octokit = await this.getClient();
-
-    const { data } = await octokit.request('GET /repos/{owner}/{repo}/pulls', {
-      owner,
-      repo,
-      state,
-      per_page: 100,
+    return this.cached(`pulls:${owner}/${repo}:${state}`, async () => {
+      const octokit = await this.getClient();
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/pulls', { owner, repo, state, per_page: 100 });
+      return data.map((pullRequest) => ({
+        number: pullRequest.number,
+        title: pullRequest.title,
+        state: pullRequest.state,
+        url: pullRequest.html_url,
+        branch: pullRequest.head.ref,
+        baseBranch: pullRequest.base.ref,
+        draft: pullRequest.draft,
+        merged: Boolean(pullRequest.merged_at),
+        createdAt: pullRequest.created_at,
+        updatedAt: pullRequest.updated_at,
+      }));
     });
-
-    return data.map((pullRequest) => ({
-      number: pullRequest.number,
-      title: pullRequest.title,
-      state: pullRequest.state,
-      url: pullRequest.html_url,
-      branch: pullRequest.head.ref,
-      baseBranch: pullRequest.base.ref,
-      draft: pullRequest.draft,
-      merged: Boolean(pullRequest.merged_at),
-      createdAt: pullRequest.created_at,
-      updatedAt: pullRequest.updated_at,
-    }));
   }
 
   async getBranches(owner: string, repo: string) {
-    const octokit = await this.getClient();
-
-    const { data } = await octokit.request(
-      'GET /repos/{owner}/{repo}/branches',
-      {
-        owner,
-        repo,
-        per_page: 50,
-      },
-    );
-
-    return data.map((branch) => ({
-      name: branch.name,
-      protected: branch.protected,
-    }));
+    return this.cached(`branches:${owner}/${repo}`, async () => {
+      const octokit = await this.getClient();
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/branches', { owner, repo, per_page: 50 });
+      return data.map((branch) => ({ name: branch.name, protected: branch.protected }));
+    });
   }
 
   async getRecentCommits(owner: string, repo: string, branch?: string) {
@@ -161,6 +168,7 @@ export class GithubService {
   }
 
   async createIssue(owner: string, repo: string, title: string, body?: string) {
+    this.invalidateCycleCache();
     const octokit = await this.getClient();
 
     const { data } = await octokit.request(
@@ -181,6 +189,7 @@ export class GithubService {
   }
 
   async createBranch(owner: string, repo: string, branchName: string) {
+    this.invalidateCycleCache();
     const octokit = await this.getClient();
 
     const { data: repository } = await octokit.request(
@@ -232,6 +241,7 @@ export class GithubService {
   }
 
   async mergePullRequest(owner: string, repo: string, pullNumber: number) {
+    this.invalidateCycleCache();
     const octokit = await this.getClient();
 
     const { data } = await octokit.request(
@@ -253,28 +263,16 @@ export class GithubService {
 
 
   async getPullRequestChecks(owner: string, repo: string, pullNumber: number) {
-    const octokit = await this.getClient();
-
-    const { data: pullRequest } = await octokit.request(
-      'GET /repos/{owner}/{repo}/pulls/{pull_number}',
-      { owner, repo, pull_number: pullNumber },
-    );
-
-    const { data } = await octokit.request(
-      'GET /repos/{owner}/{repo}/commits/{ref}/check-runs',
-      { owner, repo, ref: pullRequest.head.sha, per_page: 100 },
-    );
-
-    const checks = data.check_runs.map((check) => ({
-      name: check.name,
-      status: check.status,
-      conclusion: check.conclusion,
-    }));
-
-    return {
-      ready: checks.length > 0 && checks.every((check) => check.status === 'completed' && check.conclusion === 'success'),
-      checks,
-    };
+    return this.cached(`checks:${owner}/${repo}:${pullNumber}`, async () => {
+      const octokit = await this.getClient();
+      const { data: pullRequest } = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', { owner, repo, pull_number: pullNumber });
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', { owner, repo, ref: pullRequest.head.sha, per_page: 100 });
+      const checks = data.check_runs.map((check) => ({ name: check.name, status: check.status, conclusion: check.conclusion }));
+      return {
+        ready: checks.length > 0 && checks.every((check) => check.status === 'completed' && check.conclusion === 'success'),
+        checks,
+      };
+    });
   }
 
   async createPullRequest(

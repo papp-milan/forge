@@ -175,6 +175,29 @@ export class GovernanceService {
     });
   }
 
+  async blockingReviewsForSubjects(projectId: string, subjectIds: string[]) {
+    if (subjectIds.length === 0) return new Map<string, string[]>()
+
+    const reviews = await this.prisma.governanceReview.findMany({
+      where: {
+        projectId,
+        subjectId: { in: subjectIds },
+        status: { in: ['OPEN', 'DEBATING', 'REQUIRES_HUMAN_REVIEW'] },
+      },
+      select: { subjectId: true, id: true },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    const result = new Map<string, string[]>()
+    for (const review of reviews) {
+      if (!review.subjectId) continue
+      const existing = result.get(review.subjectId) ?? []
+      existing.push(review.id)
+      result.set(review.subjectId, existing)
+    }
+    return result
+  }
+
   async getReview(reviewId: string) {
     const review = await this.prisma.governanceReview.findUnique({
       where: { id: reviewId },

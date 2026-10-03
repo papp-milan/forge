@@ -5,6 +5,7 @@ import { TeamLeadAgentService } from './team-lead-agent.service.js';
 import { ReconciliationService } from '../reconciliation/reconciliation.service.js';
 import { LeaseService } from '../runtime/lease.service.js';
 import { AgentDecisionService } from './agent-decision.service.js';
+import { GithubService } from '../github/github.service.js';
 
 @Injectable()
 export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
@@ -24,6 +25,7 @@ export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly reconciliation: ReconciliationService,
     private readonly lease: LeaseService,
     private readonly decisions: AgentDecisionService,
+    private readonly github: GithubService,
   ) {}
 
   onModuleInit() {
@@ -50,6 +52,7 @@ export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
     if (!(await this.lease.acquire('forge:orchestrator-loop'))) return;
 
     this.running = true;
+    this.github.beginCycle();
 
     try {
       await this.decisions.recoverStaleExecuting();
@@ -77,6 +80,7 @@ export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
         }
       }
     } finally {
+      this.github.endCycle();
       this.running = false;
       await this.lease.release('forge:orchestrator-loop');
     }
