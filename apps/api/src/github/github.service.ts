@@ -40,6 +40,15 @@ export class GithubService {
     return this.app.getInstallationOctokit(Number(installationId));
   }
 
+  async getInstallationToken(): Promise<string> {
+    const octokit = await this.getClient();
+    const auth = await octokit.auth();
+    if (typeof auth !== 'object' || !('token' in auth) || typeof auth.token !== 'string') {
+      throw new Error('Unable to obtain GitHub installation token');
+    }
+    return auth.token;
+  }
+
   async getRepository(owner: string, repo: string) {
     const octokit = await this.getClient();
 
