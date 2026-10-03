@@ -14,6 +14,7 @@ export interface TeamLeadContext {
     tasksInReview: number;
     activeFeatures: number;
     pendingPitches: number;
+    readyForRelease: { id: string; title: string }[];
   };
 
   work: {
