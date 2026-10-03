@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Activity, AlertTriangle, Check, CircleDot, ExternalLink, Cpu, GitPullRequest,
   LayoutDashboard, RefreshCw, Sun, Moon, ShieldCheck, Users, X, Zap,
 } from 'lucide-react'
-import { api } from './api/client'
 import type { AuditEvent, Decision, Employee, Feature, Project, Task } from './types/forge'
+import { useForgeData } from './hooks/useForgeData'
+import { api } from './api/client'
 
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
 
@@ -29,14 +30,7 @@ const pathToView = (path: string): View => {
 }
 
 function App() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [decisions, setDecisions] = useState<Decision[]>([])
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [features, setFeatures] = useState<Feature[]>([])
-  const [employees, setEmployees] = useState<Employee[]>([])
-  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { projects, decisions, tasks, features, employees, auditEvents, loading, error, setError, load, pending } = useForgeData()
   const [busyId, setBusyId] = useState<string | null>(null)
   const viewOrder = VIEW_ORDER
   const [view, setView] = useState<View>(() => pathToView(window.location.pathname))
@@ -75,50 +69,6 @@ function App() {
   const [selectedDecision, setSelectedDecision] = useState<Decision | null>(null)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null)
-
-  const load = async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const results = await Promise.allSettled([
-        api<Project[]>('/api/projects'),
-        api<Decision[]>('/api/agent-decisions'),
-        api<Task[]>('/api/tasks'),
-        api<Feature[]>('/api/features'),
-        api<Employee[]>('/api/employees'),
-        api<AuditEvent[]>('/api/audit?limit=100'),
-      ])
-
-      const [projectResult, decisionResult, taskResult, featureResult, employeeResult, auditResult] = results
-      const firstFailure = results.find((result) => result.status === 'rejected')
-      if (firstFailure?.status === 'rejected') {
-        setError(firstFailure.reason instanceof Error ? firstFailure.reason.message : 'Some Forge services are unavailable.')
-      }
-
-      if (projectResult.status === 'fulfilled') setProjects(projectResult.value)
-      if (decisionResult.status === 'fulfilled') setDecisions(decisionResult.value)
-      if (taskResult.status === 'fulfilled') setTasks(taskResult.value)
-      if (featureResult.status === 'fulfilled') setFeatures(featureResult.value)
-      if (employeeResult.status === 'fulfilled') setEmployees(employeeResult.value)
-      if (auditResult.status === 'fulfilled') setAuditEvents(auditResult.value)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to load Forge state.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    // Initial data synchronization intentionally updates multiple state slices.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load()
-  }, [])
-
-  const pending = useMemo(
-    () => decisions.filter((decision) => decision.status === 'PENDING'),
-    [decisions],
-  )
 
   const runAthena = async (projectId: string) => {
     setBusyId(projectId)
