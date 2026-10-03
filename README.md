@@ -35,6 +35,7 @@ Team Lead    UI/UX   Engineering
 ## Current stack
 
 - **Web:** React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui, Base UI, Lucide, Inter
+- **Visual direction:** dark Forge/Olympus command center with grain, glow, agent-color accents and restrained motion
 - **API:** NestJS 12, TypeScript, ESM, PostgreSQL, Prisma 7
 - **Automation:** GitHub App, GitHub webhooks, GitHub Issues/branches/PRs
 - **Employees:** Athena, Apollo, Hephaistos, Artemis, Nike, Atlas — each with a stable role color
@@ -180,6 +181,8 @@ Run the API:
 ~~~bash
 pnpm dev:api
 ~~~
+
+The API development lifecycle automatically runs `prisma generate` and `prisma migrate deploy` before Nest starts, keeping the generated Prisma client and committed migrations aligned during local development.
 
 Run the web app:
 
