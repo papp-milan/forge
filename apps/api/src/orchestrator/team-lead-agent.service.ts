@@ -77,9 +77,10 @@ export class TeamLeadAgentService {
       'Analyze the supplied project context and return exactly one JSON object.',
       'Do not use markdown fences. Do not add commentary outside the JSON.',
       'The JSON must contain: type, priority, title, reasoning, evidence, actions, requiresCeoApproval.',
-      'Allowed types: NO_ACTION, CREATE_PITCH, INVESTIGATE, UPDATE_MEMORY, ESCALATE.',
+      'Allowed types: NO_ACTION, CREATE_PITCH, INVESTIGATE, UPDATE_MEMORY, ESCALATE, RELEASE_FEATURE.',
       'Allowed priorities: LOW, MEDIUM, HIGH, CRITICAL.',
-      'For CREATE_PITCH, action must contain title, description, problem, solution, impact, risks and tasks.',
+      'For CREATE_PITCH, action must contain title, description, problem, solution, impact, risks and tasks.'
+      ' For RELEASE_FEATURE, action must contain featureId and CEO approval is mandatory.',
       'Each task must contain title and role; role must be TEAM_LEAD, UI_UX, ENGINEER, QA or DEVOPS.',
       'Treat CEO approval as mandatory for consequential product decisions.',
       'Do not invent project facts. Base evidence only on the supplied context.',
