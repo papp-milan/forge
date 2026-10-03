@@ -91,14 +91,14 @@ export class GithubService {
       }));
   }
 
-  async getPullRequests(owner: string, repo: string) {
+  async getPullRequests(owner: string, repo: string, state: 'open' | 'closed' | 'all' = 'open') {
     const octokit = await this.getClient();
 
     const { data } = await octokit.request('GET /repos/{owner}/{repo}/pulls', {
       owner,
       repo,
-      state: 'open',
-      per_page: 20,
+      state,
+      per_page: 100,
     });
 
     return data.map((pullRequest) => ({
@@ -109,6 +109,7 @@ export class GithubService {
       branch: pullRequest.head.ref,
       baseBranch: pullRequest.base.ref,
       draft: pullRequest.draft,
+      merged: Boolean(pullRequest.merged_at),
       createdAt: pullRequest.created_at,
       updatedAt: pullRequest.updated_at,
     }));
