@@ -2034,3 +2034,51 @@ main {
     padding: 1rem !important;
   }
 }
+
+
+/* =========================================================
+   Agent pulse — final spacing, surface and shadow composition
+   ========================================================= */
+.forge-theme-light .forge-agent-pulse__grid {
+  column-gap: 2rem !important;
+  row-gap: 2rem !important;
+  padding: 1.5rem 2rem 1.75rem !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent {
+  background: #fffaf0 !important;
+  border-color: rgba(23,20,17,.16) !important;
+  box-shadow: 6px 6px 0 rgba(23,20,17,.16) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent:nth-child(1),
+.forge-theme-light .forge-agent-pulse__agent:nth-child(3),
+.forge-theme-light .forge-agent-pulse__agent:nth-child(6) {
+  border-color: color-mix(in srgb, var(--agent-color) 48%, #171411 18%) !important;
+  box-shadow: 7px 7px 0 var(--agent-color) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent .forge-ascii-agent {
+  background: #fffaf0 !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent .forge-ascii-agent pre {
+  background: transparent !important;
+  color: #171411 !important;
+}
+
+@media (max-width: 1200px) {
+  .forge-theme-light .forge-agent-pulse__grid {
+    column-gap: 1.5rem !important;
+    row-gap: 1.5rem !important;
+    padding: 1.25rem 1.5rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .forge-theme-light .forge-agent-pulse__grid {
+    column-gap: 1rem !important;
+    row-gap: 1rem !important;
+    padding: 1rem !important;
+  }
+}
