@@ -11,6 +11,25 @@ export class AgentDecisionService {
   ) {}
 
   async create(projectId: string, decision: TeamLeadDecision) {
+    const existing = await this.prisma.agentDecision.findFirst({
+      where: {
+        projectId,
+        agent: 'ATHENA',
+        type: decision.type,
+        title: decision.title,
+        status: {
+          in: decision.requiresCeoApproval
+            ? ['PENDING', 'APPROVED']
+            : ['APPROVED'],
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (existing) {
+      return this.get(existing.id);
+    }
+
     const status = decision.requiresCeoApproval ? 'PENDING' : 'APPROVED';
 
     return this.prisma.agentDecision.create({
