@@ -7,6 +7,7 @@ type Bucket = { count: number; resetAt: number };
 export class RateLimitGuard implements CanActivate {
   private readonly buckets = new Map<string, Bucket>();
   private lastCleanup = 0;
+  private readonly maxBuckets = 10_000;
 
   canActivate(context: ExecutionContext): boolean {
     const limit = Number(process.env['FORGE_RATE_LIMIT_PER_MINUTE'] ?? 300);
@@ -36,10 +37,16 @@ export class RateLimitGuard implements CanActivate {
       throw new HttpException('Rate limit exceeded. Try again later.', 429);
     }
 
-    if (now - this.lastCleanup > windowMs) {
+    if (now - this.lastCleanup > windowMs || this.buckets.size > this.maxBuckets) {
       this.lastCleanup = now;
       for (const [bucketKey, value] of this.buckets) {
         if (value.resetAt <= now) this.buckets.delete(bucketKey);
+      }
+      if (this.buckets.size > this.maxBuckets) {
+        const oldest = [...this.buckets.entries()]
+          .sort(([, left], [, right]) => left.resetAt - right.resetAt)
+          .slice(0, this.buckets.size - this.maxBuckets);
+        for (const [bucketKey] of oldest) this.buckets.delete(bucketKey);
       }
     }
 
