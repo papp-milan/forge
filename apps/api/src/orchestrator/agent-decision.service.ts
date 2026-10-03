@@ -128,15 +128,15 @@ export class AgentDecisionService {
       );
     }
 
-    const rejected = await this.prisma.agentDecision.update({
-      where: { id },
-      data: {
-        status: 'REJECTED',
-        rejectedAt: new Date(),
-        resolutionComment: comment,
-      },
-      include: { project: true },
+    const transitioned = await this.prisma.agentDecision.updateMany({
+      where: { id, status: 'PENDING' },
+      data: { status: 'REJECTED', rejectedAt: new Date(), resolutionComment: comment },
     });
+    if (transitioned.count !== 1) {
+      const current = await this.get(id);
+      throw new BadRequestException(`Decision was already resolved. Current status: ${current.status}`);
+    }
+    const rejected = await this.get(id);
 
     await this.audit.record({
       actor: 'ceo',
