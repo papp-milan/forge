@@ -147,8 +147,8 @@ export class TeamLeadActionExecutorService {
       throw new BadRequestException('Release feature does not belong to the project.');
     }
 
-    if (feature.status === 'QA') {
-      await this.features.approveQa(feature.id);
+    if (feature.status !== 'READY_FOR_REVIEW') {
+      throw new BadRequestException('Feature must be QA-approved and READY_FOR_REVIEW before release.');
     }
 
     const released = await this.features.release(feature.id);
