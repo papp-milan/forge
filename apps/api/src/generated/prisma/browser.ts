@@ -57,3 +57,8 @@ export type Task = Prisma.TaskModel
  * 
  */
 export type GithubWebhookEvent = Prisma.GithubWebhookEventModel
+/**
+ * Model AgentDecision
+ * 
+ */
+export type AgentDecision = Prisma.AgentDecisionModel

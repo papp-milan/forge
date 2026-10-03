@@ -404,7 +404,8 @@ export const ModelName = {
   PitchReview: 'PitchReview',
   PitchTaskSuggestion: 'PitchTaskSuggestion',
   Task: 'Task',
-  GithubWebhookEvent: 'GithubWebhookEvent'
+  GithubWebhookEvent: 'GithubWebhookEvent',
+  AgentDecision: 'AgentDecision'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -420,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "project" | "employee" | "feature" | "pitch" | "pitchReview" | "pitchTaskSuggestion" | "task" | "githubWebhookEvent"
+    modelProps: "project" | "employee" | "feature" | "pitch" | "pitchReview" | "pitchTaskSuggestion" | "task" | "githubWebhookEvent" | "agentDecision"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1016,6 +1017,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AgentDecision: {
+      payload: Prisma.$AgentDecisionPayload<ExtArgs>
+      fields: Prisma.AgentDecisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AgentDecisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentDecisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AgentDecisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentDecisionPayload>
+        }
+        findFirst: {
+          args: Prisma.AgentDecisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentDecisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AgentDecisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentDecisionPayload>
+        }
+        findMany: {
+          args: Prisma.AgentDecisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentDecisionPayload>[]
+        }
+        create: {
+          args: Prisma.AgentDecisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentDecisionPayload>
+        }
+        createMany: {
+          args: Prisma.AgentDecisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AgentDecisionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentDecisionPayload>[]
+        }
+        delete: {
+          args: Prisma.AgentDecisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentDecisionPayload>
+        }
+        update: {
+          args: Prisma.AgentDecisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentDecisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.AgentDecisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AgentDecisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AgentDecisionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentDecisionPayload>[]
+        }
+        upsert: {
+          args: Prisma.AgentDecisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentDecisionPayload>
+        }
+        aggregate: {
+          args: Prisma.AgentDecisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAgentDecision>
+        }
+        groupBy: {
+          args: Prisma.AgentDecisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentDecisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AgentDecisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentDecisionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1169,6 +1244,29 @@ export const GithubWebhookEventScalarFieldEnum = {
 } as const
 
 export type GithubWebhookEventScalarFieldEnum = (typeof GithubWebhookEventScalarFieldEnum)[keyof typeof GithubWebhookEventScalarFieldEnum]
+
+
+export const AgentDecisionScalarFieldEnum = {
+  id: 'id',
+  agent: 'agent',
+  type: 'type',
+  priority: 'priority',
+  title: 'title',
+  reasoning: 'reasoning',
+  evidence: 'evidence',
+  actions: 'actions',
+  requiresCeoApproval: 'requiresCeoApproval',
+  status: 'status',
+  projectId: 'projectId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  approvedAt: 'approvedAt',
+  rejectedAt: 'rejectedAt',
+  executedAt: 'executedAt',
+  resolutionComment: 'resolutionComment'
+} as const
+
+export type AgentDecisionScalarFieldEnum = (typeof AgentDecisionScalarFieldEnum)[keyof typeof AgentDecisionScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1358,6 +1456,27 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'AgentDecisionStatus'
+ */
+export type EnumAgentDecisionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentDecisionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AgentDecisionStatus[]'
+ */
+export type ListEnumAgentDecisionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentDecisionStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1529,6 +1648,7 @@ export type GlobalOmitConfig = {
   pitchTaskSuggestion?: Prisma.PitchTaskSuggestionOmit
   task?: Prisma.TaskOmit
   githubWebhookEvent?: Prisma.GithubWebhookEventOmit
+  agentDecision?: Prisma.AgentDecisionOmit
 }
 
 /* Types for Logging */

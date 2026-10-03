@@ -58,7 +58,8 @@ export const ModelName = {
   PitchReview: 'PitchReview',
   PitchTaskSuggestion: 'PitchTaskSuggestion',
   Task: 'Task',
-  GithubWebhookEvent: 'GithubWebhookEvent'
+  GithubWebhookEvent: 'GithubWebhookEvent',
+  AgentDecision: 'AgentDecision'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -191,6 +192,29 @@ export const GithubWebhookEventScalarFieldEnum = {
 } as const
 
 export type GithubWebhookEventScalarFieldEnum = (typeof GithubWebhookEventScalarFieldEnum)[keyof typeof GithubWebhookEventScalarFieldEnum]
+
+
+export const AgentDecisionScalarFieldEnum = {
+  id: 'id',
+  agent: 'agent',
+  type: 'type',
+  priority: 'priority',
+  title: 'title',
+  reasoning: 'reasoning',
+  evidence: 'evidence',
+  actions: 'actions',
+  requiresCeoApproval: 'requiresCeoApproval',
+  status: 'status',
+  projectId: 'projectId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  approvedAt: 'approvedAt',
+  rejectedAt: 'rejectedAt',
+  executedAt: 'executedAt',
+  resolutionComment: 'resolutionComment'
+} as const
+
+export type AgentDecisionScalarFieldEnum = (typeof AgentDecisionScalarFieldEnum)[keyof typeof AgentDecisionScalarFieldEnum]
 
 
 export const SortOrder = {

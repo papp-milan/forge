@@ -68,3 +68,15 @@ export const TaskStatus = {
 } as const
 
 export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus]
+
+
+export const AgentDecisionStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  EXECUTED: 'EXECUTED',
+  BLOCKED: 'BLOCKED',
+  FAILED: 'FAILED'
+} as const
+
+export type AgentDecisionStatus = (typeof AgentDecisionStatus)[keyof typeof AgentDecisionStatus]

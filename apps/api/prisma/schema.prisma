@@ -36,6 +36,29 @@ enum FeatureStatus {
   RELEASED
 }
 
+enum PitchReviewAction {
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  IN_REVIEW
+  DONE
+}
+
+enum AgentDecisionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXECUTED
+  BLOCKED
+  FAILED
+}
+
 model Project {
   id          String   @id @default(cuid())
   name        String
@@ -45,8 +68,9 @@ model Project {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  features Feature[]
-  pitches Pitch[]
+  features      Feature[]
+  pitches       Pitch[]
+  agentDecisions AgentDecision[]
 }
 
 model Employee {
@@ -75,8 +99,7 @@ model Feature {
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   pitches Pitch[]
-
-  tasks Task[]
+  tasks   Task[]
 }
 
 model Pitch {
@@ -99,14 +122,8 @@ model Pitch {
   featureId String?
   feature   Feature? @relation(fields: [featureId], references: [id], onDelete: Cascade)
 
-  reviews PitchReview[]
+  reviews        PitchReview[]
   taskSuggestions PitchTaskSuggestion[]
-}
-
-enum PitchReviewAction {
-  APPROVED
-  REJECTED
-  CHANGES_REQUESTED
 }
 
 model PitchReview {
@@ -121,11 +138,11 @@ model PitchReview {
 }
 
 model PitchTaskSuggestion {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
+  id                 String       @id @default(cuid())
+  title              String
+  description        String?
   acceptanceCriteria String?
-  role        EmployeeRole
+  role               EmployeeRole
 
   createdAt DateTime @default(now())
 
@@ -135,14 +152,6 @@ model PitchTaskSuggestion {
   @@index([pitchId])
 }
 
-enum TaskStatus {
-  TODO
-  IN_PROGRESS
-  BLOCKED
-  IN_REVIEW
-  DONE
-}
-
 model Task {
   id                 String     @id @default(cuid())
   title              String
@@ -150,11 +159,11 @@ model Task {
   acceptanceCriteria String?
   status             TaskStatus @default(TODO)
 
-  githubIssueNumber  Int?
-  githubIssueUrl     String?
-  branchName         String?
-  pullRequestNumber  Int?
-  pullRequestUrl     String?
+  githubIssueNumber Int?
+  githubIssueUrl    String?
+  branchName        String?
+  pullRequestNumber Int?
+  pullRequestUrl    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -175,10 +184,43 @@ model GithubWebhookEvent {
   payload    Json
 
   processedAt DateTime?
-  error      String?
+  error       String?
 
   createdAt DateTime @default(now())
 
   @@index([event])
+  @@index([createdAt])
+}
+
+model AgentDecision {
+  id String @id @default(cuid())
+
+  agent     String
+  type      String
+  priority  String
+  title     String
+  reasoning String
+
+  evidence Json
+  actions  Json
+
+  requiresCeoApproval Boolean
+  status               AgentDecisionStatus @default(PENDING)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  approvedAt DateTime?
+  rejectedAt DateTime?
+  executedAt DateTime?
+
+  resolutionComment String?
+
+  @@index([projectId])
+  @@index([status])
+  @@index([agent])
   @@index([createdAt])
 }

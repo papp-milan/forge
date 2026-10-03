@@ -315,6 +315,36 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type BoolFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
+}
+
+export type EnumAgentDecisionStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AgentDecisionStatus | Prisma.EnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AgentDecisionStatus[] | Prisma.ListEnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AgentDecisionStatus[] | Prisma.ListEnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAgentDecisionStatusFilter<$PrismaModel> | $Enums.AgentDecisionStatus
+}
+
+export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedBoolFilter<$PrismaModel>
+  _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type EnumAgentDecisionStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AgentDecisionStatus | Prisma.EnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AgentDecisionStatus[] | Prisma.ListEnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AgentDecisionStatus[] | Prisma.ListEnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAgentDecisionStatusWithAggregatesFilter<$PrismaModel> | $Enums.AgentDecisionStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAgentDecisionStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAgentDecisionStatusFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -600,6 +630,36 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type NestedBoolFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
+}
+
+export type NestedEnumAgentDecisionStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AgentDecisionStatus | Prisma.EnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AgentDecisionStatus[] | Prisma.ListEnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AgentDecisionStatus[] | Prisma.ListEnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAgentDecisionStatusFilter<$PrismaModel> | $Enums.AgentDecisionStatus
+}
+
+export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedBoolFilter<$PrismaModel>
+  _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type NestedEnumAgentDecisionStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AgentDecisionStatus | Prisma.EnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AgentDecisionStatus[] | Prisma.ListEnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AgentDecisionStatus[] | Prisma.ListEnumAgentDecisionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAgentDecisionStatusWithAggregatesFilter<$PrismaModel> | $Enums.AgentDecisionStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAgentDecisionStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAgentDecisionStatusFilter<$PrismaModel>
 }
 
 
