@@ -295,13 +295,24 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         continue;
       }
 
-      if (feature.tasks.every((task) => task.status === 'DONE')) {
-        if (feature.status !== 'READY_FOR_REVIEW') {
-          await this.prisma.feature.update({
-            where: { id: feature.id },
-            data: { status: 'READY_FOR_REVIEW' },
-          });
-        }
+      const allTasksDone = feature.tasks.every((task) => task.status === 'DONE');
+
+      if (allTasksDone && feature.status === 'IN_PROGRESS') {
+        // Reaching QA is an explicit lifecycle gate. Never let the worker
+        // jump directly from development to CEO release review.
+        await this.prisma.feature.update({
+          where: { id: feature.id },
+          data: { status: 'QA' },
+        });
+
+        await this.audit.record({
+          actor: 'artemis',
+          type: 'QA_GATE_READY',
+          projectId: feature.projectId,
+          entityType: 'feature',
+          entityId: feature.id,
+          summary: 'Feature "' + feature.title + '" is ready for QA',
+        });
       }
     }
   }
