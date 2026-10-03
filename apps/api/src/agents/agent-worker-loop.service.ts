@@ -6,6 +6,7 @@ import { HephaistosService } from './hephaistos.service.js';
 import { ArtemisService } from './artemis.service.js';
 import { ApolloService } from './apollo.service.js';
 import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
+import { AgentRunService } from './agent-run.service.js';
 
 @Injectable()
 export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
@@ -26,6 +27,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly apollo: ApolloService,
     private readonly audit: AuditService,
     private readonly runtime: AgentRuntimeService,
+    private readonly agentRuns: AgentRunService,
   ) {}
 
   onModuleInit() {
@@ -190,6 +192,13 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     });
 
     for (const task of tasks) {
+      const run = await this.agentRuns.start({
+        agent: task.assignee?.role === 'UI_UX' ? 'apollo' : 'hephaistos',
+        kind: 'ENGINEERING',
+        projectId: task.feature.projectId,
+        taskId: task.id,
+        context: { title: task.title, runtime: this.runtime.mode() },
+      });
       try {
         if (this.runtime.mode() === 'deterministic') {
           await this.prisma.task.update({ where: { id: task.id }, data: { status: 'IN_REVIEW' } });
@@ -202,6 +211,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
             summary: 'Deterministic worker simulation completed',
             data: { runtime: 'deterministic' },
           });
+          await this.agentRuns.complete(run.id, { status: 'IN_REVIEW', runtime: 'deterministic' });
           continue;
         }
 
@@ -210,7 +220,9 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         } else {
           await this.hephaistos.runTask(task.id);
         }
+        await this.agentRuns.complete(run.id, { status: 'COMPLETED' });
       } catch (error) {
+        await this.agentRuns.fail(run.id, error);
         await this.audit.record({
           actor: task.assignee?.role === 'UI_UX' ? 'apollo' : 'hephaistos',
           type: 'WORKER_FAILED',
@@ -240,6 +252,13 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     });
 
     for (const task of tasks) {
+      const run = await this.agentRuns.start({
+        agent: 'artemis',
+        kind: 'QA',
+        projectId: task.feature.projectId,
+        taskId: task.id,
+        context: { title: task.title, runtime: this.runtime.mode() },
+      });
       try {
         if (this.runtime.mode() === 'deterministic') {
           await this.prisma.task.update({ where: { id: task.id }, data: { status: 'DONE' } });
@@ -252,11 +271,15 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
             summary: 'Deterministic QA simulation passed',
             data: { runtime: 'deterministic' },
           });
+          await this.agentRuns.complete(run.id, { status: 'PASSED', runtime: 'deterministic' });
           continue;
         }
 
-        await this.artemis.reviewTask(task.id);
+        const result = await this.artemis.reviewTask(task.id);
+        if (result.status === 'PASSED') await this.agentRuns.complete(run.id, result);
+        else await this.agentRuns.block(run.id, 'QA review did not pass');
       } catch (error) {
+        await this.agentRuns.fail(run.id, error);
         await this.audit.record({
           actor: 'artemis',
           type: 'QA_FAILED',
