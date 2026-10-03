@@ -23,7 +23,7 @@ export class AgentRuntimeService {
     if (this.mode() === 'hermes') return this.hermes.run(options);
     return {
       sessionId: 'det-' + Date.now(),
-      text: 'Deterministic Forge runtime completed the worker simulation successfully.',
+      text: options.prompt.includes('Return exactly one JSON object') ? JSON.stringify({ passed: true, summary: 'Deterministic QA simulation passed the acceptance criteria.', findings: [] }) : 'Deterministic Forge runtime completed the worker simulation successfully.',
       exitCode: 0,
       durationMs: 25,
       tokens: { input: 0, output: 0, total: 0 },
