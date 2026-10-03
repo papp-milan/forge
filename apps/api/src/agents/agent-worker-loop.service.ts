@@ -114,7 +114,6 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     });
 
     for (const task of tasks) {
-      if ((await this.governance.hasBlockingReviews(task.feature.projectId, task.feature.id)).length > 0) continue;
       const runs = await this.agentRuns.recentForTask(task.id, 1);
       const latest = runs[0];
       if (!latest || latest.attempt >= latest.maxAttempts || latest.status !== 'FAILED') continue;
