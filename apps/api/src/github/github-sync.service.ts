@@ -40,7 +40,12 @@ export class GithubSyncService {
       if (pull) {
         data.pullRequestNumber = pull.number;
         data.pullRequestUrl = pull.url;
-        data.status = 'IN_REVIEW';
+
+        // A sync must never resurrect a completed task. Only active delivery
+        // states can be moved into review because a PR was discovered.
+        if (['TODO', 'IN_PROGRESS'].includes(task.status)) {
+          data.status = 'IN_REVIEW';
+        }
       }
       if (branch && !task.branchName) data.branchName = branch.name;
       if (Object.keys(data).length) {
