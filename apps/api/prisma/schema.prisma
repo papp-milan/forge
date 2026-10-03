@@ -67,6 +67,29 @@ enum AgentRunStatus {
   CANCELLED
 }
 
+enum GovernanceDomain {
+  ARCHITECTURE
+  PRIVACY
+  SECURITY
+  INFRASTRUCTURE
+  COST
+}
+
+enum GovernanceReviewStatus {
+  OPEN
+  DEBATING
+  RECOMMENDED
+  REQUIRES_HUMAN_REVIEW
+  RESOLVED
+}
+
+enum GovernanceOpinionStance {
+  SUPPORT
+  OPPOSE
+  CONDITIONAL
+  ABSTAIN
+}
+
 model Project {
   id          String   @id @default(cuid())
   name        String
@@ -80,6 +103,7 @@ model Project {
   pitches       Pitch[]
   agentDecisions AgentDecision[]
   agentRuns      AgentRun[]
+  governanceReviews GovernanceReview[]
 }
 
 model Employee {
@@ -259,4 +283,56 @@ model AgentRun {
   @@index([taskId, createdAt])
   @@index([status, createdAt])
   @@index([agent, kind, createdAt])
+}
+
+model GovernanceReview {
+  id                  String                 @id @default(cuid())
+  domain              GovernanceDomain
+  status              GovernanceReviewStatus @default(OPEN)
+  subjectType         String
+  subjectId           String?
+  title               String
+  context             Json
+  recommendation      String?
+  dissent             String?
+  requiresHumanReview Boolean                @default(false)
+  projectId           String
+  project             Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  opinions            GovernanceOpinion[]
+  findings            GovernanceFinding[]
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  @@index([projectId, createdAt])
+  @@index([status, createdAt])
+  @@index([domain, createdAt])
+}
+
+model GovernanceOpinion {
+  id         String                 @id @default(cuid())
+  agent      String
+  role       String
+  stance     GovernanceOpinionStance
+  rationale  String
+  evidence   Json
+  round      Int                    @default(1)
+  reviewId   String
+  review     GovernanceReview       @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  createdAt  DateTime               @default(now())
+
+  @@index([reviewId, round])
+}
+
+model GovernanceFinding {
+  id          String           @id @default(cuid())
+  severity    String
+  category    String
+  title       String
+  description String
+  remediation String?
+  reviewId    String
+  review      GovernanceReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  createdAt   DateTime         @default(now())
+
+  @@index([reviewId])
 }
