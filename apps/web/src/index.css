@@ -1544,3 +1544,227 @@ main {
   width: 100%;
   height: 100%;
 }
+
+
+/* =========================================================
+   Final visual pass — light mode, navigation and portrait roster
+   ========================================================= */
+
+/* The sidebar is intentionally expanded: labels are part of the HQ navigation. */
+@media (min-width: 1024px) {
+  .forge-sidebar {
+    width: 240px !important;
+  }
+
+  .forge-sidebar:hover {
+    width: 240px !important;
+  }
+
+  .forge-sidebar > div:first-child > div:last-child,
+  .forge-sidebar nav button > span:nth-child(2),
+  .forge-sidebar nav button > span:nth-child(3),
+  .forge-sidebar > div:last-child > div {
+    opacity: 1 !important;
+    width: auto !important;
+    overflow: visible !important;
+  }
+
+  .forge-sidebar nav button {
+    justify-content: flex-start !important;
+  }
+
+  .forge-main {
+    padding-left: 240px !important;
+  }
+}
+
+/* Light mode: neutral utility classes must stay light. */
+.forge-theme-light .bg-white,
+.forge-theme-light [class~="bg-white"] {
+  background-color: #fffaf0 !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light .text-black,
+.forge-theme-light [class~="text-black"] {
+  color: #171411 !important;
+}
+
+/* Replace dark translucent utility surfaces inside the actual page. */
+.forge-theme-light main [class*="bg-black/"] {
+  background-color: rgba(23,20,17,.045) !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light main [class*="text-white"] {
+  color: #171411 !important;
+}
+
+.forge-theme-light main [class*="border-white/"] {
+  border-color: rgba(23,20,17,.14) !important;
+}
+
+/* The agent pulse is deliberately a dark editorial strip, like the reference board. */
+.forge-theme-light .forge-agent-pulse,
+.forge-theme-light .forge-agent-pulse .forge-agent-pulse__meta {
+  color: #fffaf0 !important;
+}
+
+.forge-theme-light .forge-agent-pulse .forge-agent-pulse__meta {
+  background: rgba(255,255,255,.055) !important;
+}
+
+.forge-theme-light .forge-agent-pulse [class*="text-zinc-"] {
+  color: inherit !important;
+}
+
+/* Sidebar labels are always readable in light mode. */
+.forge-theme-light .forge-sidebar .forge-nav-item,
+.forge-theme-light .forge-sidebar .forge-nav-item span,
+.forge-theme-light .forge-sidebar .forge-nav-item svg {
+  color: #5b534a !important;
+  opacity: 1 !important;
+}
+
+.forge-theme-light .forge-sidebar .forge-nav-item:hover,
+.forge-theme-light .forge-sidebar .forge-nav-item:hover span,
+.forge-theme-light .forge-sidebar .forge-nav-item:hover svg {
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-sidebar .forge-nav-item--active,
+.forge-theme-light .forge-sidebar .forge-nav-item--active span,
+.forge-theme-light .forge-sidebar .forge-nav-item--active svg {
+  color: #fff !important;
+}
+
+/* Every light metric keeps the same graphic treatment, but its shadow is chromatic. */
+.forge-theme-light .forge-metric {
+  box-shadow: 7px 7px 0 var(--metric-shadow, #171411) !important;
+}
+
+.forge-theme-light .forge-metric:nth-child(1) {
+  --metric-shadow: var(--forge-cyan);
+  border-color: color-mix(in srgb, var(--forge-cyan) 35%, #171411) !important;
+}
+
+.forge-theme-light .forge-metric:nth-child(2) {
+  --metric-shadow: var(--forge-acid);
+  border-color: color-mix(in srgb, var(--forge-acid) 48%, #171411) !important;
+}
+
+.forge-theme-light .forge-metric:nth-child(3) {
+  --metric-shadow: var(--forge-cyan);
+  border-color: color-mix(in srgb, var(--forge-cyan) 35%, #171411) !important;
+}
+
+.forge-theme-light .forge-metric:nth-child(4) {
+  --metric-shadow: var(--forge-pink);
+  border-color: color-mix(in srgb, var(--forge-pink) 42%, #171411) !important;
+}
+
+.forge-theme-light .forge-metric:nth-child(5) {
+  --metric-shadow: var(--forge-orange);
+  border-color: color-mix(in srgb, var(--forge-orange) 35%, #171411) !important;
+}
+
+.forge-theme-light .forge-metric:nth-child(6) {
+  --metric-shadow: #e3262e;
+  border-color: rgba(227,38,46,.34) !important;
+}
+
+/* Give the larger overview panels the same poster-like offset language. */
+.forge-theme-light .forge-panel,
+.forge-theme-light .forge-content section.rounded-2xl {
+  box-shadow: 8px 8px 0 rgba(227,38,46,.28) !important;
+}
+
+.forge-theme-light .forge-content section.rounded-2xl:nth-of-type(2n) {
+  box-shadow: 8px 8px 0 rgba(25,230,255,.24) !important;
+}
+
+/* Employee cards are portrait posters. */
+.forge-agent-card {
+  min-height: 660px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.forge-agent-card > .forge-character-poster {
+  flex: 1;
+}
+
+.forge-theme-light .forge-agent-card {
+  box-shadow: 10px 10px 0 var(--agent-color) !important;
+  border-color: color-mix(in srgb, var(--agent-color) 42%, #171411) !important;
+}
+
+.forge-character-poster {
+  min-height: 555px;
+  display: flex;
+  flex-direction: column;
+  margin-top: .8rem;
+}
+
+.forge-character-poster__art {
+  height: 395px;
+  min-height: 395px;
+  flex: 0 0 395px;
+  background:
+    radial-gradient(circle at 78% 16%, color-mix(in srgb, var(--agent-color) 42%, white), transparent 28%),
+    linear-gradient(135deg, #fffaf0 0 40%, color-mix(in srgb, var(--agent-color) 78%, #111) 40% 72%, #171717 72%);
+}
+
+.forge-character-poster__art picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.forge-character-poster__image {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+}
+
+.forge-character-poster__dialogue {
+  flex: 1;
+  min-height: 125px;
+  margin: -18px .75rem .75rem;
+}
+
+@media (max-width: 1023px) {
+  .forge-agent-card {
+    min-height: 620px;
+  }
+
+  .forge-character-poster {
+    min-height: 520px;
+  }
+
+  .forge-character-poster__art {
+    height: 365px;
+    min-height: 365px;
+    flex-basis: 365px;
+  }
+}
+
+@media (max-width: 640px) {
+  .forge-agent-card {
+    min-height: 570px;
+  }
+
+  .forge-character-poster {
+    min-height: 485px;
+  }
+
+  .forge-character-poster__art {
+    height: 335px;
+    min-height: 335px;
+    flex-basis: 335px;
+  }
+}
