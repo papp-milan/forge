@@ -1,36 +1,34 @@
 import type { EmployeeRole } from '../generated/prisma/enums.js';
 
 export type TeamLeadDecisionType =
-  'NO_ACTION' | 'CREATE_PITCH' | 'INVESTIGATE' | 'UPDATE_MEMORY' | 'ESCALATE';
+  | 'NO_ACTION'
+  | 'CREATE_PITCH'
+  | 'INVESTIGATE'
+  | 'UPDATE_MEMORY'
+  | 'ESCALATE'
+  | 'RELEASE_FEATURE';
 
 export type TeamLeadPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
 export interface TeamLeadDecision {
   type: TeamLeadDecisionType;
   priority: TeamLeadPriority;
-
   title: string;
   reasoning: string;
-
   evidence: string[];
-
   actions: TeamLeadAction[];
-
   requiresCeoApproval: boolean;
 }
 
 export type TeamLeadAction =
   | {
       type: 'CREATE_PITCH';
-
       title: string;
       description: string;
-
       problem: string;
       solution: string;
       impact: string;
       risks?: string;
-
       tasks: TeamLeadPitchTask[];
     }
   | {
@@ -47,6 +45,10 @@ export type TeamLeadAction =
   | {
       type: 'ESCALATE';
       reason: string;
+    }
+  | {
+      type: 'RELEASE_FEATURE';
+      featureId: string;
     };
 
 export interface TeamLeadPitchTask {
