@@ -250,6 +250,32 @@ export class GithubService {
     };
   }
 
+
+  async getPullRequestChecks(owner: string, repo: string, pullNumber: number) {
+    const octokit = await this.getClient();
+
+    const { data: pullRequest } = await octokit.request(
+      'GET /repos/{owner}/{repo}/pulls/{pull_number}',
+      { owner, repo, pull_number: pullNumber },
+    );
+
+    const { data } = await octokit.request(
+      'GET /repos/{owner}/{repo}/commits/{ref}/check-runs',
+      { owner, repo, ref: pullRequest.head.sha, per_page: 100 },
+    );
+
+    const checks = data.check_runs.map((check) => ({
+      name: check.name,
+      status: check.status,
+      conclusion: check.conclusion,
+    }));
+
+    return {
+      ready: checks.length > 0 && checks.every((check) => check.status === 'completed' && check.conclusion === 'success'),
+      checks,
+    };
+  }
+
   async createPullRequest(
     owner: string,
     repo: string,
