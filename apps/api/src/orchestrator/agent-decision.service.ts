@@ -154,6 +154,10 @@ export class AgentDecisionService {
   async execute(id: string) {
     const decision = await this.get(id);
 
+    if (decision.status === 'EXECUTED') {
+      return { decision, results: [] };
+    }
+
     if (decision.status !== 'APPROVED') {
       throw new BadRequestException(
         `Only approved decisions can be executed. Current status: ${decision.status}`,
