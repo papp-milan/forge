@@ -1,0 +1,23 @@
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+      <rect width="1200" height="760" fill="paper"/>
+      <pattern id="p" width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="1.2" fill="black" opacity=".22"/></pattern>
+      <rect width="1200" height="760" fill="url(#p)"/>
+      <path d="M50 610L1040 70" stroke="black" stroke-width="2" opacity=".3"/><path d="M30 540L1000 40M110 680L1070 180M-10 460L900 0" stroke="black" stroke-width="3" opacity=".22"/><polygon points="80,90 700,40 980,300 690,640 80,560" fill="black" stroke="paper" stroke-width="10"/>
+      <g font-family="Inter, Arial, sans-serif" fill="paper" font-weight="900">
+        <text x="92" y="140" font-size="28" letter-spacing="5">MANGA ACTION BOARD</text>
+        <text x="92" y="235" font-size="92" transform="rotate(-3 92 235)">FORGE</text>
+        <text x="92" y="285" font-size="30" letter-spacing="8">AI COMPANY / CONTROL PLANE</text>
+      </g>
+      <g font-family="Inter, Arial, sans-serif" font-weight="900">
+        <text x="92" y="705" font-size="20" fill="black" letter-spacing="4">ATHENA • APOLLO • HEPHAISTOS • ARTEMIS • NIKE • ATLAS</text>
+        <text x="1090" y="710" text-anchor="end" font-size="18" fill="red">SKETCH 06</text>
+      </g>
+      <g font-family="monospace" fill="black" opacity=".9">
+        <text x="540" y="410" font-size="24">PROJECTS</text><text x="540" y="450" font-size="20">ACTIVE / 04</text>
+        <text x="760" y="410" font-size="24">AGENTS</text><text x="760" y="450" font-size="20">ONLINE / 06</text>
+        <text x="540" y="515" font-size="24">DECISIONS</text><text x="540" y="555" font-size="20">WAITING / 02</text>
+        <text x="760" y="515" font-size="24">BUILD</text><text x="760" y="555" font-size="20">HEALTHY / 98%</text>
+      </g>
+      <path d="M0 720H1200" stroke="red" stroke-width="4"/>
+    </svg>
