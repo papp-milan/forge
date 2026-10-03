@@ -80,7 +80,7 @@ type Decision = {
   project: Project
 }
 
-const API = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:3000' : '')
+const API = import.meta.env.VITE_API_URL ?? ''
 
 const DEFAULT_CREW: Employee[] = [
   { id: 'fallback-athena', name: 'Athena', role: 'TEAM_LEAD', status: 'ACTIVE', color: '#8b5cf6' },
@@ -476,7 +476,7 @@ function Overview({
             const state: AgentAsciiState = employee.status !== 'ACTIVE' ? 'OFFLINE' : blocked ? 'BLOCKED' : openTasks.length ? 'WORKING' : 'SLEEPING'
             return (
               <div key={employee.id} className="forge-agent-pulse__agent" style={{ '--agent-color': employee.color } as React.CSSProperties}>
-                <AgentAscii role={employee.role} state={state} color={employee.color} />
+                <AgentAscii role={employee.role} name={employee.name} state={state} color={employee.color} />
                 <div className="forge-agent-pulse__meta">
                   <strong>{employee.name}</strong>
                   <span>{state} · {openTasks.length.toString().padStart(2, '0')} TASKS</span>
@@ -777,6 +777,18 @@ const AGENT_ASCII: Record<string, Record<AgentAsciiState, string[]>> = {
   /| - - |\\`,
     ],
   },
+  NIKE: {
+    SLEEPING: ['    /\\\\', ' .-[ -.- ]-.  Zz', ' /==/===\\\\==\\\\'],
+    WORKING: ['    /\\\\', ' .-[ o.o ]-==>  *', ' /==/###\\\\==\\\\'],
+    BLOCKED: ['    /\\\\', ' .-[ x.x ]-!!>  !', ' /==/XXX\\\\==\\\\'],
+    OFFLINE: ['    /\\\\', ' .-[ -.- ]-.  ·', ' /==/---\\\\==\\\\'],
+  },
+  ATLAS: {
+    SLEEPING: ['   .--------.', ' __|  -.-  |__  Zz', '/___|__==__|___\\\\'],
+    WORKING: ['   .--------.', ' __|  O.O  |__  ##', '/___|_####_|___\\\\'],
+    BLOCKED: ['   .--------.', ' __|  X.X  |__ !!!', '/___|_XXXX_|___\\\\'],
+    OFFLINE: ['   .--------.', ' __|  -.-  |__  ·', '/___|______|___\\\\'],
+  },
   DEVOPS: {
     SLEEPING: [
       `  [======]
@@ -812,8 +824,8 @@ const AGENT_ASCII: Record<string, Record<AgentAsciiState, string[]>> = {
     ],
   },
 }
-function AgentAscii({ role, state, color }: { role: string; state: AgentAsciiState; color: string }) {
-  const frames = AGENT_ASCII[role]?.[state] ?? AGENT_ASCII.DEVOPS[state]
+function AgentAscii({ role, name, state, color }: { role: string; name?: string; state: AgentAsciiState; color: string }) {
+  const frames = role === 'DEVOPS' && name === 'Nike' ? AGENT_ASCII.NIKE[state] : role === 'DEVOPS' && name === 'Atlas' ? AGENT_ASCII.ATLAS[state] : AGENT_ASCII[role]?.[state] ?? AGENT_ASCII.DEVOPS[state]
   const [frame, setFrame] = useState(0)
 
   useEffect(() => {
