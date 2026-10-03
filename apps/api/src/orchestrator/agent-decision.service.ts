@@ -79,15 +79,16 @@ export class AgentDecisionService {
       );
     }
 
-    return this.prisma.agentDecision.update({
+    await this.prisma.agentDecision.update({
       where: { id },
       data: {
         status: 'APPROVED',
         approvedAt: new Date(),
         resolutionComment: comment,
       },
-      include: { project: true },
     });
+
+    return this.execute(id);
   }
 
   async reject(id: string, comment?: string) {
