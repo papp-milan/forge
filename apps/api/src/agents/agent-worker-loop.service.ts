@@ -4,6 +4,7 @@ import { GithubService } from '../github/github.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { HephaistosService } from './hephaistos.service.js';
 import { ArtemisService } from './artemis.service.js';
+import { ApolloService } from './apollo.service.js';
 
 @Injectable()
 export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
@@ -21,6 +22,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly github: GithubService,
     private readonly hephaistos: HephaistosService,
     private readonly artemis: ArtemisService,
+    private readonly apollo: ApolloService,
     private readonly audit: AuditService,
   ) {}
 
@@ -72,7 +74,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     const tasks = await this.prisma.task.findMany({
       where: {
         status: { in: ['TODO', 'IN_PROGRESS'] },
-        assignee: { role: 'ENGINEER', status: 'ACTIVE' },
+        assignee: { role: { in: ['ENGINEER', 'UI_UX'] }, status: 'ACTIVE' },
         feature: {
           project: {
             repository: { not: null },
@@ -102,7 +104,37 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       try {
         const branchName = `forge/task-${task.id}`;
 
-        await this.github.createBranch(owner, repo, branchName);
+        if (!task.githubIssueNumber) {
+          const issue = await this.github.createIssue(
+            owner,
+            repo,
+            task.title,
+            [
+              task.description ? `## Description\n\n${task.description}` : '',
+              task.acceptanceCriteria
+                ? `## Acceptance Criteria\n\n${task.acceptanceCriteria}`
+                : '',
+              '---\n\nManaged by **Forge**.',
+            ].filter(Boolean).join('\n\n'),
+          );
+
+          await this.prisma.task.update({
+            where: { id: task.id },
+            data: {
+              githubIssueNumber: issue.number,
+              githubIssueUrl: issue.url,
+            },
+          });
+        }
+
+        try {
+          await this.github.createBranch(owner, repo, branchName);
+        } catch (error) {
+          const branches = await this.github.getBranches(owner, repo);
+          if (!branches.some((branch) => branch.name === branchName)) {
+            throw error;
+          }
+        }
 
         await this.prisma.task.update({
           where: { id: task.id },
@@ -133,24 +165,32 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     const tasks = await this.prisma.task.findMany({
       where: {
         status: { in: ['TODO', 'IN_PROGRESS'] },
-        assignee: { role: 'ENGINEER', status: 'ACTIVE' },
+        assignee: { role: { in: ['ENGINEER', 'UI_UX'] }, status: 'ACTIVE' },
         branchName: { not: null },
       },
       orderBy: { createdAt: 'asc' },
       take: 3,
+      include: {
+        assignee: true,
+        feature: { select: { projectId: true } },
+      },
     });
 
     for (const task of tasks) {
       try {
-        await this.hephaistos.runTask(task.id);
+        if (task.assignee?.role === 'UI_UX') {
+          await this.apollo.runTask(task.id);
+        } else {
+          await this.hephaistos.runTask(task.id);
+        }
       } catch (error) {
         await this.audit.record({
-          actor: 'hephaistos',
+          actor: task.assignee?.role === 'UI_UX' ? 'apollo' : 'hephaistos',
           type: 'WORKER_FAILED',
-          projectId: task.featureId,
+          projectId: task.feature.projectId,
           entityType: 'task',
           entityId: task.id,
-          summary: `Hephaistos failed to run "${task.title}"`,
+          summary: `${task.assignee?.role === 'UI_UX' ? 'Apollo' : 'Hephaistos'} failed to run "${task.title}"`,
           data: {
             error: error instanceof Error ? error.message : String(error),
           },
@@ -176,7 +216,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         await this.audit.record({
           actor: 'artemis',
           type: 'QA_FAILED',
-          projectId: task.featureId,
+          projectId: task.feature.projectId,
           entityType: 'task',
           entityId: task.id,
           summary: `Artemis failed to review "${task.title}"`,
