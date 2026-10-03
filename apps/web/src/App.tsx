@@ -599,7 +599,7 @@ function Employees({ employees, tasks }: { employees: Employee[]; tasks: Task[] 
 
       {employees.length === 0 && <Panel title="Employees" subtitle="Forge workforce and current assignment state."><EmptyState message="No employees registered yet." /></Panel>}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {employees.map((employee) => {
           const assigned = tasks.filter((task) => task.assignee?.id === employee.id)
           const openTasks = assigned.filter((task) => task.status !== 'DONE')
