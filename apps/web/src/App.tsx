@@ -27,7 +27,7 @@ type Task = {
   title: string
   status: string
   assignee?: { id: string; name: string; role: string } | null
-  feature?: { title: string } | null
+  feature?: { title: string; projectId: string } | null
 }
 
 type Employee = {
