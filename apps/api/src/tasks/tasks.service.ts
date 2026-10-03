@@ -2,10 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
+import { GithubService } from '../github/github.service.js';
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly githubService: GithubService,
+  ) {}
 
   findAll() {
     return this.prisma.task.findMany({
@@ -192,5 +196,137 @@ export class TasksService {
         feature: true,
       },
     });
+  }
+
+  async createGithubIssue(id: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+      include: {
+        feature: {
+          include: {
+            project: true,
+          },
+        },
+      },
+    });
+
+    if (!task) {
+      throw new BadRequestException('Task not found');
+    }
+
+    if (task.githubIssueNumber) {
+      throw new BadRequestException('Task already has a GitHub issue');
+    }
+
+    const repository = task.feature.project.repository;
+
+    if (!repository) {
+      throw new BadRequestException(
+        'Project has no GitHub repository configured',
+      );
+    }
+
+    const { owner, repo } = this.parseRepository(repository);
+
+    const issue = await this.githubService.createIssue(
+      owner,
+      repo,
+      task.title,
+      this.buildGithubIssueBody(task),
+    );
+
+    return this.prisma.task.update({
+      where: { id },
+      data: {
+        githubIssueNumber: issue.number,
+        githubIssueUrl: issue.url,
+      },
+      include: {
+        feature: true,
+        assignee: true,
+      },
+    });
+  }
+
+  async createGithubBranch(id: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+      include: {
+        feature: {
+          include: {
+            project: true,
+          },
+        },
+      },
+    });
+
+    if (!task) {
+      throw new BadRequestException('Task not found');
+    }
+
+    if (task.branchName) {
+      throw new BadRequestException('Task already has a GitHub branch');
+    }
+
+    const repository = task.feature.project.repository;
+
+    if (!repository) {
+      throw new BadRequestException(
+        'Project has no GitHub repository configured',
+      );
+    }
+
+    const { owner, repo } = this.parseRepository(repository);
+
+    const branchName = `forge/task-${task.id}`;
+
+    await this.githubService.createBranch(owner, repo, branchName);
+
+    return this.prisma.task.update({
+      where: { id },
+      data: {
+        branchName,
+      },
+      include: {
+        feature: true,
+        assignee: true,
+      },
+    });
+  }
+
+  private parseRepository(repository: string) {
+    const url = new URL(repository);
+
+    const parts = url.pathname.replace(/^\/|\/$/g, '').split('/');
+
+    const [owner, repo] = parts;
+
+    if (!owner || !repo) {
+      throw new BadRequestException('Invalid GitHub repository URL');
+    }
+
+    return {
+      owner,
+      repo: repo.replace(/\.git$/, ''),
+    };
+  }
+
+  private buildGithubIssueBody(task: {
+    description: string | null;
+    acceptanceCriteria: string | null;
+  }) {
+    const sections: string[] = [];
+
+    if (task.description) {
+      sections.push(`## Description\n\n${task.description}`);
+    }
+
+    if (task.acceptanceCriteria) {
+      sections.push(`## Acceptance Criteria\n\n${task.acceptanceCriteria}`);
+    }
+
+    sections.push('---\n\nManaged by **Forge**.');
+
+    return sections.join('\n\n');
   }
 }

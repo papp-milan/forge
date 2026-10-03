@@ -70,4 +70,14 @@ export class TasksController {
   assign(@Param('id') id: string, @Body() dto: AssignTaskDto) {
     return this.tasksService.assign(id, dto.employeeId);
   }
+
+  @Post(':id/github-issue')
+  createGithubIssue(@Param('id') id: string) {
+    return this.tasksService.createGithubIssue(id);
+  }
+
+  @Post(':id/github-branch')
+  createGithubBranch(@Param('id') id: string) {
+    return this.tasksService.createGithubBranch(id);
+  }
 }

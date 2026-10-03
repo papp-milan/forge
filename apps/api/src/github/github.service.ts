@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { App } from '@octokit/app';
-import { Octokit } from '@octokit/rest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -31,22 +30,20 @@ export class GithubService {
     });
   }
 
-  private async getClient(): Promise<Octokit> {
+  private async getClient() {
     const installationId = process.env['GITHUB_INSTALLATION_ID'];
 
     if (!installationId) {
       throw new Error('GITHUB_INSTALLATION_ID is not configured');
     }
 
-    return this.app.getInstallationOctokit(
-      Number(installationId),
-    ) as unknown as Octokit;
+    return this.app.getInstallationOctokit(Number(installationId));
   }
 
   async getRepository(owner: string, repo: string) {
     const octokit = await this.getClient();
 
-    const { data } = await octokit.rest.repos.get({
+    const { data } = await octokit.request('GET /repos/{owner}/{repo}', {
       owner,
       repo,
     });
@@ -57,6 +54,85 @@ export class GithubService {
       private: data.private,
       url: data.html_url,
       defaultBranch: data.default_branch,
+    };
+  }
+
+  async createIssue(owner: string, repo: string, title: string, body?: string) {
+    const octokit = await this.getClient();
+
+    const { data } = await octokit.request(
+      'POST /repos/{owner}/{repo}/issues',
+      {
+        owner,
+        repo,
+        title,
+        body,
+      },
+    );
+
+    return {
+      number: data.number,
+      title: data.title,
+      url: data.html_url,
+    };
+  }
+
+  async createBranch(owner: string, repo: string, branchName: string) {
+    const octokit = await this.getClient();
+
+    const { data: repository } = await octokit.request(
+      'GET /repos/{owner}/{repo}',
+      {
+        owner,
+        repo,
+      },
+    );
+
+    const { data: ref } = await octokit.request(
+      'GET /repos/{owner}/{repo}/git/ref/{ref}',
+      {
+        owner,
+        repo,
+        ref: `heads/${repository.default_branch}`,
+      },
+    );
+
+    await octokit.request('POST /repos/{owner}/{repo}/git/refs', {
+      owner,
+      repo,
+      ref: `refs/heads/${branchName}`,
+      sha: ref.object.sha,
+    });
+
+    return {
+      branchName,
+    };
+  }
+
+  async createPullRequest(
+    owner: string,
+    repo: string,
+    title: string,
+    head: string,
+    base: string,
+    body?: string,
+  ) {
+    const octokit = await this.getClient();
+
+    const { data } = await octokit.request('POST /repos/{owner}/{repo}/pulls', {
+      owner,
+      repo,
+      title,
+      head,
+      base,
+      body,
+    });
+
+    return {
+      number: data.number,
+      title: data.title,
+      url: data.html_url,
+      state: data.state,
     };
   }
 }
