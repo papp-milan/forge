@@ -61,6 +61,14 @@ export class TeamLeadAgentService {
       };
     }
 
+    if (decision.status !== 'APPROVED') {
+      return {
+        status: decision.status,
+        decision,
+        analysis,
+      };
+    }
+
     const execution = await this.decisionService.execute(decision.id);
 
     return {
