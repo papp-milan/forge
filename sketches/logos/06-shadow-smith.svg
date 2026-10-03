@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><style>
+.bg{fill:#fff}.ink{fill:#080808}.accent{fill:#111}.cut{fill:#fff}@media(prefers-color-scheme:dark){.bg{fill:#090909}.ink{fill:#f4f4f4}.accent{fill:#ff2d7d}.cut{fill:#090909}}
+</style></defs><rect class="bg" width="512" height="512"/>
+<!-- towering smith shadow -->
+<path class="ink" d="M292 72c36 0 63 28 63 64s-27 63-63 63-63-27-63-63 27-64 63-64z"/>
+<path class="ink" d="M237 193c18-14 37-21 57-21s40 7 58 21l31 92-44 16-13-55 12 103h-42l-3-86-4 86h-42l12-103-13 55-44-16z"/>
+<path class="accent" d="M275 202h38l21 71-40 30-40-30z"/>
+<!-- anvil -->
+<path class="ink" d="M76 330h360l-28 48H104zM139 378h234l-25 38H164zM180 416h152l-25 36H205z"/>
+<path class="cut" d="M251 219h30v24h-30z"/>
+</svg>
