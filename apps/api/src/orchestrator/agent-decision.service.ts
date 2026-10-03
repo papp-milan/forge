@@ -21,7 +21,7 @@ export class AgentDecisionService {
         title: decision.title,
         reasoning: decision.reasoning,
         evidence: decision.evidence,
-        actions: decision.actions,
+        actions: JSON.parse(JSON.stringify(decision.actions)),
         requiresCeoApproval: decision.requiresCeoApproval,
         status,
         projectId,
