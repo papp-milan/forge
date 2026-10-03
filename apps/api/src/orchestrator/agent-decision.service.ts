@@ -97,14 +97,14 @@ export class AgentDecisionService {
       );
     }
 
-    await this.prisma.agentDecision.update({
-      where: { id },
-      data: {
-        status: 'APPROVED',
-        approvedAt: new Date(),
-        resolutionComment: comment,
-      },
+    const transitioned = await this.prisma.agentDecision.updateMany({
+      where: { id, status: 'PENDING' },
+      data: { status: 'APPROVED', approvedAt: new Date(), resolutionComment: comment },
     });
+    if (transitioned.count !== 1) {
+      const current = await this.get(id);
+      throw new BadRequestException(`Decision was already resolved. Current status: ${current.status}`);
+    }
 
     await this.audit.record({
       actor: 'ceo',
@@ -185,10 +185,7 @@ export class AgentDecisionService {
       requiresCeoApproval: decision.requiresCeoApproval,
     };
 
-    const results = await this.executor.execute(
-      decision.projectId,
-      typedDecision,
-    );
+    const results = await this.executor.execute(decision.projectId, typedDecision);
 
     const failed = results.some((result) => result.status === 'FAILED');
     const blocked = results.some((result) => result.status === 'BLOCKED');
