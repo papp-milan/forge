@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { AuditModule } from '../audit/audit.module.js';
-import { AgentDecisionService } from '../orchestrator/agent-decision.service.js';
 import { ApprovalsController } from './approvals.controller.js';
 import { ApprovalsService } from './approvals.service.js';
 
