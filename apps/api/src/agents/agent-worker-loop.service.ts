@@ -253,7 +253,6 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
           } else {
             await this.agentRuns.complete(run.id, result);
           }
-        }
       } catch (error) {
         await this.agentRuns.fail(run.id, error);
         await this.audit.record({
