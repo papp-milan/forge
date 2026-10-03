@@ -2,12 +2,21 @@
   "name": "forge",
   "version": "0.1.0",
   "private": true,
-  "description": "",
+  "description": "Forge AI software-company control plane",
   "packageManager": "pnpm@12.8.1",
   "type": "module",
   "scripts": {
     "dev:api": "pnpm --filter api start:dev",
+    "dev:web": "pnpm --filter web dev",
     "build:api": "pnpm --filter api build",
-    "test:api": "pnpm --filter api test"
+    "build:web": "pnpm --filter web build",
+    "lint:api": "pnpm --filter api lint",
+    "lint:web": "pnpm --filter web lint",
+    "test:api": "pnpm --filter api test",
+    "test:e2e": "pnpm --filter api test:e2e",
+    "build": "pnpm build:api && pnpm build:web",
+    "lint": "pnpm lint:api && pnpm lint:web",
+    "test": "pnpm test:api",
+    "check": "pnpm build:api && pnpm lint:api && pnpm test:api && pnpm test:e2e && pnpm lint:web && pnpm build:web"
   }
 }
