@@ -99,6 +99,13 @@ export class TeamLeadContextService {
       github,
     );
 
+    const readyForRelease = project.features
+      .filter((feature) => feature.status === 'QA')
+      .map((feature) => ({
+        id: feature.id,
+        title: feature.title,
+      }));
+
     return {
       generatedAt: new Date().toISOString(),
 
@@ -120,6 +127,7 @@ export class TeamLeadContextService {
         activeFeatures: activeFeatures.length,
 
         pendingPitches: pendingPitches.length,
+        readyForRelease,
       },
 
       work: {
