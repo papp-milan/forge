@@ -2,6 +2,7 @@ import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { TeamLeadAgentService } from './team-lead-agent.service.js';
+import { ReconciliationService } from '../reconciliation/reconciliation.service.js';
 
 @Injectable()
 export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
@@ -18,6 +19,7 @@ export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly prisma: PrismaService,
     private readonly agent: TeamLeadAgentService,
     private readonly audit: AuditService,
+    private readonly reconciliation: ReconciliationService,
   ) {}
 
   onModuleInit() {
@@ -52,6 +54,7 @@ export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
 
       for (const project of projects) {
         try {
+          await this.reconciliation.reconcileProject(project.id);
           await this.agent.run(project.id);
         } catch (error) {
           await this.audit.record({
