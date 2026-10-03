@@ -12,11 +12,12 @@ import { ApolloService } from './apollo.service.js';
 import { AgentRunService } from './agent-run.service.js';
 import { GovernanceModule } from '../governance/governance.module.js';
 import { FeaturesModule } from '../features/features.module.js';
+import { AgentSessionService } from './agent-session.service.js';
 
 @Module({
   imports: [PrismaModule, GithubModule, RuntimeModule, AuditModule, GovernanceModule, FeaturesModule],
   controllers: [AgentsController],
-  providers: [ArtemisService, HephaistosService, ApolloService, WorkspaceService, AgentRunService, AgentWorkerLoopService],
-  exports: [ArtemisService, HephaistosService, ApolloService, AgentRunService],
+  providers: [ArtemisService, HephaistosService, ApolloService, WorkspaceService, AgentRunService, AgentWorkerLoopService, AgentSessionService],
+  exports: [ArtemisService, HephaistosService, ApolloService, AgentRunService, AgentSessionService],
 })
 export class AgentsModule {}

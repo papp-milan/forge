@@ -105,6 +105,7 @@ model Project {
   pitches       Pitch[]
   agentDecisions AgentDecision[]
   agentRuns      AgentRun[]
+  agentSessions  AgentSession[]
   governanceReviews GovernanceReview[]
 }
 
@@ -209,6 +210,7 @@ model Task {
 
   assigneeId String?
   assignee   Employee? @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  agentSessions AgentSession[]
   agentRuns   AgentRun[]
 }
 
@@ -251,6 +253,7 @@ model AgentDecision {
   updatedAt DateTime @updatedAt
 
   approvedAt DateTime?
+  executionStartedAt DateTime?
   rejectedAt DateTime?
   executedAt DateTime?
 
@@ -347,4 +350,85 @@ model GovernanceFinding {
   createdAt   DateTime         @default(now())
 
   @@index([reviewId])
+}
+
+model AgentSession {
+  id          String   @id @default(cuid())
+  agent       String
+  runtime     String
+  status      String   @default("RUNNING")
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taskId      String?
+  task       Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  messages    AgentMessage[]
+  toolCalls   AgentToolCall[]
+  artifacts   AgentArtifact[]
+  usage       AgentUsage?
+
+  @@index([projectId, createdAt])
+  @@index([taskId, createdAt])
+  @@index([agent, status, createdAt])
+}
+
+model AgentMessage {
+  id        String       @id @default(cuid())
+  role      String
+  content   Json
+  sequence  Int
+  sessionId String
+  session   AgentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([sessionId, sequence])
+  @@index([sessionId, createdAt])
+}
+
+model AgentToolCall {
+  id          String       @id @default(cuid())
+  name        String
+  status      String       @default("RUNNING")
+  input       Json?
+  output      Json?
+  error       String?
+  startedAt   DateTime      @default(now())
+  completedAt DateTime?
+  sessionId   String
+  session     AgentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+
+  @@index([sessionId, createdAt])
+  @@index([status, createdAt])
+}
+
+model AgentArtifact {
+  id          String       @id @default(cuid())
+  name        String
+  type        String
+  uri         String?
+  checksum    String?
+  metadata    Json?
+  sessionId   String
+  session     AgentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+
+  @@index([sessionId, createdAt])
+}
+
+model AgentUsage {
+  id             String       @id @default(cuid())
+  provider       String
+  model          String?
+  inputTokens    Int          @default(0)
+  outputTokens   Int          @default(0)
+  cachedTokens   Int          @default(0)
+  costUsd        Decimal      @default(0) @db.Decimal(12, 6)
+  sessionId      String       @unique
+  session        AgentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
