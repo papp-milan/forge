@@ -33,6 +33,7 @@ enum FeatureStatus {
   IN_PROGRESS
   QA
   READY_FOR_REVIEW
+  RELEASING
   RELEASED
 }
 
