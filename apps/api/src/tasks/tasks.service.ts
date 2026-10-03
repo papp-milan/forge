@@ -16,6 +16,10 @@ export class TasksService {
       orderBy: {
         createdAt: 'desc',
       },
+      include: {
+        assignee: true,
+        feature: true,
+      },
     });
   }
 
