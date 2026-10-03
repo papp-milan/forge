@@ -801,7 +801,7 @@ function FeatureDetails({feature, tasks, busy, onClose, onAction}: {feature: Fea
           {releaseGate && (
             <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-4">
               <div className="flex items-center gap-2 text-sm font-medium text-emerald-200"><Check className="size-4" />CEO release gate</div>
-              <p className="mt-1 text-xs leading-5 text-zinc-500">QA has approved this feature. Releasing it will mark the feature as production-ready and hand deployment to DevOps/GitHub Actions.</p>
+              <p className="mt-1 text-xs leading-5 text-zinc-500">QA has approved this feature. Releasing it will merge the feature PRs and hand the resulting main-branch change to the repository's deployment workflow.</p>
             </div>
           )}
 
