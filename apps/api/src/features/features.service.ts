@@ -5,6 +5,7 @@ import { UpdateFeatureDto } from './dto/update-feature.dto.js';
 import { CreateFeatureTaskDto } from './dto/create-feature-tasks.dto.js';
 import { GithubService } from '../github/github.service.js';
 import { AuditService } from '../audit/audit.service.js';
+import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 
 @Injectable()
 export class FeaturesService {
@@ -12,6 +13,7 @@ export class FeaturesService {
     private readonly prisma: PrismaService,
     private readonly github: GithubService,
     private readonly audit: AuditService,
+    private readonly runtime: AgentRuntimeService,
   ) {}
 
   findAll() {
@@ -218,36 +220,48 @@ export class FeaturesService {
 
       const [owner, repo] = parts;
 
-      for (const task of feature.tasks) {
-        if (task.assignee?.role === 'ENGINEER' && !task.pullRequestNumber) {
-          throw new BadRequestException(
-            `Engineer task "${task.title}" has no pull request`,
-          );
-        }
+      if (this.runtime.mode() !== 'deterministic') {
+        for (const task of feature.tasks) {
+          if (task.assignee?.role === 'ENGINEER' && !task.pullRequestNumber) {
+            throw new BadRequestException(
+              `Engineer task "${task.title}" has no pull request`,
+            );
+          }
 
-        if (!task.pullRequestNumber) {
-          continue;
-        }
+          if (!task.pullRequestNumber) {
+            continue;
+          }
 
-        const mergeState = await this.github.isPullRequestMerged(
-          owner,
-          repo,
-          task.pullRequestNumber,
-        );
-
-        if (!mergeState.merged) {
-          const merged = await this.github.mergePullRequest(
+          const mergeState = await this.github.isPullRequestMerged(
             owner,
             repo,
             task.pullRequestNumber,
           );
 
-          if (!merged.merged) {
-            throw new BadRequestException(
-              `Pull request #${task.pullRequestNumber} could not be merged`,
+          if (!mergeState.merged) {
+            const merged = await this.github.mergePullRequest(
+              owner,
+              repo,
+              task.pullRequestNumber,
             );
+
+            if (!merged.merged) {
+              throw new BadRequestException(
+                `Pull request #${task.pullRequestNumber} could not be merged`,
+              );
+            }
           }
         }
+      } else {
+        await this.audit.record({
+          actor: 'system',
+          type: 'RELEASE_SIMULATED',
+          projectId: feature.projectId,
+          entityType: 'feature',
+          entityId: feature.id,
+          summary: `Deterministic release simulated for "${feature.title}"`,
+          data: { runtime: 'deterministic' },
+        });
       }
 
       const released = await this.prisma.feature.update({
