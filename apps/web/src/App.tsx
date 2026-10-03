@@ -1,88 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
-  Activity,
-  AlertTriangle,
-  Check,
-  CircleDot,
-  ExternalLink,
-  Cpu,
-  GitPullRequest,
-  LayoutDashboard,
-  RefreshCw,
-  Sun,
-  Moon,
-  ShieldCheck,
-  Users,
-  X,
-  Zap,
+  Activity, AlertTriangle, Check, CircleDot, ExternalLink, Cpu, GitPullRequest,
+  LayoutDashboard, RefreshCw, Sun, Moon, ShieldCheck, Users, X, Zap,
 } from 'lucide-react'
-
-type Project = {
-  id: string
-  name: string
-  description?: string | null
-  repository?: string | null
-}
-
-type Feature = {
-  id: string
-  title: string
-  description: string
-  status: string
-  projectId: string
-}
-
-type Task = {
-  id: string
-  title: string
-  status: string
-  description?: string | null
-  acceptanceCriteria?: string | null
-  githubIssueNumber?: number | null
-  githubIssueUrl?: string | null
-  branchName?: string | null
-  pullRequestNumber?: number | null
-  pullRequestUrl?: string | null
-  assignee?: { id: string; name: string; role: string } | null
-  feature?: { id?: string; title: string; projectId: string } | null
-}
-
-type Employee = {
-  id: string
-  name: string
-  role: string
-  status: string
-  color: string
-}
-
-type AuditEvent = {
-  id: string
-  timestamp: string
-  actor: string
-  type: string
-  projectId?: string
-  entityType?: string
-  entityId?: string
-  summary: string
-  data?: Record<string, unknown>
-}
-
-type Decision = {
-  id: string
-  agent: string
-  type: string
-  priority: string
-  title: string
-  reasoning: string
-  evidence: unknown
-  actions: unknown
-  requiresCeoApproval: boolean
-  status: string
-  createdAt: string
-  project: Project
-}
-
-const API = import.meta.env.VITE_API_URL ?? ''
+import { api } from './api/client'
+import type { AuditEvent, Decision, Employee, Feature, Project, Task } from './types/forge'
 
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
 
@@ -99,27 +21,11 @@ function createMetricShadowPlan(): Array<string | null> {
   return plan
 }
 
-const DEFAULT_CREW: Employee[] = [
-  { id: 'fallback-athena', name: 'Athena', role: 'TEAM_LEAD', status: 'ACTIVE', color: '#8b5cf6' },
-  { id: 'fallback-apollo', name: 'Apollo', role: 'UI_UX', status: 'ACTIVE', color: '#f59e0b' },
-  { id: 'fallback-hephaistos', name: 'Hephaistos', role: 'ENGINEER', status: 'ACTIVE', color: '#ef4444' },
-  { id: 'fallback-artemis', name: 'Artemis', role: 'QA', status: 'ACTIVE', color: '#22c55e' },
-  { id: 'fallback-nike', name: 'Nike', role: 'DEVOPS', status: 'ACTIVE', color: '#06b6d4' },
-  { id: 'fallback-atlas', name: 'Atlas', role: 'DEVOPS', status: 'ACTIVE', color: '#3b82f6' },
-]
-
-async function api<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  })
-
-  if (!response.ok) {
-    const message = await response.text()
-    throw new Error(message || `Request failed: ${response.status}`)
-  }
-
-  return response.json()
+type View = 'overview' | 'approvals' | 'employees' | 'development' | 'activity'
+const VIEW_ORDER: View[] = ['overview', 'approvals', 'employees', 'development', 'activity']
+const pathToView = (path: string): View => {
+  const candidate = path.replace(/^\//, '').split('/')[0] as View
+  return VIEW_ORDER.includes(candidate) ? candidate : 'overview'
 }
 
 function App() {
@@ -132,7 +38,8 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
-  const [view, setView] = useState<'overview' | 'approvals' | 'employees' | 'development' | 'activity'>('overview')
+  const viewOrder = VIEW_ORDER
+  const [view, setView] = useState<View>(() => pathToView(window.location.pathname))
   const [viewDirection, setViewDirection] = useState<'forward' | 'backward'>('forward')
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') return 'light'
@@ -151,11 +58,17 @@ function App() {
     window.setTimeout(() => setThemeTransition(false), 900)
   }
 
-  const viewOrder = ['overview', 'approvals', 'employees', 'development', 'activity'] as const
-  const navigate = (nextView: typeof view) => {
+  useEffect(() => {
+    const onPopState = () => setView(pathToView(window.location.pathname))
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  const navigate = (nextView: View) => {
     const currentIndex = viewOrder.indexOf(view)
     const nextIndex = viewOrder.indexOf(nextView)
     setViewDirection(nextIndex >= currentIndex ? 'forward' : 'backward')
+    window.history.pushState({}, '', nextView === 'overview' ? '/' : `/${nextView}`)
     setView(nextView)
   }
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
@@ -187,8 +100,7 @@ function App() {
       if (decisionResult.status === 'fulfilled') setDecisions(decisionResult.value)
       if (taskResult.status === 'fulfilled') setTasks(taskResult.value)
       if (featureResult.status === 'fulfilled') setFeatures(featureResult.value)
-      if (employeeResult.status === 'fulfilled') setEmployees(employeeResult.value.length ? employeeResult.value : DEFAULT_CREW)
-      else setEmployees(DEFAULT_CREW)
+      if (employeeResult.status === 'fulfilled') setEmployees(employeeResult.value)
       if (auditResult.status === 'fulfilled') setAuditEvents(auditResult.value)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load Forge state.')
@@ -198,6 +110,8 @@ function App() {
   }
 
   useEffect(() => {
+    // Initial data synchronization intentionally updates multiple state slices.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load()
   }, [])
 
