@@ -16,18 +16,42 @@ const DEFAULT_EMPLOYEES = [
 export class EmployeesService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
-  async onModuleInit() {
+  private async ensureDefaults() {
     for (const employee of DEFAULT_EMPLOYEES) {
       const existing = await this.prisma.employee.findFirst({ where: { name: employee.name } });
+
       if (existing) {
-        await this.prisma.employee.update({ where: { id: existing.id }, data: { role: employee.role, color: employee.color, description: employee.description, status: 'ACTIVE' } });
+        if (
+          existing.role !== employee.role ||
+          existing.color !== employee.color ||
+          existing.description !== employee.description ||
+          existing.status !== 'ACTIVE'
+        ) {
+          await this.prisma.employee.update({
+            where: { id: existing.id },
+            data: {
+              role: employee.role,
+              color: employee.color,
+              description: employee.description,
+              status: 'ACTIVE',
+            },
+          });
+        }
       } else {
         await this.prisma.employee.create({ data: employee });
       }
     }
   }
 
-  findAll() {
+  async onModuleInit() {
+    await this.ensureDefaults();
+  }
+
+  async findAll() {
+    // Self-heal the built-in crew if a local database was reset or migrated
+    // without rerunning application startup initialization.
+    await this.ensureDefaults();
+
     return this.prisma.employee.findMany({
       orderBy: {
         createdAt: 'desc',
