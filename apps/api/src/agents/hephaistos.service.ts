@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { AgentRuntimeService } from '../runtime/hermes-runtime.service.js';
+import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 import { WorkspaceService } from './workspace.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { GithubService } from '../github/github.service.js';
