@@ -385,10 +385,10 @@ The dashboard treats agents as visible characters rather than static rows. The r
 
 - **Animated tab transitions:** switching HQ tabs slides/skews the incoming view according to navigation direction.
 - **Agent theatre:** each employee has a role-specific, multi-line ASCII character rendered as a complete animated frame rather than separate animated lines.
-- **Agent pulse cards:** the Overview live-pulse row uses individually themed agent panels. Chromatic hard-offset shadows act as live-state signals: only working agents get their role color, while sleeping/offline/blocked agents use a neutral shadow. The Overview is a single vertical stack with 2rem spacing between its major sections, including the metrics group, and the top navigation has no decorative divider. The ASCII surface matches its card.
+- **Agent pulse cards:** the Overview live-pulse row uses individually themed agent panels. Chromatic hard-offset shadows act as live-state signals: only working agents get their role color, while sleeping/offline/blocked agents use a neutral shadow. The Overview is a single vertical stack with compact 1rem spacing between its major sections, including the metrics group, and the top navigation has no decorative divider. The ASCII surface matches its card.
 - **Metric card composition:** the six Overview metric cards randomly select 2–5 cards and random accent colors for chromatic shadows on each page load; unselected cards keep a neutral shadow.
 - **Live agent states:** agents sleep when they have no open work, animate as working when tasks are queued, and switch to a blocked state when assigned work is blocked.
-- **Editorial micro-accents:** dark mode uses acid-green for small `///`/kicker/action details, while light mode switches those details to warm orange. Theme switching is animated by a short left-to-right wind sweep across the full application.
+- **Editorial micro-accents:** dark mode uses acid-green for small `///`/kicker/action details, while light mode uses Forge red. Theme switching is animated by a short left-to-right wind sweep across the full application.
 - **Reduced-motion support:** CSS animations are disabled when the user requests reduced motion.
 
 
