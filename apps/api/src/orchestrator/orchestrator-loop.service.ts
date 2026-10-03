@@ -4,6 +4,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { TeamLeadAgentService } from './team-lead-agent.service.js';
 import { ReconciliationService } from '../reconciliation/reconciliation.service.js';
 import { LeaseService } from '../runtime/lease.service.js';
+import { AgentDecisionService } from './agent-decision.service.js';
 
 @Injectable()
 export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
@@ -22,6 +23,7 @@ export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly audit: AuditService,
     private readonly reconciliation: ReconciliationService,
     private readonly lease: LeaseService,
+    private readonly decisions: AgentDecisionService,
   ) {}
 
   onModuleInit() {
@@ -50,6 +52,7 @@ export class OrchestratorLoopService implements OnModuleInit, OnModuleDestroy {
     this.running = true;
 
     try {
+      await this.decisions.recoverStaleExecuting();
       const projects = await this.prisma.project.findMany({
         select: { id: true, name: true },
         orderBy: { createdAt: 'asc' },
