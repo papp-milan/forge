@@ -93,6 +93,15 @@ export class ApolloService {
         return { status: 'BLOCKED', taskId: task.id, result };
       }
 
+      if (this.runtime.mode() === 'deterministic') {
+        const updated = await this.prisma.task.update({
+          where: { id: task.id },
+          data: { status: 'IN_REVIEW' },
+          include: { assignee: true, feature: true },
+        });
+        return { status: 'SIMULATED_IN_REVIEW', task: updated, result };
+      }
+
       try {
         const [owner, repo] = workspace.repository.split('/');
         let pullRequestNumber = task.pullRequestNumber ?? null;
