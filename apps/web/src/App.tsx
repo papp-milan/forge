@@ -248,10 +248,10 @@ function App() {
 
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100">
-      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-white/8 bg-[#0c0c0f] lg:flex lg:flex-col">
-        <div className="flex h-16 items-center gap-3 border-b border-white/8 px-5">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-white text-black">
+    <div className="forge-shell min-h-screen text-zinc-100">
+      <aside className="forge-sidebar fixed inset-y-0 left-0 hidden w-64 lg:flex lg:flex-col">
+        <div className="forge-brand flex h-16 items-center gap-3 px-5">
+          <div className="forge-brand-mark flex size-8 items-center justify-center">
             <Zap className="size-4" />
           </div>
           <div>
@@ -260,7 +260,7 @@ function App() {
           </div>
         </div>
 
-        <nav className="flex-1 space-y-1 p-3">
+        <nav className="forge-nav flex-1 space-y-2 p-3">
           <NavItem icon={<LayoutDashboard />} label="Overview" active={view === 'overview'} onClick={() => navigate('overview')} />
           <NavItem icon={<ShieldCheck />} label="Approvals" count={pending.length} active={view === 'approvals'} onClick={() => navigate('approvals')} />
           <NavItem icon={<Users />} label="Employees" active={view === 'employees'} onClick={() => navigate('employees')} />
@@ -276,8 +276,8 @@ function App() {
         </div>
       </aside>
 
-      <main className="lg:pl-64">
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-white/8 bg-[#09090b]/90 px-5 backdrop-blur-xl lg:px-8">
+      <main className="forge-main lg:pl-64">
+        <header className="forge-topbar sticky top-0 z-10 flex h-16 items-center justify-between px-5 lg:px-8">
           <div>
             <div className="text-xs text-zinc-500">Olympus / HQ / {view.toUpperCase()}</div>
             <h1 className="text-lg font-semibold">{view === 'overview' ? 'Company overview' : view === 'approvals' ? 'CEO approvals' : view === 'employees' ? 'Olympus roster' : view === 'development' ? 'Development floor' : 'Activity log'}</h1>
@@ -292,7 +292,7 @@ function App() {
           </button>
         </header>
 
-        <div className="mx-auto max-w-7xl space-y-6 p-5 lg:p-8">
+        <div className="forge-content mx-auto max-w-[1500px] space-y-6 p-5 lg:p-8">
           <div key={view} className={`forge-tab-stage forge-tab-stage-${viewDirection}`}>
           {error && (
             <div className="flex items-start gap-3 rounded-xl border border-red-400/20 bg-red-400/5 p-4 text-sm text-red-200">
@@ -406,8 +406,8 @@ function NavItem({
   return (
     <button
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
-        active ? 'bg-white/8 text-white' : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'
+      className={`forge-nav-item flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition ${
+        active ? 'forge-nav-item--active text-white' : 'text-zinc-500 hover:text-white'
       }`}
     >
       <span className="size-4">{icon}</span>
@@ -445,7 +445,7 @@ function Overview({
   const active = decisions.filter((d) => ['APPROVED', 'IN_PROGRESS'].includes(d.status))
   return (
     <>
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="forge-metrics-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Metric icon={<Cpu />} label="Projects" value={projects.length} />
         <Metric icon={<ShieldCheck />} label="Pending approval" value={pending.length} emphasis />
         <Metric icon={<Activity />} label="Agent decisions" value={decisions.length} />
@@ -454,7 +454,7 @@ function Overview({
         <Metric icon={<AlertTriangle />} label="Blocked tasks" value={tasks.filter((t) => t.status === 'BLOCKED').length} emphasis={tasks.some((t) => t.status === 'BLOCKED')} />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
+      <section className="forge-overview-grid grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
         <div className="rounded-2xl border border-white/8 bg-white/[0.025]">
           <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
             <div>
@@ -496,7 +496,7 @@ function Overview({
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-2">
+      <section className="forge-overview-grid grid gap-6 xl:grid-cols-2">
         <MiniList title="Workforce" action="Employees →" onAction={() => onOpen('employees')}>
           {employees.slice(0, 6).map((employee) => <div key={employee.id} className="flex items-center gap-2 border-b border-white/6 px-5 py-3 text-sm"><span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: employee.color }} /><span className="flex-1">{employee.name}</span><span className="text-xs text-zinc-500">{employee.role}</span></div>)}
           {employees.length === 0 && <EmptyState message="No employees registered yet." />}
@@ -877,11 +877,11 @@ function ActivityView({ events }: { events: AuditEvent[] }) {
 
 
 function Panel({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
-  return <section className="rounded-2xl border border-white/8 bg-white/[0.025]"><div className="border-b border-white/8 px-5 py-4"><h2 className="font-semibold">{title}</h2><p className="mt-1 text-sm text-zinc-500">{subtitle}</p></div>{children}</section>
+  return <section className="forge-panel"><div className="forge-panel__header"><div><div className="forge-kicker">FORGE / LIVE SYSTEM</div><h2 className="mt-1 text-lg font-black uppercase tracking-[-0.03em]">{title}</h2><p className="mt-1 text-sm text-zinc-500">{subtitle}</p></div><span className="forge-panel__mark">///</span></div>{children}</section>
 }
 
 function MiniList({ title, action, onAction, children }: { title: string; action: string; onAction: () => void; children: React.ReactNode }) {
-  return <section className="rounded-2xl border border-white/8 bg-white/[0.025]"><div className="flex items-center justify-between border-b border-white/8 px-5 py-4"><h2 className="font-semibold">{title}</h2><button onClick={onAction} className="cursor-pointer text-xs text-zinc-400 hover:text-white">{action}</button></div>{children}</section>
+  return <section className="forge-panel"><div className="forge-panel__header"><div><div className="forge-kicker">FORGE / QUEUE</div><h2 className="text-lg font-black uppercase tracking-[-0.03em]">{title}</h2></div><button onClick={onAction} className="forge-text-action cursor-pointer text-xs">{action}</button></div>{children}</section>
 }
 
 function Metric({
@@ -896,7 +896,7 @@ function Metric({
   emphasis?: boolean
 }) {
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/[0.025] p-5">
+    <div className="forge-metric">
       <div className="flex items-center justify-between">
         <div className="text-xs uppercase tracking-wider text-zinc-500">{label}</div>
         <span className={emphasis ? 'text-amber-300' : 'text-zinc-500'}>{icon}</span>
@@ -921,7 +921,7 @@ function DecisionRow({
 }) {
   return (
     <div
-      className={onOpen ? 'cursor-pointer px-5 py-5 transition hover:bg-white/[0.02]' : 'px-5 py-5'}
+      className={onOpen ? 'forge-decision-row cursor-pointer px-5 py-5 transition' : 'forge-decision-row px-5 py-5'}
       onClick={onOpen}
       onKeyDown={(event) => {
         if (onOpen && (event.key === 'Enter' || event.key === ' ')) {
@@ -984,7 +984,7 @@ function TaskDetails({task, employees, busy, onClose, onAction, onRunAgent, onRe
   const next = task.status === 'TODO' ? ['start', 'Start task'] : task.status === 'IN_PROGRESS' ? ['submit-for-review', 'Submit for review'] : task.status === 'BLOCKED' ? ['resume', 'Resume task'] : task.status === 'IN_REVIEW' ? ['complete', 'Mark complete'] : null
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-5" onMouseDown={onClose}>
-      <section className="max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/10 bg-[#111114] shadow-2xl" onMouseDown={(event) => event.stopPropagation()}>
+      <section className="forge-modal max-h-[88vh] w-full max-w-2xl overflow-y-auto" onMouseDown={(event) => event.stopPropagation()}>
         <div className="flex items-start justify-between border-b border-white/8 px-6 py-5"><div><div className="text-xs text-zinc-500">TASK · {task.status}</div><h2 className="mt-1 text-lg font-semibold">{task.title}</h2></div><button onClick={onClose} className="cursor-pointer rounded-lg p-2 text-zinc-500 hover:bg-white/8"><X className="size-4" /></button></div>
         <div className="space-y-6 p-6">
           <div className="grid gap-3 sm:grid-cols-2"><DetailStat label="Feature" value={task.feature?.title ?? 'Unknown'} /><DetailStat label="Assignee" value={task.assignee?.name ?? 'Unassigned'} /></div>
@@ -1015,7 +1015,7 @@ function FeatureDetails({feature, tasks, busy, onClose, onAction}: {feature: Fea
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm" onMouseDown={onClose}>
-      <section className="max-h-[88vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-white/10 bg-[#111114] shadow-2xl" onMouseDown={(event) => event.stopPropagation()}>
+      <section className="forge-modal max-h-[88vh] w-full max-w-3xl overflow-y-auto" onMouseDown={(event) => event.stopPropagation()}>
         <div className="flex items-start justify-between border-b border-white/8 px-6 py-5">
           <div><div className="text-xs uppercase tracking-wider text-zinc-500">Feature · {feature.status}</div><h2 className="mt-1 text-xl font-semibold">{feature.title}</h2></div>
           <button onClick={onClose} className="cursor-pointer rounded-lg p-2 text-zinc-500 hover:bg-white/8"><X className="size-4" /></button>
