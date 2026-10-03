@@ -28,7 +28,7 @@ export class GovernanceService {
         subjectType: input.subjectType,
         subjectId: input.subjectId,
         title: input.title,
-        context: input.context,
+        context: JSON.parse(JSON.stringify(input.context)),
         status: input.requiresHumanReview ? 'REQUIRES_HUMAN_REVIEW' : 'OPEN',
       },
       include: { opinions: true, findings: true },
@@ -66,7 +66,7 @@ export class GovernanceService {
         role: input.role,
         stance: input.stance,
         rationale: input.rationale,
-        evidence: input.evidence ?? {},
+        evidence: JSON.parse(JSON.stringify(input.evidence ?? {})),
         round: input.round ?? 1,
       },
     });
