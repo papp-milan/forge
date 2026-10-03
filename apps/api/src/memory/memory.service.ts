@@ -91,7 +91,7 @@ export class MemoryService {
 
     const result = await this.readFile(filePath);
     await this.audit.record({
-      actor: metadata.source === 'ceo' ? 'ceo' : 'system',
+      actor: metadata.source,
       type: 'MEMORY_CREATED',
       entityType: 'memory',
       entityId: metadata.id,
@@ -128,7 +128,7 @@ export class MemoryService {
 
     const result = await this.readFile(filePath);
     await this.audit.record({
-      actor: metadata.source === 'ceo' ? 'ceo' : 'system',
+      actor: metadata.source,
       type: 'MEMORY_UPDATED',
       entityType: 'memory',
       entityId: metadata.id,
