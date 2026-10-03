@@ -2279,7 +2279,7 @@ main > div::before {
 
 /* Keep the overview sections separated by a real 2rem vertical rhythm. */
 .forge-overview-stack {
-  gap: 1rem !important;
+  gap: 0.25rem !important;
 }
 
 @media (max-width: 640px) {

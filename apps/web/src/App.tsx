@@ -1216,7 +1216,6 @@ function Metric({
   icon,
   label,
   value,
-  emphasis,
   shadowColor,
 }: {
   icon: React.ReactNode
