@@ -191,6 +191,20 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
     for (const task of tasks) {
       try {
+        if (this.runtime.mode() === 'deterministic') {
+          await this.prisma.task.update({ where: { id: task.id }, data: { status: 'IN_REVIEW' } });
+          await this.audit.record({
+            actor: task.assignee?.role === 'UI_UX' ? 'apollo' : 'hephaistos',
+            type: 'WORKER_COMPLETED',
+            projectId: task.feature.projectId,
+            entityType: 'task',
+            entityId: task.id,
+            summary: 'Deterministic worker simulation completed',
+            data: { runtime: 'deterministic' },
+          });
+          continue;
+        }
+
         if (task.assignee?.role === 'UI_UX') {
           await this.apollo.runTask(task.id);
         } else {
@@ -227,6 +241,20 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
     for (const task of tasks) {
       try {
+        if (this.runtime.mode() === 'deterministic') {
+          await this.prisma.task.update({ where: { id: task.id }, data: { status: 'DONE' } });
+          await this.audit.record({
+            actor: 'artemis',
+            type: 'QA_PASSED',
+            projectId: task.feature.projectId,
+            entityType: 'task',
+            entityId: task.id,
+            summary: 'Deterministic QA simulation passed',
+            data: { runtime: 'deterministic' },
+          });
+          continue;
+        }
+
         await this.artemis.reviewTask(task.id);
       } catch (error) {
         await this.audit.record({
