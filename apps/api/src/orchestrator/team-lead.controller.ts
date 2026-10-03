@@ -1,17 +1,24 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { TeamLeadService } from './team-lead.service.js';
 import { TeamLeadProposalDto } from './dto/team-lead-proposal.dto.js';
+import { TeamLeadContextService } from './team-lead-context.service.js';
 
 @Controller('api/team-lead')
 export class TeamLeadController {
-  constructor(private readonly teamLeadService: TeamLeadService) {}
+  constructor(
+    private readonly teamLeadService: TeamLeadService,
+    private readonly contextService: TeamLeadContextService,
+  ) {}
+
+  @Get('projects/:projectId/context')
+  getProjectContext(@Param('projectId') projectId: string) {
+    return this.contextService.build(projectId);
+  }
 
   @Post('projects/:projectId/proposals')
   createProposal(
-    @Param('projectId')
-    projectId: string,
-    @Body()
-    proposal: TeamLeadProposalDto,
+    @Param('projectId') projectId: string,
+    @Body() proposal: TeamLeadProposalDto,
   ) {
     return this.teamLeadService.createProposal(projectId, proposal);
   }
