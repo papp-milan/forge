@@ -14,9 +14,11 @@ export class GithubSyncService {
   async syncProject(projectId: string) {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
-      include: { tasks: { include: { feature: true } } },
+      include: { features: { include: { tasks: true } } },
     });
     if (!project?.repository) throw new BadRequestException('Project has no GitHub repository configured');
+
+    const tasks = project.features.flatMap((feature) => feature.tasks.map((task) => ({ ...task, feature })));
 
     const [owner, repo] = project.repository.split('/');
     if (!owner || !repo) throw new BadRequestException('Repository must use owner/name format');
@@ -29,7 +31,7 @@ export class GithubSyncService {
     ]);
 
     const updates = [];
-    for (const task of project.tasks) {
+    for (const task of tasks) {
       const issue = issues.find((item) => item.number === task.githubIssueNumber);
       const pull = pulls.find((item) => item.number === task.pullRequestNumber || item.branch === task.branchName);
       const branch = branches.find((item) => item.name === task.branchName);
