@@ -329,8 +329,13 @@ Forge's original logo exploration lives in `/sketches/logos`. The first five dir
 - `03-anvil-sigil.svg` — circular industrial sigil
 - `04-hammer-crown.svg` — hammer/anvil mark with a crown-like top
 - `05-industrial-smith.svg` — technical industrial anvil/smith mark
+- `06-shadow-smith.svg` — tall smith silhouette paired with a heavy anvil
+- `07-forge-wraith.svg` — hammer-wielding forge-master with a ghosted presence
+- `08-iron-council.svg` — three worker silhouettes around a shared forge
+- `09-hammerman-shadow.svg` — foreground smith with an oversized background shadow
+- `10-forge-idol.svg` — monumental smith/anvil emblem
 
-The direction is intentionally inspired by the bold monochrome, manga/print character of Hermes/Nous branding while remaining an original Forge mark rather than copying the Hermes logo. The current source reference uses a stark black/white character mark; Nous' published branding guidance also emphasizes xerox/riso grain, constrained palettes and distressed print texture.
+The direction is intentionally inspired by the bold monochrome, manga/print character of Hermes/Nous branding while remaining an original Forge mark rather than copying the Hermes logo. The second batch explores human/worker silhouettes and large shadow figures more aggressively. The current source reference uses a stark black/white character mark; Nous' published branding guidance also emphasizes xerox/riso grain, constrained palettes and distressed print texture.
 
 ### Current delivery safeguards
 
@@ -344,7 +349,9 @@ GitHub synchronization also avoids resurrecting completed tasks: discovering a p
 
 In `AGENT_RUNTIME=deterministic`, worker execution and feature release are explicitly simulated. Deterministic release does not require a real pull request merge; Hermes/real runtime keeps the GitHub merge gate.
 
-The dashboard also treats agents as visible characters rather than static rows:
+The dashboard also treats agents as visible characters rather than static rows. If the employee API is temporarily unavailable, the built-in six-agent roster remains visible as a cached UI fallback instead of making the entire crew disappear. Production builds use a same-origin `/api` path by default, while Vite proxies `/api` to the local NestJS server during development.
+
+
 
 - **Animated tab transitions:** switching HQ tabs slides/skews the incoming view according to navigation direction.
 - **Agent theatre:** each employee has animated ASCII art with role-specific silhouettes.
