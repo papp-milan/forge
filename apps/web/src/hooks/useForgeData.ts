@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '../api/client'
 import type { AuditEvent, Decision, Employee, Feature, Project, Task } from '../types/forge'
+
+const DYNAMIC_REFRESH_MS = 10_000
+const STATIC_REFRESH_MS = 60_000
 
 export function useForgeData() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -11,43 +14,75 @@ export function useForgeData() {
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const loadingRef = useRef(false)
 
-  const load = useCallback(async () => {
+  const loadDynamic = useCallback(async () => {
+    if (loadingRef.current) return
+    loadingRef.current = true
     setLoading(true)
     setError(null)
-    const results = await Promise.allSettled([
-      api<Project[]>('/api/projects'),
-      api<Decision[]>('/api/agent-decisions'),
-      api<Task[]>('/api/tasks'),
-      api<Feature[]>('/api/features'),
-      api<Employee[]>('/api/employees'),
-      api<AuditEvent[]>('/api/audit?limit=100'),
-    ])
-    const [projectResult, decisionResult, taskResult, featureResult, employeeResult, auditResult] = results
-    if (results.some((result) => result.status === 'rejected')) setError('Some Forge services are unavailable.')
-    if (projectResult.status === 'fulfilled') setProjects(projectResult.value)
-    if (decisionResult.status === 'fulfilled') setDecisions(decisionResult.value)
-    if (taskResult.status === 'fulfilled') setTasks(taskResult.value)
-    if (featureResult.status === 'fulfilled') setFeatures(featureResult.value)
-    if (employeeResult.status === 'fulfilled') setEmployees(employeeResult.value)
-    if (auditResult.status === 'fulfilled') setAuditEvents(auditResult.value)
-    setLoading(false)
+    try {
+      const results = await Promise.allSettled([
+        api<Decision[]>('/api/agent-decisions'),
+        api<Task[]>('/api/tasks'),
+        api<Feature[]>('/api/features'),
+      ])
+      const [decisionResult, taskResult, featureResult] = results
+      if (results.some((result) => result.status === 'rejected')) setError('Some Forge services are unavailable.')
+      if (decisionResult.status === 'fulfilled') setDecisions(decisionResult.value)
+      if (taskResult.status === 'fulfilled') setTasks(taskResult.value)
+      if (featureResult.status === 'fulfilled') setFeatures(featureResult.value)
+    } finally {
+      loadingRef.current = false
+      setLoading(false)
+    }
   }, [])
+
+  const loadStatic = useCallback(async () => {
+    if (loadingRef.current) return
+    loadingRef.current = true
+    try {
+      const results = await Promise.allSettled([
+        api<Project[]>('/api/projects'),
+        api<Employee[]>('/api/employees'),
+        api<AuditEvent[]>('/api/audit?limit=100'),
+      ])
+      const [projectResult, employeeResult, auditResult] = results
+      if (results.some((result) => result.status === 'rejected')) setError('Some Forge services are unavailable.')
+      if (projectResult.status === 'fulfilled') setProjects(projectResult.value)
+      if (employeeResult.status === 'fulfilled') setEmployees(employeeResult.value)
+      if (auditResult.status === 'fulfilled') setAuditEvents(auditResult.value)
+    } finally {
+      loadingRef.current = false
+    }
+  }, [])
+
+  const load = useCallback(async () => {
+    await Promise.all([loadStatic(), loadDynamic()])
+  }, [loadDynamic, loadStatic])
 
   useEffect(() => {
     // Initial synchronization intentionally hydrates several independent slices.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load()
-    const refresh = () => {
+    const refreshDynamic = () => {
+      if (document.visibilityState === 'visible') void loadDynamic()
+    }
+    const refreshStatic = () => {
+      if (document.visibilityState === 'visible') void loadStatic()
+    }
+    const dynamicInterval = window.setInterval(refreshDynamic, DYNAMIC_REFRESH_MS)
+    const staticInterval = window.setInterval(refreshStatic, STATIC_REFRESH_MS)
+    const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') void load()
     }
-    const interval = window.setInterval(refresh, 30000)
-    document.addEventListener('visibilitychange', refresh)
+    document.addEventListener('visibilitychange', onVisibilityChange)
     return () => {
-      window.clearInterval(interval)
-      document.removeEventListener('visibilitychange', refresh)
+      window.clearInterval(dynamicInterval)
+      window.clearInterval(staticInterval)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [load])
+  }, [load, loadDynamic, loadStatic])
 
   const pending = useMemo(() => decisions.filter((decision) => decision.status === 'PENDING'), [decisions])
   return { projects, decisions, tasks, features, employees, auditEvents, loading, error, setError, load, pending }
