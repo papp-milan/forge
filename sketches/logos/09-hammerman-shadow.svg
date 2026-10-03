@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><style>
+.bg{fill:#fff}.ink{fill:#050505}.accent{fill:#d7ff00}.ghost{fill:#050505;opacity:.12}@media(prefers-color-scheme:dark){.bg{fill:#090909}.ink{fill:#fff}.accent{fill:#ff3d81}.ghost{fill:#fff;opacity:.12}}
+</style></defs><rect class="bg" width="512" height="512"/>
+<!-- giant background shadow -->
+<path class="ghost" d="M256 42c75 0 118 48 118 108 0 38-17 70-44 91l57 83-60 14-28-56-8 74h-70l-8-74-28 56-60-14 57-83c-27-21-44-53-44-91 0-60 43-108 118-108z"/>
+<!-- foreground smith -->
+<circle class="ink" cx="273" cy="139" r="49"/>
+<path class="ink" d="M217 194l56 25 56-25 27 115-47 14-20-64-2 76h-28l-2-76-20 64-47-14z"/>
+<path class="ink" d="M309 105l20-14 91 91-22 22z"/>
+<path class="accent" d="M390 79h59v33h-59z"/>
+<path class="ink" d="M72 337h368l-29 47H101zM137 384h238l-27 42H164zM183 426h146l-22 35H205z"/>
+</svg>
