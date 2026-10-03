@@ -8,11 +8,12 @@ import { ArtemisService } from './artemis.service.js';
 import { HephaistosService } from './hephaistos.service.js';
 import { WorkspaceService } from './workspace.service.js';
 import { AgentWorkerLoopService } from './agent-worker-loop.service.js';
+import { ApolloService } from './apollo.service.js';
 
 @Module({
   imports: [PrismaModule, GithubModule, RuntimeModule, AuditModule],
   controllers: [AgentsController],
-  providers: [ArtemisService, HephaistosService, WorkspaceService, AgentWorkerLoopService],
-  exports: [ArtemisService, HephaistosService],
+  providers: [ArtemisService, HephaistosService, ApolloService, WorkspaceService, AgentWorkerLoopService],
+  exports: [ArtemisService, HephaistosService, ApolloService],
 })
 export class AgentsModule {}
