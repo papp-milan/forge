@@ -9,6 +9,8 @@ async function bootstrap() {
     rawBody: true,
   });
 
+  app.enableShutdownHooks();
+
   const corsOrigins = (process.env['FORGE_CORS_ORIGINS'] ?? '')
     .split(',')
     .map((origin) => origin.trim())
