@@ -133,19 +133,6 @@ function App() {
     }
   }
 
-  const execute = async (id: string) => {
-    setBusyId(id)
-
-    try {
-      await api(`/api/agent-decisions/${id}/execute`, { method: 'POST' })
-      await load()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Execution failed.')
-    } finally {
-      setBusyId(null)
-    }
-  }
-
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100">
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-white/8 bg-[#0c0c0f] lg:flex lg:flex-col">
