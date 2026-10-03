@@ -7,6 +7,7 @@ export interface HermesRunOptions {
   model?: string;
   maxTurns?: number;
   timeoutMs?: number;
+  env?: NodeJS.ProcessEnv;
 }
 
 export interface HermesRunResult {
@@ -75,6 +76,7 @@ export class HermesRuntimeService {
     const result = await this.runProcess(args, options.prompt, {
       cwd: options.cwd ?? this.defaultCwd,
       timeoutMs: options.timeoutMs ?? this.defaultTimeoutMs,
+      env: options.env,
     });
 
     return this.parseStream(result.stdout, result.exitCode, result.durationMs);
@@ -83,13 +85,13 @@ export class HermesRuntimeService {
   private runProcess(
     args: string[],
     input: string,
-    options: { cwd?: string; timeoutMs: number },
+    options: { cwd?: string; timeoutMs: number; env?: NodeJS.ProcessEnv },
   ): Promise<{ stdout: string; stderr: string; exitCode: number; durationMs: number }> {
     return new Promise((resolve, reject) => {
       const started = Date.now();
       const child = spawn(this.command, args, {
         cwd: options.cwd,
-        env: process.env,
+        env: { ...process.env, ...options.env },
         stdio: ['pipe', 'pipe', 'pipe'],
       });
 
