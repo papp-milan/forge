@@ -4,7 +4,7 @@ import { HermesRuntimeService } from '../runtime/hermes-runtime.service.js';
 import { WorkspaceService } from './workspace.service.js';
 import { AuditService } from '../audit/audit.service.js';
 
-interface QaResult { passed: boolean; summary: string; findings: string[]; }
+export interface QaResult { passed: boolean; summary: string; findings: string[]; }
 
 @Injectable()
 export class ArtemisService {
