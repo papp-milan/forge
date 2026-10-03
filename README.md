@@ -320,6 +320,18 @@ Additional control-plane capabilities now include:
 
 The dashboard design direction is now a high-contrast Forge/Olympus command center influenced by comic/manga graphics, Persona-like visual energy and Hermes/Nous-style agent tooling. The UI uses bright agent colors, hard offset shadows, grain/noise, glow and directional motion rather than generic glassmorphism. UI concept sketches live in `/sketches`.
 
+### Current delivery safeguards
+
+The worker loop respects the feature lifecycle gates:
+
+`PLANNED → IN_PROGRESS → QA → READY_FOR_REVIEW → RELEASED`
+
+When all implementation tasks are complete, the worker moves an `IN_PROGRESS` feature to `QA`; it does not skip the QA gate and jump directly to CEO release review. The CEO-facing `Approve QA` action remains the transition into `READY_FOR_REVIEW`.
+
+GitHub synchronization also avoids resurrecting completed tasks: discovering a pull request only moves `TODO` or `IN_PROGRESS` tasks into `IN_REVIEW`.
+
+In `AGENT_RUNTIME=deterministic`, worker execution and feature release are explicitly simulated. Deterministic release does not require a real pull request merge; Hermes/real runtime keeps the GitHub merge gate.
+
 The dashboard also treats agents as visible characters rather than static rows:
 
 - **Animated tab transitions:** switching HQ tabs slides/skews the incoming view according to navigation direction.
