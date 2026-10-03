@@ -1,12 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { TeamLeadService } from './team-lead.service.js';
-
 import {
   TeamLeadAction,
   TeamLeadDecision,
 } from './team-lead-decision.types.js';
-
 import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator.service.js';
 
 export type ActionExecutionStatus =
@@ -14,11 +12,8 @@ export type ActionExecutionStatus =
 
 export interface ActionExecutionResult {
   status: ActionExecutionStatus;
-
   actionType: TeamLeadAction['type'];
-
   result?: unknown;
-
   reason?: string;
 }
 
@@ -26,7 +21,6 @@ export interface ActionExecutionResult {
 export class TeamLeadActionExecutorService {
   constructor(
     private readonly validator: TeamLeadDecisionValidatorService,
-
     private readonly teamLeadService: TeamLeadService,
   ) {}
 
@@ -39,7 +33,6 @@ export class TeamLeadActionExecutorService {
     if (!validation.valid) {
       throw new BadRequestException({
         message: 'Team Lead decision failed validation.',
-
         violations: validation.violations,
       });
     }
@@ -65,36 +58,28 @@ export class TeamLeadActionExecutorService {
         case 'INVESTIGATE':
           return {
             status: 'BLOCKED',
-
             actionType: action.type,
-
             reason: 'Investigation execution is not implemented yet.',
           };
 
         case 'UPDATE_MEMORY':
           return {
             status: 'BLOCKED',
-
             actionType: action.type,
-
             reason: 'Memory execution is not implemented yet.',
           };
 
         case 'ESCALATE':
           return {
             status: 'BLOCKED',
-
             actionType: action.type,
-
             reason: 'Escalation delivery is not implemented yet.',
           };
       }
     } catch (error) {
       return {
         status: 'FAILED',
-
         actionType: action.type,
-
         reason:
           error instanceof Error
             ? error.message
@@ -109,26 +94,23 @@ export class TeamLeadActionExecutorService {
   ): Promise<ActionExecutionResult> {
     const pitch = await this.teamLeadService.createProposal(projectId, {
       title: action.title,
-
       description: action.description,
-
       problem: action.problem,
-
       solution: action.solution,
-
       impact: action.impact,
-
       risks: action.risks,
-
       tasks: action.tasks,
     });
 
+    const execution = await this.teamLeadService.approveProposal(pitch.id);
+
     return {
-      status: 'EXECUTED',
-
+      status: execution.manpower.sufficient ? 'EXECUTED' : 'BLOCKED',
       actionType: action.type,
-
-      result: pitch,
+      result: execution,
+      reason: execution.manpower.sufficient
+        ? undefined
+        : `Missing manpower: ${execution.manpower.missingRoles.join(', ')}`,
     };
   }
 }
