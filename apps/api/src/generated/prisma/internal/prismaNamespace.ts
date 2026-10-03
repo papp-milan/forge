@@ -975,6 +975,11 @@ export const TaskScalarFieldEnum = {
   description: 'description',
   acceptanceCriteria: 'acceptanceCriteria',
   status: 'status',
+  githubIssueNumber: 'githubIssueNumber',
+  githubIssueUrl: 'githubIssueUrl',
+  branchName: 'branchName',
+  pullRequestNumber: 'pullRequestNumber',
+  pullRequestUrl: 'pullRequestUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   featureId: 'featureId',
@@ -1137,6 +1142,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**

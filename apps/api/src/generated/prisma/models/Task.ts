@@ -20,8 +20,20 @@ export type TaskModel = runtime.Types.Result.DefaultSelection<Prisma.$TaskPayloa
 
 export type AggregateTask = {
   _count: TaskCountAggregateOutputType | null
+  _avg: TaskAvgAggregateOutputType | null
+  _sum: TaskSumAggregateOutputType | null
   _min: TaskMinAggregateOutputType | null
   _max: TaskMaxAggregateOutputType | null
+}
+
+export type TaskAvgAggregateOutputType = {
+  githubIssueNumber: number | null
+  pullRequestNumber: number | null
+}
+
+export type TaskSumAggregateOutputType = {
+  githubIssueNumber: number | null
+  pullRequestNumber: number | null
 }
 
 export type TaskMinAggregateOutputType = {
@@ -30,6 +42,11 @@ export type TaskMinAggregateOutputType = {
   description: string | null
   acceptanceCriteria: string | null
   status: $Enums.TaskStatus | null
+  githubIssueNumber: number | null
+  githubIssueUrl: string | null
+  branchName: string | null
+  pullRequestNumber: number | null
+  pullRequestUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
   featureId: string | null
@@ -42,6 +59,11 @@ export type TaskMaxAggregateOutputType = {
   description: string | null
   acceptanceCriteria: string | null
   status: $Enums.TaskStatus | null
+  githubIssueNumber: number | null
+  githubIssueUrl: string | null
+  branchName: string | null
+  pullRequestNumber: number | null
+  pullRequestUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
   featureId: string | null
@@ -54,6 +76,11 @@ export type TaskCountAggregateOutputType = {
   description: number
   acceptanceCriteria: number
   status: number
+  githubIssueNumber: number
+  githubIssueUrl: number
+  branchName: number
+  pullRequestNumber: number
+  pullRequestUrl: number
   createdAt: number
   updatedAt: number
   featureId: number
@@ -62,12 +89,27 @@ export type TaskCountAggregateOutputType = {
 }
 
 
+export type TaskAvgAggregateInputType = {
+  githubIssueNumber?: true
+  pullRequestNumber?: true
+}
+
+export type TaskSumAggregateInputType = {
+  githubIssueNumber?: true
+  pullRequestNumber?: true
+}
+
 export type TaskMinAggregateInputType = {
   id?: true
   title?: true
   description?: true
   acceptanceCriteria?: true
   status?: true
+  githubIssueNumber?: true
+  githubIssueUrl?: true
+  branchName?: true
+  pullRequestNumber?: true
+  pullRequestUrl?: true
   createdAt?: true
   updatedAt?: true
   featureId?: true
@@ -80,6 +122,11 @@ export type TaskMaxAggregateInputType = {
   description?: true
   acceptanceCriteria?: true
   status?: true
+  githubIssueNumber?: true
+  githubIssueUrl?: true
+  branchName?: true
+  pullRequestNumber?: true
+  pullRequestUrl?: true
   createdAt?: true
   updatedAt?: true
   featureId?: true
@@ -92,6 +139,11 @@ export type TaskCountAggregateInputType = {
   description?: true
   acceptanceCriteria?: true
   status?: true
+  githubIssueNumber?: true
+  githubIssueUrl?: true
+  branchName?: true
+  pullRequestNumber?: true
+  pullRequestUrl?: true
   createdAt?: true
   updatedAt?: true
   featureId?: true
@@ -137,6 +189,18 @@ export type TaskAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: TaskAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: TaskSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: TaskMinAggregateInputType
@@ -167,6 +231,8 @@ export type TaskGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: TaskCountAggregateInputType | true
+  _avg?: TaskAvgAggregateInputType
+  _sum?: TaskSumAggregateInputType
   _min?: TaskMinAggregateInputType
   _max?: TaskMaxAggregateInputType
 }
@@ -177,11 +243,18 @@ export type TaskGroupByOutputType = {
   description: string | null
   acceptanceCriteria: string | null
   status: $Enums.TaskStatus
+  githubIssueNumber: number | null
+  githubIssueUrl: string | null
+  branchName: string | null
+  pullRequestNumber: number | null
+  pullRequestUrl: string | null
   createdAt: Date
   updatedAt: Date
   featureId: string
   assigneeId: string | null
   _count: TaskCountAggregateOutputType | null
+  _avg: TaskAvgAggregateOutputType | null
+  _sum: TaskSumAggregateOutputType | null
   _min: TaskMinAggregateOutputType | null
   _max: TaskMaxAggregateOutputType | null
 }
@@ -210,6 +283,11 @@ export type TaskWhereInput = {
   description?: Prisma.StringNullableFilter<"Task"> | string | null
   acceptanceCriteria?: Prisma.StringNullableFilter<"Task"> | string | null
   status?: Prisma.EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.IntNullableFilter<"Task"> | number | null
+  githubIssueUrl?: Prisma.StringNullableFilter<"Task"> | string | null
+  branchName?: Prisma.StringNullableFilter<"Task"> | string | null
+  pullRequestNumber?: Prisma.IntNullableFilter<"Task"> | number | null
+  pullRequestUrl?: Prisma.StringNullableFilter<"Task"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   featureId?: Prisma.StringFilter<"Task"> | string
@@ -224,6 +302,11 @@ export type TaskOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   acceptanceCriteria?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  githubIssueNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  githubIssueUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchName?: Prisma.SortOrderInput | Prisma.SortOrder
+  pullRequestNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  pullRequestUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   featureId?: Prisma.SortOrder
@@ -241,6 +324,11 @@ export type TaskWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Task"> | string | null
   acceptanceCriteria?: Prisma.StringNullableFilter<"Task"> | string | null
   status?: Prisma.EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.IntNullableFilter<"Task"> | number | null
+  githubIssueUrl?: Prisma.StringNullableFilter<"Task"> | string | null
+  branchName?: Prisma.StringNullableFilter<"Task"> | string | null
+  pullRequestNumber?: Prisma.IntNullableFilter<"Task"> | number | null
+  pullRequestUrl?: Prisma.StringNullableFilter<"Task"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   featureId?: Prisma.StringFilter<"Task"> | string
@@ -255,13 +343,20 @@ export type TaskOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   acceptanceCriteria?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  githubIssueNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  githubIssueUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchName?: Prisma.SortOrderInput | Prisma.SortOrder
+  pullRequestNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  pullRequestUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   featureId?: Prisma.SortOrder
   assigneeId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.TaskCountOrderByAggregateInput
+  _avg?: Prisma.TaskAvgOrderByAggregateInput
   _max?: Prisma.TaskMaxOrderByAggregateInput
   _min?: Prisma.TaskMinOrderByAggregateInput
+  _sum?: Prisma.TaskSumOrderByAggregateInput
 }
 
 export type TaskScalarWhereWithAggregatesInput = {
@@ -273,6 +368,11 @@ export type TaskScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
   acceptanceCriteria?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
   status?: Prisma.EnumTaskStatusWithAggregatesFilter<"Task"> | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.IntNullableWithAggregatesFilter<"Task"> | number | null
+  githubIssueUrl?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
+  branchName?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
+  pullRequestNumber?: Prisma.IntNullableWithAggregatesFilter<"Task"> | number | null
+  pullRequestUrl?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Task"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Task"> | Date | string
   featureId?: Prisma.StringWithAggregatesFilter<"Task"> | string
@@ -285,6 +385,11 @@ export type TaskCreateInput = {
   description?: string | null
   acceptanceCriteria?: string | null
   status?: $Enums.TaskStatus
+  githubIssueNumber?: number | null
+  githubIssueUrl?: string | null
+  branchName?: string | null
+  pullRequestNumber?: number | null
+  pullRequestUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   feature: Prisma.FeatureCreateNestedOneWithoutTasksInput
@@ -297,6 +402,11 @@ export type TaskUncheckedCreateInput = {
   description?: string | null
   acceptanceCriteria?: string | null
   status?: $Enums.TaskStatus
+  githubIssueNumber?: number | null
+  githubIssueUrl?: string | null
+  branchName?: string | null
+  pullRequestNumber?: number | null
+  pullRequestUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   featureId: string
@@ -309,6 +419,11 @@ export type TaskUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceCriteria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  githubIssueUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pullRequestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pullRequestUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   feature?: Prisma.FeatureUpdateOneRequiredWithoutTasksNestedInput
@@ -321,6 +436,11 @@ export type TaskUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceCriteria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  githubIssueUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pullRequestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pullRequestUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   featureId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -333,6 +453,11 @@ export type TaskCreateManyInput = {
   description?: string | null
   acceptanceCriteria?: string | null
   status?: $Enums.TaskStatus
+  githubIssueNumber?: number | null
+  githubIssueUrl?: string | null
+  branchName?: string | null
+  pullRequestNumber?: number | null
+  pullRequestUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   featureId: string
@@ -345,6 +470,11 @@ export type TaskUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceCriteria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  githubIssueUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pullRequestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pullRequestUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -355,6 +485,11 @@ export type TaskUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceCriteria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  githubIssueUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pullRequestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pullRequestUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   featureId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -377,10 +512,20 @@ export type TaskCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   acceptanceCriteria?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  githubIssueNumber?: Prisma.SortOrder
+  githubIssueUrl?: Prisma.SortOrder
+  branchName?: Prisma.SortOrder
+  pullRequestNumber?: Prisma.SortOrder
+  pullRequestUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   featureId?: Prisma.SortOrder
   assigneeId?: Prisma.SortOrder
+}
+
+export type TaskAvgOrderByAggregateInput = {
+  githubIssueNumber?: Prisma.SortOrder
+  pullRequestNumber?: Prisma.SortOrder
 }
 
 export type TaskMaxOrderByAggregateInput = {
@@ -389,6 +534,11 @@ export type TaskMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   acceptanceCriteria?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  githubIssueNumber?: Prisma.SortOrder
+  githubIssueUrl?: Prisma.SortOrder
+  branchName?: Prisma.SortOrder
+  pullRequestNumber?: Prisma.SortOrder
+  pullRequestUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   featureId?: Prisma.SortOrder
@@ -401,10 +551,20 @@ export type TaskMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   acceptanceCriteria?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  githubIssueNumber?: Prisma.SortOrder
+  githubIssueUrl?: Prisma.SortOrder
+  branchName?: Prisma.SortOrder
+  pullRequestNumber?: Prisma.SortOrder
+  pullRequestUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   featureId?: Prisma.SortOrder
   assigneeId?: Prisma.SortOrder
+}
+
+export type TaskSumOrderByAggregateInput = {
+  githubIssueNumber?: Prisma.SortOrder
+  pullRequestNumber?: Prisma.SortOrder
 }
 
 export type TaskCreateNestedManyWithoutAssigneeInput = {
@@ -495,12 +655,25 @@ export type EnumTaskStatusFieldUpdateOperationsInput = {
   set?: $Enums.TaskStatus
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type TaskCreateWithoutAssigneeInput = {
   id?: string
   title: string
   description?: string | null
   acceptanceCriteria?: string | null
   status?: $Enums.TaskStatus
+  githubIssueNumber?: number | null
+  githubIssueUrl?: string | null
+  branchName?: string | null
+  pullRequestNumber?: number | null
+  pullRequestUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   feature: Prisma.FeatureCreateNestedOneWithoutTasksInput
@@ -512,6 +685,11 @@ export type TaskUncheckedCreateWithoutAssigneeInput = {
   description?: string | null
   acceptanceCriteria?: string | null
   status?: $Enums.TaskStatus
+  githubIssueNumber?: number | null
+  githubIssueUrl?: string | null
+  branchName?: string | null
+  pullRequestNumber?: number | null
+  pullRequestUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   featureId: string
@@ -552,6 +730,11 @@ export type TaskScalarWhereInput = {
   description?: Prisma.StringNullableFilter<"Task"> | string | null
   acceptanceCriteria?: Prisma.StringNullableFilter<"Task"> | string | null
   status?: Prisma.EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.IntNullableFilter<"Task"> | number | null
+  githubIssueUrl?: Prisma.StringNullableFilter<"Task"> | string | null
+  branchName?: Prisma.StringNullableFilter<"Task"> | string | null
+  pullRequestNumber?: Prisma.IntNullableFilter<"Task"> | number | null
+  pullRequestUrl?: Prisma.StringNullableFilter<"Task"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   featureId?: Prisma.StringFilter<"Task"> | string
@@ -564,6 +747,11 @@ export type TaskCreateWithoutFeatureInput = {
   description?: string | null
   acceptanceCriteria?: string | null
   status?: $Enums.TaskStatus
+  githubIssueNumber?: number | null
+  githubIssueUrl?: string | null
+  branchName?: string | null
+  pullRequestNumber?: number | null
+  pullRequestUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignee?: Prisma.EmployeeCreateNestedOneWithoutTasksInput
@@ -575,6 +763,11 @@ export type TaskUncheckedCreateWithoutFeatureInput = {
   description?: string | null
   acceptanceCriteria?: string | null
   status?: $Enums.TaskStatus
+  githubIssueNumber?: number | null
+  githubIssueUrl?: string | null
+  branchName?: string | null
+  pullRequestNumber?: number | null
+  pullRequestUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assigneeId?: string | null
@@ -612,6 +805,11 @@ export type TaskCreateManyAssigneeInput = {
   description?: string | null
   acceptanceCriteria?: string | null
   status?: $Enums.TaskStatus
+  githubIssueNumber?: number | null
+  githubIssueUrl?: string | null
+  branchName?: string | null
+  pullRequestNumber?: number | null
+  pullRequestUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   featureId: string
@@ -623,6 +821,11 @@ export type TaskUpdateWithoutAssigneeInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceCriteria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  githubIssueUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pullRequestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pullRequestUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   feature?: Prisma.FeatureUpdateOneRequiredWithoutTasksNestedInput
@@ -634,6 +837,11 @@ export type TaskUncheckedUpdateWithoutAssigneeInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceCriteria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  githubIssueUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pullRequestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pullRequestUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   featureId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -645,6 +853,11 @@ export type TaskUncheckedUpdateManyWithoutAssigneeInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceCriteria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  githubIssueUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pullRequestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pullRequestUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   featureId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -656,6 +869,11 @@ export type TaskCreateManyFeatureInput = {
   description?: string | null
   acceptanceCriteria?: string | null
   status?: $Enums.TaskStatus
+  githubIssueNumber?: number | null
+  githubIssueUrl?: string | null
+  branchName?: string | null
+  pullRequestNumber?: number | null
+  pullRequestUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assigneeId?: string | null
@@ -667,6 +885,11 @@ export type TaskUpdateWithoutFeatureInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceCriteria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  githubIssueUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pullRequestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pullRequestUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignee?: Prisma.EmployeeUpdateOneWithoutTasksNestedInput
@@ -678,6 +901,11 @@ export type TaskUncheckedUpdateWithoutFeatureInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceCriteria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  githubIssueUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pullRequestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pullRequestUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assigneeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -689,6 +917,11 @@ export type TaskUncheckedUpdateManyWithoutFeatureInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acceptanceCriteria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  githubIssueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  githubIssueUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pullRequestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pullRequestUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assigneeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -702,6 +935,11 @@ export type TaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   description?: boolean
   acceptanceCriteria?: boolean
   status?: boolean
+  githubIssueNumber?: boolean
+  githubIssueUrl?: boolean
+  branchName?: boolean
+  pullRequestNumber?: boolean
+  pullRequestUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   featureId?: boolean
@@ -716,6 +954,11 @@ export type TaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   description?: boolean
   acceptanceCriteria?: boolean
   status?: boolean
+  githubIssueNumber?: boolean
+  githubIssueUrl?: boolean
+  branchName?: boolean
+  pullRequestNumber?: boolean
+  pullRequestUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   featureId?: boolean
@@ -730,6 +973,11 @@ export type TaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   description?: boolean
   acceptanceCriteria?: boolean
   status?: boolean
+  githubIssueNumber?: boolean
+  githubIssueUrl?: boolean
+  branchName?: boolean
+  pullRequestNumber?: boolean
+  pullRequestUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   featureId?: boolean
@@ -744,13 +992,18 @@ export type TaskSelectScalar = {
   description?: boolean
   acceptanceCriteria?: boolean
   status?: boolean
+  githubIssueNumber?: boolean
+  githubIssueUrl?: boolean
+  branchName?: boolean
+  pullRequestNumber?: boolean
+  pullRequestUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   featureId?: boolean
   assigneeId?: boolean
 }
 
-export type TaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "acceptanceCriteria" | "status" | "createdAt" | "updatedAt" | "featureId" | "assigneeId", ExtArgs["result"]["task"]>
+export type TaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "acceptanceCriteria" | "status" | "githubIssueNumber" | "githubIssueUrl" | "branchName" | "pullRequestNumber" | "pullRequestUrl" | "createdAt" | "updatedAt" | "featureId" | "assigneeId", ExtArgs["result"]["task"]>
 export type TaskInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   feature?: boolean | Prisma.FeatureDefaultArgs<ExtArgs>
   assignee?: boolean | Prisma.Task$assigneeArgs<ExtArgs>
@@ -776,6 +1029,11 @@ export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     description: string | null
     acceptanceCriteria: string | null
     status: $Enums.TaskStatus
+    githubIssueNumber: number | null
+    githubIssueUrl: string | null
+    branchName: string | null
+    pullRequestNumber: number | null
+    pullRequestUrl: string | null
     createdAt: Date
     updatedAt: Date
     featureId: string
@@ -1210,6 +1468,11 @@ export interface TaskFieldRefs {
   readonly description: Prisma.FieldRef<"Task", 'String'>
   readonly acceptanceCriteria: Prisma.FieldRef<"Task", 'String'>
   readonly status: Prisma.FieldRef<"Task", 'TaskStatus'>
+  readonly githubIssueNumber: Prisma.FieldRef<"Task", 'Int'>
+  readonly githubIssueUrl: Prisma.FieldRef<"Task", 'String'>
+  readonly branchName: Prisma.FieldRef<"Task", 'String'>
+  readonly pullRequestNumber: Prisma.FieldRef<"Task", 'Int'>
+  readonly pullRequestUrl: Prisma.FieldRef<"Task", 'String'>
   readonly createdAt: Prisma.FieldRef<"Task", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Task", 'DateTime'>
   readonly featureId: Prisma.FieldRef<"Task", 'String'>
