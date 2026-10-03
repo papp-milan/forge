@@ -4,7 +4,6 @@ import { TeamLeadContextService } from './team-lead-context.service.js';
 import { TeamLeadContext } from './team-lead-context.types.js';
 import { TeamLeadDecision } from './team-lead-decision.types.js';
 import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator.service.js';
-import { TeamLeadActionExecutorService } from './team-lead-action-executor.service.js';
 import { AgentDecisionService } from './agent-decision.service.js';
 
 @Injectable()
@@ -12,7 +11,6 @@ export class TeamLeadAgentService {
   constructor(
     private readonly contextService: TeamLeadContextService,
     private readonly validator: TeamLeadDecisionValidatorService,
-    private readonly executor: TeamLeadActionExecutorService,
     private readonly decisionService: AgentDecisionService,
   ) {}
 
@@ -62,37 +60,6 @@ export class TeamLeadAgentService {
     };
   }
 
-  async executeDecision(projectId: string) {
-    const analysis = await this.analyzeProject(projectId);
-
-    if (!analysis.validation.valid) {
-      return {
-        status: 'BLOCKED' as const,
-        analysis,
-        reason: 'Decision failed validation.',
-      };
-    }
-
-    const results = await this.executor.execute(projectId, analysis.decision);
-
-    const executed = results.some((result) => result.status === 'EXECUTED');
-    const failed = results.some((result) => result.status === 'FAILED');
-    const blocked = results.some((result) => result.status === 'BLOCKED');
-
-    let status: 'EXECUTED' | 'PARTIAL' | 'BLOCKED' | 'FAILED';
-
-    if (failed) {
-      status = 'FAILED';
-    } else if (blocked && executed) {
-      status = 'PARTIAL';
-    } else if (blocked) {
-      status = 'BLOCKED';
-    } else {
-      status = 'EXECUTED';
-    }
-
-    return { status, analysis, results };
-  }
 
   private analyze(context: TeamLeadContext): TeamLeadDecision {
     if (context.signals.inconsistencies.length > 0) {
