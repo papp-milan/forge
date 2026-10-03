@@ -1,0 +1,23 @@
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+      <rect width="1200" height="760" fill="black"/>
+      <pattern id="p" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M0 9L9 0" stroke="lime" stroke-width="1" opacity=".18"/></pattern>
+      <rect width="1200" height="760" fill="url(#p)"/>
+      <rect x="55" y="75" width="1000" height="585" rx="24" fill="#090c0b" stroke="lime" stroke-width="3"/><rect x="78" y="105" width="954" height="46" fill="lime" opacity=".12"/>
+      <g font-family="Inter, Arial, sans-serif" fill="black" font-weight="900">
+        <text x="92" y="140" font-size="28" letter-spacing="5">HERMES / AGENT TERMINAL</text>
+        <text x="92" y="235" font-size="92" transform="rotate(-3 92 235)">FORGE</text>
+        <text x="92" y="285" font-size="30" letter-spacing="8">AI COMPANY / CONTROL PLANE</text>
+      </g>
+      <g font-family="Inter, Arial, sans-serif" font-weight="900">
+        <text x="92" y="705" font-size="20" fill="white" letter-spacing="4">ATHENA • APOLLO • HEPHAISTOS • ARTEMIS • NIKE • ATLAS</text>
+        <text x="1090" y="710" text-anchor="end" font-size="18" fill="lime">SKETCH 03</text>
+      </g>
+      <g font-family="monospace" fill="white" opacity=".9">
+        <text x="540" y="410" font-size="24">PROJECTS</text><text x="540" y="450" font-size="20">ACTIVE / 04</text>
+        <text x="760" y="410" font-size="24">AGENTS</text><text x="760" y="450" font-size="20">ONLINE / 06</text>
+        <text x="540" y="515" font-size="24">DECISIONS</text><text x="540" y="555" font-size="20">WAITING / 02</text>
+        <text x="760" y="515" font-size="24">BUILD</text><text x="760" y="555" font-size="20">HEALTHY / 98%</text>
+      </g>
+      <path d="M0 720H1200" stroke="lime" stroke-width="4"/>
+    </svg>
