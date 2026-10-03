@@ -329,4 +329,89 @@ export class TasksService {
 
     return sections.join('\n\n');
   }
+
+  async createGithubPullRequest(id: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+      include: {
+        feature: {
+          include: {
+            project: true,
+          },
+        },
+      },
+    });
+
+    if (!task) {
+      throw new BadRequestException('Task not found');
+    }
+
+    if (!task.branchName) {
+      throw new BadRequestException('Task has no GitHub branch');
+    }
+
+    if (task.pullRequestNumber) {
+      throw new BadRequestException('Task already has a GitHub pull request');
+    }
+
+    const repository = task.feature.project.repository;
+
+    if (!repository) {
+      throw new BadRequestException(
+        'Project has no GitHub repository configured',
+      );
+    }
+
+    const { owner, repo } = this.parseRepository(repository);
+
+    const githubRepository = await this.githubService.getRepository(
+      owner,
+      repo,
+    );
+
+    const pullRequest = await this.githubService.createPullRequest(
+      owner,
+      repo,
+      task.title,
+      task.branchName,
+      githubRepository.defaultBranch,
+      this.buildGithubPullRequestBody(task),
+    );
+
+    return this.prisma.task.update({
+      where: { id },
+      data: {
+        pullRequestNumber: pullRequest.number,
+        pullRequestUrl: pullRequest.url,
+      },
+      include: {
+        feature: true,
+        assignee: true,
+      },
+    });
+  }
+
+  private buildGithubPullRequestBody(task: {
+    description: string | null;
+    acceptanceCriteria: string | null;
+    githubIssueNumber: number | null;
+  }) {
+    const sections: string[] = [];
+
+    if (task.githubIssueNumber) {
+      sections.push(`Closes #${task.githubIssueNumber}`);
+    }
+
+    if (task.description) {
+      sections.push(`## Description\n\n${task.description}`);
+    }
+
+    if (task.acceptanceCriteria) {
+      sections.push(`## Acceptance Criteria\n\n${task.acceptanceCriteria}`);
+    }
+
+    sections.push('---\n\nManaged by **Forge**.');
+
+    return sections.join('\n\n');
+  }
 }

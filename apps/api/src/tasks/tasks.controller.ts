@@ -80,4 +80,9 @@ export class TasksController {
   createGithubBranch(@Param('id') id: string) {
     return this.tasksService.createGithubBranch(id);
   }
+
+  @Post(':id/github-pull-request')
+  createGithubPullRequest(@Param('id') id: string) {
+    return this.tasksService.createGithubPullRequest(id);
+  }
 }
