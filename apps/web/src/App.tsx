@@ -473,7 +473,7 @@ function Overview({
 }) {
   const active = decisions.filter((d) => ['APPROVED', 'IN_PROGRESS'].includes(d.status))
   return (
-    <>
+    <div className="forge-overview-stack">
       <section className="forge-agent-pulse">
         <div className="forge-agent-pulse__title">
           <div>
@@ -567,7 +567,7 @@ function Overview({
           {tasks.length === 0 && <EmptyState message="No tasks created yet." />}
         </MiniList>
       </section>
-    </>
+    </div>
   )
 }
 
