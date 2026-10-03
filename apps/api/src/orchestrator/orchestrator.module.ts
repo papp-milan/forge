@@ -10,10 +10,16 @@ import { TeamLeadContextService } from './team-lead-context.service.js';
 import { TeamLeadAgentService } from './team-lead-agent.service.js';
 import { TeamLeadActionExecutorService } from './team-lead-action-executor.service.js';
 import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator.service.js';
+import { AgentDecisionService } from './agent-decision.service.js';
+import { AgentDecisionController } from './agent-decision.controller.js';
 
 @Module({
   imports: [PrismaModule, GithubModule, MemoryModule],
-  controllers: [OrchestratorController, TeamLeadController],
+  controllers: [
+    OrchestratorController,
+    TeamLeadController,
+    AgentDecisionController,
+  ],
   providers: [
     OrchestratorService,
     TeamLeadService,
@@ -21,7 +27,13 @@ import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator
     TeamLeadAgentService,
     TeamLeadDecisionValidatorService,
     TeamLeadActionExecutorService,
+    AgentDecisionService,
   ],
-  exports: [OrchestratorService, TeamLeadService, TeamLeadContextService],
+  exports: [
+    OrchestratorService,
+    TeamLeadService,
+    TeamLeadContextService,
+    AgentDecisionService,
+  ],
 })
 export class OrchestratorModule {}
