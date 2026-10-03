@@ -289,3 +289,17 @@ main section > div[class*="rounded-2xl"]:hover {
 @media (prefers-reduced-motion: reduce) {
   main::before { animation: none; }
 }
+
+
+/* Navigation must stay above the full-width main stacking context. */
+aside {
+  z-index: 50;
+  pointer-events: auto;
+}
+aside button,
+aside a {
+  pointer-events: auto;
+}
+main {
+  z-index: 0;
+}
