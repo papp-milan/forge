@@ -288,6 +288,16 @@ function App() {
         </div>
       </main>
 
+      {selectedTask && (
+        <TaskDetails
+          task={selectedTask}
+          employees={employees}
+          busy={busyId === selectedTask.id}
+          onClose={() => setSelectedTask(null)}
+          onAction={taskAction}
+        />
+      )}
+
       {selectedDecision && (
         <DecisionDetails
           decision={selectedDecision}
@@ -458,171 +468,60 @@ function Development({
   projects,
   features,
   tasks,
+  employees,
   selectedProjectId,
   onSelectProject,
+  onTaskOpen,
 }: {
   projects: Project[]
   features: Feature[]
   tasks: Task[]
+  employees: Employee[]
   selectedProjectId: string | null
   onSelectProject: (id: string | null) => void
+  onTaskOpen: (task: Task) => void
 }) {
   const selectedProject = projects.find((project) => project.id === selectedProjectId) ?? null
-  const projectFeatures = selectedProjectId
-    ? features.filter((feature) => feature.projectId === selectedProjectId)
-    : features
-  const projectTasks = selectedProjectId
-    ? tasks.filter((task) => task.feature?.projectId === selectedProjectId)
-    : tasks
+  const projectFeatures = selectedProjectId ? features.filter((feature) => feature.projectId === selectedProjectId) : features
+  const projectTasks = selectedProjectId ? tasks.filter((task) => task.feature?.projectId === selectedProjectId) : tasks
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => onSelectProject(null)}
-          className={`cursor-pointer rounded-lg px-3 py-2 text-sm ${!selectedProjectId ? 'bg-white text-black' : 'border border-white/10 text-zinc-400 hover:bg-white/5'}`}
-        >
-          All projects
-        </button>
-        {projects.map((project) => (
-          <button
-            key={project.id}
-            onClick={() => onSelectProject(project.id)}
-            className={`cursor-pointer rounded-lg px-3 py-2 text-sm ${selectedProjectId === project.id ? 'bg-white text-black' : 'border border-white/10 text-zinc-400 hover:bg-white/5'}`}
-          >
-            {project.name}
-          </button>
-        ))}
+        <button onClick={() => onSelectProject(null)} className={`cursor-pointer rounded-lg px-3 py-2 text-sm ${!selectedProjectId ? 'bg-white text-black' : 'border border-white/10 text-zinc-400 hover:bg-white/5'}`}>All projects</button>
+        {projects.map((project) => <button key={project.id} onClick={() => onSelectProject(project.id)} className={`cursor-pointer rounded-lg px-3 py-2 text-sm ${selectedProjectId === project.id ? 'bg-white text-black' : 'border border-white/10 text-zinc-400 hover:bg-white/5'}`}>{project.name}</button>)}
       </div>
 
-      {selectedProject ? (
-        <section className="rounded-2xl border border-white/8 bg-white/[0.025]">
-          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/8 px-5 py-5">
-            <div className="min-w-0">
-              <div className="text-xs uppercase tracking-[0.18em] text-zinc-600">Project</div>
-              <h2 className="mt-1 text-xl font-semibold">{selectedProject.name}</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
-                {selectedProject.description ?? 'No project description configured.'}
-              </p>
-            </div>
-            {selectedProject.repository && (
-              <a
-                href={selectedProject.repository}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 hover:bg-white/8"
-              >
-                <ExternalLink className="size-3.5" />
-                GitHub repository
-              </a>
-            )}
-          </div>
-
-          <div className="grid gap-px border-b border-white/8 bg-white/8 sm:grid-cols-3">
-            <ProjectStat label="Features" value={projectFeatures.length} />
-            <ProjectStat label="Tasks" value={projectTasks.length} />
-            <ProjectStat label="Blocked" value={projectTasks.filter((task) => task.status === 'BLOCKED').length} />
-          </div>
-        </section>
-      ) : (
-        <section className="rounded-2xl border border-white/8 bg-white/[0.025] p-6">
-          <div className="text-xs uppercase tracking-[0.18em] text-zinc-600">Development</div>
-          <h2 className="mt-1 text-xl font-semibold">All project work</h2>
-          <p className="mt-2 text-sm text-zinc-500">Select a project to inspect its features and delivery pipeline.</p>
-        </section>
-      )}
+      {selectedProject ? <section className="rounded-2xl border border-white/8 bg-white/[0.025]">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/8 px-5 py-5">
+          <div className="min-w-0"><div className="text-xs uppercase tracking-[0.18em] text-zinc-600">Project</div><h2 className="mt-1 text-xl font-semibold">{selectedProject.name}</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">{selectedProject.description ?? 'No project description configured.'}</p></div>
+          {selectedProject.repository && <a href={selectedProject.repository} target="_blank" rel="noreferrer" className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 hover:bg-white/8"><ExternalLink className="size-3.5" />GitHub repository</a>}
+        </div>
+        <div className="grid gap-px border-b border-white/8 bg-white/8 sm:grid-cols-3"><ProjectStat label="Features" value={projectFeatures.length} /><ProjectStat label="Tasks" value={projectTasks.length} /><ProjectStat label="Blocked" value={projectTasks.filter((task) => task.status === 'BLOCKED').length} /></div>
+      </section> : <section className="rounded-2xl border border-white/8 bg-white/[0.025] p-6"><div className="text-xs uppercase tracking-[0.18em] text-zinc-600">Development</div><h2 className="mt-1 text-xl font-semibold">All project work</h2><p className="mt-2 text-sm text-zinc-500">Select a project to inspect its features and delivery pipeline.</p></section>}
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <Panel
-          title="Features"
-          subtitle={selectedProject ? `Features proposed and managed for ${selectedProject.name}.` : 'Features across all projects.'}
-        >
-          {projectFeatures.length === 0 ? (
-            <EmptyState message="No features registered for this selection." />
-          ) : (
-            projectFeatures.map((feature) => {
-              const featureTasks = projectTasks.filter((task) => task.feature?.id === feature.id || task.feature?.title === feature.title)
-              return (
-                <div key={feature.id} className="border-b border-white/6 px-5 py-5">
-                  <div className="flex items-start gap-3">
-                    <StatusDot status={feature.status} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-sm font-medium">{feature.title}</h3>
-                        <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">
-                          {feature.status}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-xs leading-5 text-zinc-500">{feature.description}</p>
-                      <div className="mt-3 text-xs text-zinc-600">{featureTasks.length} task{featureTasks.length === 1 ? '' : 's'}</div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })
-          )}
+        <Panel title="Features" subtitle={selectedProject ? `Features proposed and managed for ${selectedProject.name}.` : 'Features across all projects.'}>
+          {projectFeatures.length === 0 ? <EmptyState message="No features registered for this selection." /> : projectFeatures.map((feature) => <div key={feature.id} className="border-b border-white/6 px-5 py-5"><div className="flex items-start gap-3"><StatusDot status={feature.status} /><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-medium">{feature.title}</h3><span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{feature.status}</span></div><p className="mt-2 text-xs leading-5 text-zinc-500">{feature.description}</p><div className="mt-3 text-xs text-zinc-600">{projectTasks.filter((task) => task.feature?.id === feature.id || task.feature?.title === feature.title).length} tasks</div></div></div></div>)}
         </Panel>
 
-        <Panel
-          title="Tasks"
-          subtitle={selectedProject ? `Delivery work for ${selectedProject.name}.` : 'Delivery work across all projects.'}
-        >
-          {projectTasks.length === 0 ? (
-            <EmptyState message="No tasks for this selection." />
-          ) : (
-            projectTasks.map((task) => (
-              <div key={task.id} className="border-b border-white/6 px-5 py-5">
-                <div className="flex items-start gap-3">
-                  <StatusDot status={task.status} />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-medium">{task.title}</h3>
-                      <span className="text-[10px] uppercase tracking-wider text-zinc-600">{task.status}</span>
-                    </div>
-                    <div className="mt-1 text-xs text-zinc-500">
-                      {task.feature?.title ?? 'Feature'} · {task.assignee?.name ?? 'Unassigned'}
-                    </div>
-                    {task.description && <p className="mt-2 text-xs leading-5 text-zinc-600">{task.description}</p>}
-
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {task.githubIssueUrl && (
-                        <a
-                          href={task.githubIssueUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-white/8 px-2 py-1 text-[11px] text-zinc-400 hover:bg-white/5"
-                        >
-                          <GitPullRequest className="size-3" />
-                          Issue #{task.githubIssueNumber}
-                        </a>
-                      )}
-                      {task.pullRequestUrl && (
-                        <a
-                          href={task.pullRequestUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-white/8 px-2 py-1 text-[11px] text-zinc-400 hover:bg-white/5"
-                        >
-                          <GitPullRequest className="size-3" />
-                          PR #{task.pullRequestNumber}
-                        </a>
-                      )}
-                      {task.branchName && (
-                        <span className="rounded-md border border-white/8 px-2 py-1 text-[11px] text-zinc-600">
-                          {task.branchName}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+        <Panel title="Tasks" subtitle={selectedProject ? `Delivery work for ${selectedProject.name}. Click a task to manage it.` : 'Delivery work across all projects.'}>
+          {projectTasks.length === 0 ? <EmptyState message="No tasks for this selection." /> : projectTasks.map((task) => (
+            <button key={task.id} onClick={() => onTaskOpen(task)} className="block w-full cursor-pointer border-b border-white/6 px-5 py-5 text-left transition hover:bg-white/[0.025]">
+              <div className="flex items-start gap-3"><StatusDot status={task.status} /><div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-medium">{task.title}</h3><span className="text-[10px] uppercase tracking-wider text-zinc-600">{task.status}</span></div>
+                <div className="mt-1 text-xs text-zinc-500">{task.feature?.title ?? 'Feature'} · {task.assignee?.name ?? 'Unassigned'}</div>
+                {task.description && <p className="mt-2 text-xs leading-5 text-zinc-600">{task.description}</p>}
+                <div className="mt-4 flex flex-wrap gap-2">{task.githubIssueUrl && <span className="rounded-md border border-white/8 px-2 py-1 text-[11px] text-zinc-400">Issue #{task.githubIssueNumber}</span>}{task.pullRequestUrl && <span className="rounded-md border border-white/8 px-2 py-1 text-[11px] text-zinc-400">PR #{task.pullRequestNumber}</span>}{task.branchName && <span className="rounded-md border border-white/8 px-2 py-1 text-[11px] text-zinc-600">{task.branchName}</span>}</div>
+              </div></div>
+            </button>
+          ))}
         </Panel>
       </div>
     </div>
   )
 }
+
 
 function ProjectStat({ label, value }: { label: string; value: number }) {
   return (
