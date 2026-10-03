@@ -191,7 +191,7 @@ function App() {
 
           <button
             onClick={() => void load()}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-300 transition hover:bg-white/10"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-300 transition hover:bg-white/10"
           >
             <RefreshCw className={`size-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -320,7 +320,7 @@ function Overview({
               <h2 className="font-semibold">CEO approval queue</h2>
               <p className="mt-1 text-sm text-zinc-500">Decisions waiting for your attention.</p>
             </div>
-            <button onClick={() => onOpen('approvals')} className="text-xs text-zinc-400 hover:text-white">View all →</button>
+            <button onClick={() => onOpen('approvals')} className="cursor-pointer text-xs text-zinc-400 hover:text-white">View all →</button>
           </div>
           <div className="divide-y divide-white/6">
             {pending.length === 0 && <EmptyState message="No decisions are waiting for approval." />}
@@ -339,14 +339,14 @@ function Overview({
             {projects.length === 0 && <EmptyState message="No projects registered yet." />}
             {projects.map((project) => (
               <div key={project.id} className="flex items-center gap-3 px-5 py-4">
-                <button onClick={() => onOpen('development', project.id)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                <button onClick={() => onOpen('development', project.id)} className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 text-left">
                   <div className="flex size-9 items-center justify-center rounded-lg bg-white/6"><CircleDot className="size-4 text-zinc-400" /></div>
                   <div className="min-w-0">
                     <div className="truncate text-sm font-medium">{project.name}</div>
                     <div className="truncate text-xs text-zinc-500">{project.repository ?? 'No repository connected'}</div>
                   </div>
                 </button>
-                <button onClick={() => onRunAthena(project.id)} disabled={busyId === project.id} className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/8 disabled:opacity-50">
+                <button onClick={() => onRunAthena(project.id)} disabled={busyId === project.id} className="cursor-pointer rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-50">
                   {busyId === project.id ? 'Running…' : 'Run Athena'}
                 </button>
               </div>
@@ -361,7 +361,7 @@ function Overview({
           {employees.length === 0 && <EmptyState message="No employees registered yet." />}
         </MiniList>
         <MiniList title="Task board" action="Development →" onAction={() => onOpen('development')}>
-          {tasks.slice(0, 6).map((task) => <button key={task.id} onClick={() => onOpen('development', task.feature?.projectId)} className="flex w-full justify-between border-b border-white/6 px-5 py-3 text-left text-sm hover:bg-white/[0.025]"><span className="truncate">{task.title}</span><span className="ml-3 text-xs text-zinc-500">{task.status}</span></button>)}
+          {tasks.slice(0, 6).map((task) => <button key={task.id} onClick={() => onOpen('development', task.feature?.projectId)} className="flex w-full cursor-pointer justify-between border-b border-white/6 px-5 py-3 text-left text-sm hover:bg-white/[0.025]"><span className="truncate">{task.title}</span><span className="ml-3 text-xs text-zinc-500">{task.status}</span></button>)}
           {tasks.length === 0 && <EmptyState message="No tasks created yet." />}
         </MiniList>
       </section>
@@ -393,8 +393,8 @@ function Development({ projects, tasks, selectedProjectId, onSelectProject }: { 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2">
-        <button onClick={() => onSelectProject(null)} className={`rounded-lg px-3 py-2 text-sm ${!selectedProjectId ? 'bg-white text-black' : 'border border-white/10 text-zinc-400'}`}>All projects</button>
-        {projects.map((project) => <button key={project.id} onClick={() => onSelectProject(project.id)} className={`rounded-lg px-3 py-2 text-sm ${selectedProjectId === project.id ? 'bg-white text-black' : 'border border-white/10 text-zinc-400'}`}>{project.name}</button>)}
+        <button onClick={() => onSelectProject(null)} className={`rounded-lg px-3 py-2 text-sm ${!selectedProjectId ? 'bg-white text-black' : 'cursor-pointer border border-white/10 text-zinc-400'}`}>All projects</button>
+        {projects.map((project) => <button key={project.id} onClick={() => onSelectProject(project.id)} className={`rounded-lg px-3 py-2 text-sm ${selectedProjectId === project.id ? 'bg-white text-black' : 'cursor-pointer border border-white/10 text-zinc-400'}`}>{project.name}</button>)}
       </div>
       <Panel title="Development" subtitle="Tasks distributed by the Team Lead.">
         {tasks.length === 0 ? <EmptyState message="No tasks for this selection." /> : tasks.map((task) => <div key={task.id} className="flex items-center gap-4 border-b border-white/6 px-5 py-4"><StatusDot status={task.status} /><div className="flex-1"><div className="text-sm">{task.title}</div><div className="mt-1 text-xs text-zinc-500">{task.feature?.title ?? 'Feature'} · {task.assignee?.name ?? 'Unassigned'}</div></div><span className="text-xs text-zinc-500">{task.status}</span></div>)}
@@ -412,7 +412,7 @@ function Panel({ title, subtitle, children }: { title: string; subtitle: string;
 }
 
 function MiniList({ title, action, onAction, children }: { title: string; action: string; onAction: () => void; children: React.ReactNode }) {
-  return <section className="rounded-2xl border border-white/8 bg-white/[0.025]"><div className="flex items-center justify-between border-b border-white/8 px-5 py-4"><h2 className="font-semibold">{title}</h2><button onClick={onAction} className="text-xs text-zinc-400 hover:text-white">{action}</button></div>{children}</section>
+  return <section className="rounded-2xl border border-white/8 bg-white/[0.025]"><div className="flex items-center justify-between border-b border-white/8 px-5 py-4"><h2 className="font-semibold">{title}</h2><button onClick={onAction} className="cursor-pointer text-xs text-zinc-400 hover:text-white">{action}</button></div>{children}</section>
 }
 
 function Metric({
@@ -471,7 +471,7 @@ function DecisionRow({
             <button
               onClick={onApprove}
               disabled={busy}
-              className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-black hover:bg-zinc-200 disabled:opacity-50"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Check className="size-4" />
               Approve
@@ -479,7 +479,7 @@ function DecisionRow({
             <button
               onClick={onReject}
               disabled={busy}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:bg-white/8 disabled:opacity-50"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <X className="size-4" />
               Reject
