@@ -78,6 +78,7 @@ model Employee {
   name        String
   role        EmployeeRole
   status      EmployeeStatus @default(ACTIVE)
+  color       String         @default("#71717a")
   description String?
 
   createdAt DateTime @default(now())
