@@ -76,6 +76,8 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [view, setView] = useState<'overview' | 'approvals' | 'employees' | 'development' | 'activity'>('overview')
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
 
   const load = async () => {
     setLoading(true)
@@ -117,6 +119,24 @@ function App() {
     [decisions],
   )
 
+  const runAthena = async (projectId: string) => {
+    setBusyId(projectId)
+    setError(null)
+
+    try {
+      await api(`/api/team-lead/projects/${projectId}/run`, {
+        method: 'POST',
+        body: JSON.stringify({}),
+      })
+      await load()
+      setView('approvals')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Athena run failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
   const resolve = async (id: string, action: 'approve' | 'reject') => {
     setBusyId(id)
 
@@ -147,11 +167,11 @@ function App() {
         </div>
 
         <nav className="flex-1 space-y-1 p-3">
-          <NavItem icon={<LayoutDashboard />} label="Overview" active />
-          <NavItem icon={<ShieldCheck />} label="Approvals" count={pending.length} />
-          <NavItem icon={<Users />} label="Employees" />
-          <NavItem icon={<GitPullRequest />} label="Development" />
-          <NavItem icon={<Activity />} label="Activity" />
+          <NavItem icon={<LayoutDashboard />} label="Overview" active={view === 'overview'} onClick={() => setView('overview')} />
+          <NavItem icon={<ShieldCheck />} label="Approvals" count={pending.length} active={view === 'approvals'} onClick={() => setView('approvals')} />
+          <NavItem icon={<Users />} label="Employees" active={view === 'employees'} onClick={() => setView('employees')} />
+          <NavItem icon={<GitPullRequest />} label="Development" active={view === 'development'} onClick={() => setView('development')} />
+          <NavItem icon={<Activity />} label="Activity" active={view === 'activity'} onClick={() => setView('activity')} />
         </nav>
 
         <div className="border-t border-white/8 p-4">
@@ -186,27 +206,46 @@ function App() {
             </div>
           )}
 
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Metric icon={<Cpu />} label="Projects" value={projects.length} />
-            <Metric icon={<ShieldCheck />} label="Pending approval" value={pending.length} emphasis />
-            <Metric icon={<Activity />} label="Agent decisions" value={decisions.length} />
-            <Metric icon={<Zap />} label="Active decisions" value={active.length} />
-            <Metric icon={<GitPullRequest />} label="Tasks" value={tasks.length} />
-            <Metric
-              icon={<AlertTriangle />}
-              label="Blocked tasks"
-              value={tasks.filter((task) => task.status === 'BLOCKED').length}
-              emphasis={tasks.some((task) => task.status === 'BLOCKED')}
+          {view === 'overview' && (
+            <Overview
+              projects={projects}
+              pending={pending}
+              decisions={decisions}
+              tasks={tasks}
+              employees={employees}
+              busyId={busyId}
+              onApprove={(id) => void resolve(id, 'approve')}
+              onReject={(id) => void resolve(id, 'reject')}
+              onRunAthena={(id) => void runAthena(id)}
+              onOpen={(nextView, projectId) => {
+                if (projectId) setSelectedProjectId(projectId)
+                setView(nextView)
+              }}
             />
-          </section>
+          )}
 
-          <section className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.025]">
-              <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
-                <div>
-                  <h2 className="font-semibold">CEO approval queue</h2>
-                  <p className="mt-1 text-sm text-zinc-500">Decisions waiting for your attention.</p>
-                </div>
+          {view === 'approvals' && (
+            <Approvals
+              pending={pending}
+              busyId={busyId}
+              onApprove={(id) => void resolve(id, 'approve')}
+              onReject={(id) => void resolve(id, 'reject')}
+            />
+          )}
+
+          {view === 'employees' && <Employees employees={employees} tasks={tasks} />}
+
+          {view === 'development' && (
+            <Development
+              projects={projects}
+              tasks={selectedProjectId ? tasks.filter((task) => task.feature?.projectId === selectedProjectId) : tasks}
+              selectedProjectId={selectedProjectId}
+              onSelectProject={setSelectedProjectId}
+            />
+          )}
+
+          {view === 'activity' && <ActivityView decisions={decisions} />}
+        </div>
                 <span className="rounded-full bg-white/8 px-2.5 py-1 text-xs text-zinc-400">
                   {pending.length} pending
                 </span>
@@ -334,23 +373,163 @@ function NavItem({
   label,
   active,
   count,
+  onClick,
 }: {
   icon: React.ReactNode
   label: string
   active?: boolean
   count?: number
+  onClick: () => void
 }) {
   return (
-    <div
-      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm ${
+    <button
+      onClick={onClick}
+      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
         active ? 'bg-white/8 text-white' : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'
       }`}
     >
       <span className="size-4">{icon}</span>
       <span className="flex-1">{label}</span>
       {count ? <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px]">{count}</span> : null}
+    </button>
+  )
+}
+
+function Overview({
+  projects,
+  pending,
+  decisions,
+  tasks,
+  employees,
+  busyId,
+  onApprove,
+  onReject,
+  onRunAthena,
+  onOpen,
+}: {
+  projects: Project[]
+  pending: Decision[]
+  decisions: Decision[]
+  tasks: Task[]
+  employees: Employee[]
+  busyId: string | null
+  onApprove: (id: string) => void
+  onReject: (id: string) => void
+  onRunAthena: (id: string) => void
+  onOpen: (view: 'approvals' | 'employees' | 'development' | 'activity', projectId?: string) => void
+}) {
+  const active = decisions.filter((d) => ['APPROVED', 'IN_PROGRESS'].includes(d.status))
+  return (
+    <>
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <Metric icon={<Cpu />} label="Projects" value={projects.length} />
+        <Metric icon={<ShieldCheck />} label="Pending approval" value={pending.length} emphasis />
+        <Metric icon={<Activity />} label="Agent decisions" value={decisions.length} />
+        <Metric icon={<Zap />} label="Active decisions" value={active.length} />
+        <Metric icon={<GitPullRequest />} label="Tasks" value={tasks.length} />
+        <Metric icon={<AlertTriangle />} label="Blocked tasks" value={tasks.filter((t) => t.status === 'BLOCKED').length} emphasis={tasks.some((t) => t.status === 'BLOCKED')} />
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.025]">
+          <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
+            <div>
+              <h2 className="font-semibold">CEO approval queue</h2>
+              <p className="mt-1 text-sm text-zinc-500">Decisions waiting for your attention.</p>
+            </div>
+            <button onClick={() => onOpen('approvals')} className="text-xs text-zinc-400 hover:text-white">View all →</button>
+          </div>
+          <div className="divide-y divide-white/6">
+            {pending.length === 0 && <EmptyState message="No decisions are waiting for approval." />}
+            {pending.slice(0, 3).map((decision) => (
+              <DecisionRow key={decision.id} decision={decision} busy={busyId === decision.id} onApprove={() => onApprove(decision.id)} onReject={() => onReject(decision.id)} />
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/8 bg-white/[0.025]">
+          <div className="border-b border-white/8 px-5 py-4">
+            <h2 className="font-semibold">Projects</h2>
+            <p className="mt-1 text-sm text-zinc-500">Run Athena or inspect development.</p>
+          </div>
+          <div className="divide-y divide-white/6">
+            {projects.length === 0 && <EmptyState message="No projects registered yet." />}
+            {projects.map((project) => (
+              <div key={project.id} className="flex items-center gap-3 px-5 py-4">
+                <button onClick={() => onOpen('development', project.id)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                  <div className="flex size-9 items-center justify-center rounded-lg bg-white/6"><CircleDot className="size-4 text-zinc-400" /></div>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium">{project.name}</div>
+                    <div className="truncate text-xs text-zinc-500">{project.repository ?? 'No repository connected'}</div>
+                  </div>
+                </button>
+                <button onClick={() => onRunAthena(project.id)} disabled={busyId === project.id} className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/8 disabled:opacity-50">
+                  {busyId === project.id ? 'Running…' : 'Run Athena'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-2">
+        <MiniList title="Workforce" action="Employees →" onAction={() => onOpen('employees')}>
+          {employees.slice(0, 6).map((employee) => <div key={employee.id} className="flex justify-between border-b border-white/6 px-5 py-3 text-sm"><span>{employee.name}</span><span className="text-xs text-zinc-500">{employee.role}</span></div>)}
+          {employees.length === 0 && <EmptyState message="No employees registered yet." />}
+        </MiniList>
+        <MiniList title="Task board" action="Development →" onAction={() => onOpen('development')}>
+          {tasks.slice(0, 6).map((task) => <button key={task.id} onClick={() => onOpen('development', task.feature?.projectId)} className="flex w-full justify-between border-b border-white/6 px-5 py-3 text-left text-sm hover:bg-white/[0.025]"><span className="truncate">{task.title}</span><span className="ml-3 text-xs text-zinc-500">{task.status}</span></button>)}
+          {tasks.length === 0 && <EmptyState message="No tasks created yet." />}
+        </MiniList>
+      </section>
+    </>
+  )
+}
+
+function Approvals({ pending, busyId, onApprove, onReject }: { pending: Decision[]; busyId: string | null; onApprove: (id: string) => void; onReject: (id: string) => void }) {
+  return (
+    <Panel title="CEO approvals" subtitle="Review decisions proposed by Forge agents.">
+      {pending.length === 0 ? <EmptyState message="Approval queue is clear." /> : pending.map((decision) => <DecisionRow key={decision.id} decision={decision} busy={busyId === decision.id} onApprove={() => onApprove(decision.id)} onReject={() => onReject(decision.id)} />)}
+    </Panel>
+  )
+}
+
+function Employees({ employees, tasks }: { employees: Employee[]; tasks: Task[] }) {
+  return (
+    <Panel title="Employees" subtitle="Forge workforce and current assignment state.">
+      {employees.length === 0 && <EmptyState message="No employees registered yet." />}
+      {employees.map((employee) => {
+        const assigned = tasks.filter((task) => task.assignee?.id === employee.id)
+        return <div key={employee.id} className="flex items-center gap-4 border-b border-white/6 px-5 py-4"><span className="size-2 rounded-full bg-emerald-400" /><div className="flex-1"><div className="text-sm font-medium">{employee.name}</div><div className="mt-1 text-xs text-zinc-500">{employee.role} · {employee.status}</div></div><span className="text-xs text-zinc-500">{assigned.length} tasks</span></div>
+      })}
+    </Panel>
+  )
+}
+
+function Development({ projects, tasks, selectedProjectId, onSelectProject }: { projects: Project[]; tasks: Task[]; selectedProjectId: string | null; onSelectProject: (id: string | null) => void }) {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap gap-2">
+        <button onClick={() => onSelectProject(null)} className={`rounded-lg px-3 py-2 text-sm ${!selectedProjectId ? 'bg-white text-black' : 'border border-white/10 text-zinc-400'}`}>All projects</button>
+        {projects.map((project) => <button key={project.id} onClick={() => onSelectProject(project.id)} className={`rounded-lg px-3 py-2 text-sm ${selectedProjectId === project.id ? 'bg-white text-black' : 'border border-white/10 text-zinc-400'}`}>{project.name}</button>)}
+      </div>
+      <Panel title="Development" subtitle="Tasks distributed by the Team Lead.">
+        {tasks.length === 0 ? <EmptyState message="No tasks for this selection." /> : tasks.map((task) => <div key={task.id} className="flex items-center gap-4 border-b border-white/6 px-5 py-4"><StatusDot status={task.status} /><div className="flex-1"><div className="text-sm">{task.title}</div><div className="mt-1 text-xs text-zinc-500">{task.feature?.title ?? 'Feature'} · {task.assignee?.name ?? 'Unassigned'}</div></div><span className="text-xs text-zinc-500">{task.status}</span></div>)}
+      </Panel>
     </div>
   )
+}
+
+function ActivityView({ decisions }: { decisions: Decision[] }) {
+  return <Panel title="Activity" subtitle="Persistent decisions produced by the company.">{decisions.length === 0 ? <EmptyState message="No agent activity yet." /> : decisions.map((decision) => <div key={decision.id} className="flex items-center gap-4 border-b border-white/6 px-5 py-4"><StatusDot status={decision.status} /><div className="flex-1"><div className="text-sm">{decision.title}</div><div className="mt-1 text-xs text-zinc-500">{decision.agent} · {decision.project.name} · {decision.priority}</div></div><span className="text-xs text-zinc-600">{new Date(decision.createdAt).toLocaleString()}</span></div>)}</Panel>
+}
+
+function Panel({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+  return <section className="rounded-2xl border border-white/8 bg-white/[0.025]"><div className="border-b border-white/8 px-5 py-4"><h2 className="font-semibold">{title}</h2><p className="mt-1 text-sm text-zinc-500">{subtitle}</p></div>{children}</section>
+}
+
+function MiniList({ title, action, onAction, children }: { title: string; action: string; onAction: () => void; children: React.ReactNode }) {
+  return <section className="rounded-2xl border border-white/8 bg-white/[0.025]"><div className="flex items-center justify-between border-b border-white/8 px-5 py-4"><h2 className="font-semibold">{title}</h2><button onClick={onAction} className="text-xs text-zinc-400 hover:text-white">{action}</button></div>{children}</section>
 }
 
 function Metric({
