@@ -7,6 +7,7 @@ import { ArtemisService } from './artemis.service.js';
 import { ApolloService } from './apollo.service.js';
 import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 import { AgentRunService } from './agent-run.service.js';
+import { LeaseService } from '../runtime/lease.service.js';
 
 @Injectable()
 export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
@@ -28,6 +29,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly audit: AuditService,
     private readonly runtime: AgentRuntimeService,
     private readonly agentRuns: AgentRunService,
+    private readonly lease: LeaseService,
   ) {}
 
   onModuleInit() {
@@ -57,6 +59,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
   private async cycle() {
     if (this.running) return;
+    if (!(await this.lease.acquire('forge:agent-worker-loop'))) return;
 
     this.running = true;
 
@@ -78,6 +81,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       });
     } finally {
       this.running = false;
+      await this.lease.release('forge:agent-worker-loop');
     }
   }
 
