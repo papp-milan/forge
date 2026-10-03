@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><style>
+.bg{fill:#f4f0e6}.ink{fill:#0a0a0a}.accent{fill:#ff5a1f}.cut{fill:#f4f0e6}
+@media(prefers-color-scheme:dark){.bg{fill:#101014}.ink{fill:#f7f7f2}.accent{fill:#d7ff00}.cut{fill:#101014}}
+</style></defs>
+<rect class="bg" width="512" height="512"/>
+<path class="ink" d="M78 112l42-36h272l42 36-28 56H106z"/>
+<path class="accent" d="M256 48l20 46-20 28-20-28z"/>
+<path class="ink" d="M142 168h228l-20 45h-68v105h62l28 38H140l28-38h62V213h-68z"/>
+<path class="ink" d="M198 355l-68 82 38 31 82-71 82 71 38-31-68-82z"/>
+<path class="cut" d="M176 115h160l-18 18H194z"/>
+<path class="cut" d="M215 176h82v18h-82z"/>
+<circle class="accent" cx="256" cy="140" r="8"/>
+</svg>
