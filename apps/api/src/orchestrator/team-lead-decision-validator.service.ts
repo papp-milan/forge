@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SafetyPolicyService } from './safety-policy.service.js';
+import { PermissionPolicyService } from './permission-policy.service.js';
 import {
   TeamLeadAction,
   TeamLeadDecision,
@@ -14,10 +15,15 @@ export interface DecisionValidationResult {
 
 @Injectable()
 export class TeamLeadDecisionValidatorService {
-  constructor(private readonly safety: SafetyPolicyService) {}
+  constructor(private readonly safety: SafetyPolicyService, private readonly permissions: PermissionPolicyService) {}
 
   validate(decision: TeamLeadDecision): DecisionValidationResult {
     const violations: string[] = [];
+
+    if (decision.actions.some((action) => action.type === 'RELEASE_FEATURE')) {
+      try { for (const action of decision.actions) this.permissions.assertAction('ATHENA', action); }
+      catch (error) { violations.push(error instanceof Error ? error.message : String(error)); }
+    }
 
     if (!decision.title.trim()) {
       violations.push('Decision title cannot be empty.');
