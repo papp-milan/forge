@@ -41,6 +41,13 @@ export class TeamLeadAgentService {
       };
     }
 
+    if (analysis.decision.type === 'NO_ACTION') {
+      return {
+        status: 'NO_ACTION' as const,
+        analysis,
+      };
+    }
+
     const decision = await this.decisionService.create(
       projectId,
       analysis.decision,
