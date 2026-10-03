@@ -36,6 +36,15 @@ export function useForgeData() {
 
   useEffect(() => {
     void load()
+    const refresh = () => {
+      if (document.visibilityState === 'visible') void load()
+    }
+    const interval = window.setInterval(refresh, 30000)
+    document.addEventListener('visibilitychange', refresh)
+    return () => {
+      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', refresh)
+    }
   }, [load])
 
   const pending = useMemo(() => decisions.filter((decision) => decision.status === 'PENDING'), [decisions])
