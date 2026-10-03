@@ -102,7 +102,37 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       try {
         const branchName = `forge/task-${task.id}`;
 
-        await this.github.createBranch(owner, repo, branchName);
+        if (!task.githubIssueNumber) {
+          const issue = await this.github.createIssue(
+            owner,
+            repo,
+            task.title,
+            [
+              task.description ? `## Description\\n\\n${task.description}` : '',
+              task.acceptanceCriteria
+                ? `## Acceptance Criteria\\n\\n${task.acceptanceCriteria}`
+                : '',
+              '---\\n\\nManaged by **Forge**.',
+            ].filter(Boolean).join('\\n\\n'),
+          );
+
+          await this.prisma.task.update({
+            where: { id: task.id },
+            data: {
+              githubIssueNumber: issue.number,
+              githubIssueUrl: issue.url,
+            },
+          });
+        }
+
+        try {
+          await this.github.createBranch(owner, repo, branchName);
+        } catch (error) {
+          const branches = await this.github.getBranches(owner, repo);
+          if (!branches.some((branch) => branch.name === branchName)) {
+            throw error;
+          }
+        }
 
         await this.prisma.task.update({
           where: { id: task.id },
@@ -147,7 +177,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         await this.audit.record({
           actor: 'hephaistos',
           type: 'WORKER_FAILED',
-          projectId: task.featureId,
+          projectId: task.feature.projectId,
           entityType: 'task',
           entityId: task.id,
           summary: `Hephaistos failed to run "${task.title}"`,
