@@ -265,7 +265,7 @@ function App() {
             void resolve(selectedDecision.id, 'reject')
           }}
         />
-      )
+      )}
     </div>
   )
 }
