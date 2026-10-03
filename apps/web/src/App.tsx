@@ -3,7 +3,6 @@ import {
   Activity,
   AlertTriangle,
   Check,
-  ChevronRight,
   CircleDot,
   ExternalLink,
   Cpu,
@@ -145,14 +144,6 @@ function App() {
 
   const pending = useMemo(
     () => decisions.filter((decision) => decision.status === 'PENDING'),
-    [decisions],
-  )
-
-  const active = useMemo(
-    () =>
-      decisions.filter((decision) =>
-        ['APPROVED', 'IN_PROGRESS'].includes(decision.status),
-      ),
     [decisions],
   )
 
@@ -517,6 +508,7 @@ function Approvals({ pending, busyId, onApprove, onReject, onOpen }: { pending: 
           busy={busyId === decision.id}
           onApprove={() => onApprove(decision.id)}
           onReject={() => onReject(decision.id)}
+          onOpen={() => onOpen(decision)}
         />
       ))}
     </Panel>
@@ -548,7 +540,6 @@ function Development({
   projects: Project[]
   features: Feature[]
   tasks: Task[]
-  employees: Employee[]
   selectedProjectId: string | null
   onSelectProject: (id: string | null) => void
   onTaskOpen: (task: Task) => void
@@ -661,6 +652,7 @@ function DecisionRow({
   busy,
   onApprove,
   onReject,
+  onOpen,
 }: {
   decision: Decision
   busy: boolean
