@@ -326,7 +326,6 @@ function App() {
               projects={projects}
               features={features}
               tasks={selectedProjectId ? tasks.filter((task) => task.feature?.projectId === selectedProjectId) : tasks}
-              employees={employees}
               selectedProjectId={selectedProjectId}
               onSelectProject={setSelectedProjectId}
               onTaskOpen={setSelectedTask}
