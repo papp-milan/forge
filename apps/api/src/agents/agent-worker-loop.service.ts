@@ -5,6 +5,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { HephaistosService } from './hephaistos.service.js';
 import { ArtemisService } from './artemis.service.js';
 import { ApolloService } from './apollo.service.js';
+import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 
 @Injectable()
 export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
@@ -24,6 +25,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly artemis: ArtemisService,
     private readonly apollo: ApolloService,
     private readonly audit: AuditService,
+    private readonly runtime: AgentRuntimeService,
   ) {}
 
   onModuleInit() {
@@ -35,6 +37,12 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
   onModuleDestroy() {
     if (this.timer) clearInterval(this.timer);
+  }
+
+  async runOnce() {
+    if (this.running) return { status: 'ALREADY_RUNNING' };
+    await this.cycle();
+    return { status: 'COMPLETED', runtime: this.runtime.mode() };
   }
 
   status() {
@@ -103,6 +111,11 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
       try {
         const branchName = `forge/task-${task.id}`;
+
+        if (this.runtime.mode() === 'deterministic') {
+          await this.prisma.task.update({ where: { id: task.id }, data: { branchName } });
+          continue;
+        }
 
         if (!task.githubIssueNumber) {
           const issue = await this.github.createIssue(
