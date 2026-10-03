@@ -385,7 +385,7 @@ The dashboard treats agents as visible characters rather than static rows. The r
 
 - **Animated tab transitions:** switching HQ tabs slides/skews the incoming view according to navigation direction.
 - **Agent theatre:** each employee has a role-specific, multi-line ASCII character rendered as a complete animated frame rather than separate animated lines.
-- **Agent pulse cards:** the Overview live-pulse row uses individually themed agent panels with deliberate 2rem desktop spacing; only a subset of cards use chromatic hard-offset shadows for a less repetitive composition, while light mode keeps the ASCII surface on the same warm card color instead of the beige `pre` surface.
+- **Agent pulse cards:** the Overview live-pulse row uses individually themed agent panels. Chromatic hard-offset shadows now act as live-state signals: working/blocked agents get their role color, while sleeping/offline agents use a neutral shadow. The pulse section and the metric-card group each keep 2rem vertical breathing room from neighboring components, and the ASCII surface matches its card.
 - **Live agent states:** agents sleep when they have no open work, animate as working when tasks are queued, and switch to a blocked state when assigned work is blocked.
 - **Reduced-motion support:** CSS animations are disabled when the user requests reduced motion.
 
