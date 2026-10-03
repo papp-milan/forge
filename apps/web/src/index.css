@@ -544,3 +544,341 @@ main {
     transform: none;
   }
 }
+
+
+/* =========================================================
+   Forge HQ visual system — comic command center
+   ========================================================= */
+:root {
+  --forge-bg: #070707;
+  --forge-panel: #0d0d10;
+  --forge-panel-2: #121216;
+  --forge-line: rgba(255,255,255,.13);
+  --forge-muted: #77777f;
+  --forge-acid: #d7ff00;
+  --forge-pink: #ff2d7d;
+  --forge-cyan: #19e6ff;
+  --forge-orange: #ff7a00;
+  --forge-purple: #9b5cff;
+}
+
+.forge-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 74% 8%, rgba(255,45,125,.09), transparent 26rem),
+    radial-gradient(circle at 30% 70%, rgba(25,230,255,.055), transparent 30rem),
+    linear-gradient(135deg, #050505 0%, #0a0a0d 48%, #060606 100%);
+  position: relative;
+  isolation: isolate;
+}
+
+.forge-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: .12;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 5px);
+  mix-blend-mode: screen;
+}
+
+.forge-main {
+  min-height: 100vh;
+  position: relative;
+}
+
+.forge-sidebar {
+  z-index: 60;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,.055), transparent 20%),
+    #070709;
+  border-right: 2px solid rgba(255,255,255,.14);
+  box-shadow: 14px 0 0 rgba(0,0,0,.45);
+  overflow: hidden;
+}
+
+.forge-sidebar::before {
+  content: "FORGE / OLYMPUS";
+  position: absolute;
+  right: -34px;
+  bottom: 110px;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  color: rgba(255,255,255,.045);
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .35em;
+}
+
+.forge-brand {
+  border-bottom: 2px solid rgba(255,255,255,.14);
+  position: relative;
+}
+
+.forge-brand::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  width: 42%;
+  height: 2px;
+  background: var(--forge-pink);
+  box-shadow: 0 0 22px var(--forge-pink);
+}
+
+.forge-brand-mark {
+  border: 2px solid white;
+  background: var(--forge-pink);
+  color: white;
+  transform: rotate(-7deg);
+  box-shadow: 4px 4px 0 #fff, 8px 8px 0 rgba(255,45,125,.28);
+}
+
+.forge-nav {
+  position: relative;
+  z-index: 2;
+}
+
+.forge-nav-item {
+  border: 1px solid transparent;
+  border-radius: 0 !important;
+  min-height: 44px;
+  position: relative;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+
+.forge-nav-item:hover {
+  background: rgba(255,255,255,.055);
+  border-color: rgba(255,255,255,.12);
+  transform: translateX(4px);
+}
+
+.forge-nav-item--active {
+  background: var(--forge-acid) !important;
+  color: #050505 !important;
+  border-color: #050505;
+  box-shadow: 5px 5px 0 #050505, 7px 7px 0 var(--forge-pink);
+  transform: translateX(3px) skewX(-1deg);
+}
+
+.forge-nav-item--active::after {
+  content: "◆";
+  position: absolute;
+  right: 12px;
+  font-size: 8px;
+}
+
+.forge-topbar {
+  background: rgba(5,5,7,.9);
+  border-bottom: 2px solid rgba(255,255,255,.13);
+  backdrop-filter: blur(14px);
+}
+
+.forge-topbar::after {
+  content: "";
+  position: absolute;
+  left: 256px;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--forge-pink), var(--forge-acid), var(--forge-cyan));
+  opacity: .75;
+}
+
+.forge-content {
+  position: relative;
+}
+
+.forge-content::before {
+  content: "HQ // LIVE";
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .22em;
+  color: rgba(255,255,255,.2);
+}
+
+.forge-metrics-grid {
+  position: relative;
+}
+
+.forge-metric {
+  position: relative;
+  overflow: hidden;
+  min-height: 125px;
+  padding: 1.1rem;
+  border: 2px solid rgba(255,255,255,.14);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.01)),
+    #0b0b0e;
+  box-shadow: 7px 7px 0 rgba(0,0,0,.7);
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.forge-metric:nth-child(2) {
+  border-color: rgba(215,255,0,.4);
+  box-shadow: 7px 7px 0 var(--forge-acid);
+}
+
+.forge-metric:nth-child(3) {
+  border-color: rgba(25,230,255,.35);
+}
+
+.forge-metric:nth-child(4) {
+  border-color: rgba(255,45,125,.4);
+  box-shadow: 7px 7px 0 var(--forge-pink);
+}
+
+.forge-metric:hover {
+  transform: translate(-3px,-3px) rotate(-.35deg);
+}
+
+.forge-metric > div:last-child {
+  font-family: ui-monospace, monospace;
+  font-size: 2.4rem;
+  font-weight: 950;
+}
+
+.forge-panel {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,.13);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.045), transparent 36%),
+    rgba(10,10,13,.94);
+  box-shadow: 8px 8px 0 rgba(0,0,0,.72);
+}
+
+.forge-panel::after {
+  content: "////";
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-family: ui-monospace, monospace;
+  font-size: 18px;
+  font-weight: 900;
+  color: rgba(255,255,255,.055);
+  letter-spacing: -.2em;
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
+
+.forge-panel__header {
+  min-height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid rgba(255,255,255,.1);
+  position: relative;
+}
+
+.forge-panel__header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 18%;
+  height: 2px;
+  background: var(--forge-cyan);
+  box-shadow: 0 0 16px var(--forge-cyan);
+}
+
+.forge-panel__mark {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--forge-acid);
+  letter-spacing: .15em;
+}
+
+.forge-text-action {
+  color: var(--forge-acid);
+  font-family: ui-monospace, monospace;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.forge-text-action:hover {
+  color: white;
+  text-shadow: 0 0 12px var(--forge-acid);
+}
+
+.forge-decision-row {
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.forge-decision-row:hover {
+  background: linear-gradient(90deg, rgba(255,45,125,.07), transparent 65%);
+  transform: translateX(3px);
+}
+
+.forge-decision-row h3 {
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -.02em;
+}
+
+.forge-decision-row button:first-of-type {
+  background: var(--forge-acid);
+  color: #050505;
+  border-radius: 0;
+  box-shadow: 4px 4px 0 #050505;
+  font-weight: 900;
+}
+
+.forge-decision-row button:last-of-type {
+  border-radius: 0;
+}
+
+.forge-overview-grid {
+  position: relative;
+}
+
+.forge-modal {
+  border: 2px solid white;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.06), transparent 30%),
+    #0a0a0d;
+  box-shadow: 12px 12px 0 #000, 0 0 70px rgba(255,45,125,.12);
+}
+
+.forge-modal::before {
+  content: "FORGE // INTERFACE";
+  display: block;
+  height: 5px;
+  background: linear-gradient(90deg, var(--forge-pink), var(--forge-acid), var(--forge-cyan));
+}
+
+.forge-roster-heading h2 {
+  text-shadow: 5px 5px 0 rgba(255,45,125,.16);
+}
+
+@media (max-width: 1023px) {
+  .forge-topbar::after {
+    left: 0;
+  }
+
+  .forge-content::before {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-nav-item:hover,
+  .forge-nav-item--active,
+  .forge-metric:hover,
+  .forge-decision-row:hover {
+    transform: none;
+  }
+}
