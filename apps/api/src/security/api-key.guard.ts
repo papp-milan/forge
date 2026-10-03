@@ -10,7 +10,7 @@ export class ApiKeyGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const method = request.method.toUpperCase();
     const path = request.path;
-    const protectedRead = path.startsWith('/api/approvals') || path.startsWith('/api/observability') || path.startsWith('/api/governance') || path.startsWith('/api/reconciliation');
+    const protectedRead = path.startsWith('/api/approvals') || path.startsWith('/api/observability') || path.startsWith('/api/governance') || path.startsWith('/api/reconciliation') || path.startsWith('/api/agents/sessions');
 
     if (!protectedRead && ['GET', 'HEAD', 'OPTIONS'].includes(method)) return true;
 
