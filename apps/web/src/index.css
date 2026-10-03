@@ -140,3 +140,9 @@
     cursor: not-allowed;
   }
 }
+
+.forge-app-shell{background:#07070a}
+.forge-sidebar{background:rgba(8,8,11,.92);backdrop-filter:blur(18px);transition:width 220ms ease}
+.forge-logo-mark{display:grid;place-items:center;width:36px;height:36px;border:1px solid rgba(255,255,255,.14);border-radius:10px;color:#08080a;background:linear-gradient(145deg,#fff,#aaa)}
+.forge-nav-active{background:linear-gradient(90deg,rgba(167,139,250,.12),rgba(167,139,250,.02));box-shadow:inset 2px 0 0 #a78bfa}
+.forge-topbar{background:rgba(7,7,10,.78);backdrop-filter:blur(20px)}
