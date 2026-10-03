@@ -1,21 +1,13 @@
 {
   "name": "forge",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "private": true,
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "12.8.1",
-      "onFail": "download"
-    }
-  },
   "packageManager": "pnpm@12.8.1",
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "dev:api": "pnpm --filter api start:dev",
+    "build:api": "pnpm --filter api build",
+    "test:api": "pnpm --filter api test"
+  }
 }
