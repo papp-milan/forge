@@ -84,18 +84,23 @@ model Pitch {
   title       String
   description String
   rationale   String?
+  problem     String?
+  solution    String?
+  impact      String?
+  risks       String?
   status      PitchStatus @default(PENDING_APPROVAL)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  featureId String?
-  feature   Feature? @relation(fields: [featureId], references: [id], onDelete: Cascade)
-
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  featureId String?
+  feature   Feature? @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
   reviews PitchReview[]
+  taskSuggestions PitchTaskSuggestion[]
 }
 
 enum PitchReviewAction {
@@ -113,6 +118,21 @@ model PitchReview {
 
   pitchId String
   pitch   Pitch @relation(fields: [pitchId], references: [id], onDelete: Cascade)
+}
+
+model PitchTaskSuggestion {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  acceptanceCriteria String?
+  role        EmployeeRole
+
+  createdAt DateTime @default(now())
+
+  pitchId String
+  pitch   Pitch @relation(fields: [pitchId], references: [id], onDelete: Cascade)
+
+  @@index([pitchId])
 }
 
 enum TaskStatus {

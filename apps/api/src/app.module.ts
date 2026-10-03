@@ -8,6 +8,7 @@ import { FeaturesModule } from './features/features.module.js';
 import { PitchesModule } from './pitches/pitches.module.js';
 import { TasksModule } from './tasks/tasks.module.js';
 import { GithubModule } from './github/github.module.js';
+import { OrchestratorModule } from './orchestrator/orchestrator.module.js';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { GithubModule } from './github/github.module.js';
     PitchesModule,
     TasksModule,
     GithubModule,
+    OrchestratorModule,
   ],
   controllers: [AppController],
   providers: [AppService],

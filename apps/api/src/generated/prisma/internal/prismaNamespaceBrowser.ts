@@ -56,6 +56,7 @@ export const ModelName = {
   Feature: 'Feature',
   Pitch: 'Pitch',
   PitchReview: 'PitchReview',
+  PitchTaskSuggestion: 'PitchTaskSuggestion',
   Task: 'Task',
   GithubWebhookEvent: 'GithubWebhookEvent'
 } as const
@@ -119,11 +120,15 @@ export const PitchScalarFieldEnum = {
   title: 'title',
   description: 'description',
   rationale: 'rationale',
+  problem: 'problem',
+  solution: 'solution',
+  impact: 'impact',
+  risks: 'risks',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  featureId: 'featureId',
-  projectId: 'projectId'
+  projectId: 'projectId',
+  featureId: 'featureId'
 } as const
 
 export type PitchScalarFieldEnum = (typeof PitchScalarFieldEnum)[keyof typeof PitchScalarFieldEnum]
@@ -138,6 +143,19 @@ export const PitchReviewScalarFieldEnum = {
 } as const
 
 export type PitchReviewScalarFieldEnum = (typeof PitchReviewScalarFieldEnum)[keyof typeof PitchReviewScalarFieldEnum]
+
+
+export const PitchTaskSuggestionScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  acceptanceCriteria: 'acceptanceCriteria',
+  role: 'role',
+  createdAt: 'createdAt',
+  pitchId: 'pitchId'
+} as const
+
+export type PitchTaskSuggestionScalarFieldEnum = (typeof PitchTaskSuggestionScalarFieldEnum)[keyof typeof PitchTaskSuggestionScalarFieldEnum]
 
 
 export const TaskScalarFieldEnum = {

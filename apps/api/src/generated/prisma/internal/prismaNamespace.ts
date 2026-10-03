@@ -402,6 +402,7 @@ export const ModelName = {
   Feature: 'Feature',
   Pitch: 'Pitch',
   PitchReview: 'PitchReview',
+  PitchTaskSuggestion: 'PitchTaskSuggestion',
   Task: 'Task',
   GithubWebhookEvent: 'GithubWebhookEvent'
 } as const
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "project" | "employee" | "feature" | "pitch" | "pitchReview" | "task" | "githubWebhookEvent"
+    modelProps: "project" | "employee" | "feature" | "pitch" | "pitchReview" | "pitchTaskSuggestion" | "task" | "githubWebhookEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -793,6 +794,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PitchTaskSuggestion: {
+      payload: Prisma.$PitchTaskSuggestionPayload<ExtArgs>
+      fields: Prisma.PitchTaskSuggestionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PitchTaskSuggestionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchTaskSuggestionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PitchTaskSuggestionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchTaskSuggestionPayload>
+        }
+        findFirst: {
+          args: Prisma.PitchTaskSuggestionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchTaskSuggestionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PitchTaskSuggestionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchTaskSuggestionPayload>
+        }
+        findMany: {
+          args: Prisma.PitchTaskSuggestionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchTaskSuggestionPayload>[]
+        }
+        create: {
+          args: Prisma.PitchTaskSuggestionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchTaskSuggestionPayload>
+        }
+        createMany: {
+          args: Prisma.PitchTaskSuggestionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PitchTaskSuggestionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchTaskSuggestionPayload>[]
+        }
+        delete: {
+          args: Prisma.PitchTaskSuggestionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchTaskSuggestionPayload>
+        }
+        update: {
+          args: Prisma.PitchTaskSuggestionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchTaskSuggestionPayload>
+        }
+        deleteMany: {
+          args: Prisma.PitchTaskSuggestionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PitchTaskSuggestionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PitchTaskSuggestionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchTaskSuggestionPayload>[]
+        }
+        upsert: {
+          args: Prisma.PitchTaskSuggestionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PitchTaskSuggestionPayload>
+        }
+        aggregate: {
+          args: Prisma.PitchTaskSuggestionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePitchTaskSuggestion>
+        }
+        groupBy: {
+          args: Prisma.PitchTaskSuggestionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PitchTaskSuggestionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PitchTaskSuggestionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PitchTaskSuggestionCountAggregateOutputType> | number
+        }
+      }
+    }
     Task: {
       payload: Prisma.$TaskPayload<ExtArgs>
       fields: Prisma.TaskFieldRefs
@@ -1023,11 +1098,15 @@ export const PitchScalarFieldEnum = {
   title: 'title',
   description: 'description',
   rationale: 'rationale',
+  problem: 'problem',
+  solution: 'solution',
+  impact: 'impact',
+  risks: 'risks',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  featureId: 'featureId',
-  projectId: 'projectId'
+  projectId: 'projectId',
+  featureId: 'featureId'
 } as const
 
 export type PitchScalarFieldEnum = (typeof PitchScalarFieldEnum)[keyof typeof PitchScalarFieldEnum]
@@ -1042,6 +1121,19 @@ export const PitchReviewScalarFieldEnum = {
 } as const
 
 export type PitchReviewScalarFieldEnum = (typeof PitchReviewScalarFieldEnum)[keyof typeof PitchReviewScalarFieldEnum]
+
+
+export const PitchTaskSuggestionScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  acceptanceCriteria: 'acceptanceCriteria',
+  role: 'role',
+  createdAt: 'createdAt',
+  pitchId: 'pitchId'
+} as const
+
+export type PitchTaskSuggestionScalarFieldEnum = (typeof PitchTaskSuggestionScalarFieldEnum)[keyof typeof PitchTaskSuggestionScalarFieldEnum]
 
 
 export const TaskScalarFieldEnum = {
@@ -1434,6 +1526,7 @@ export type GlobalOmitConfig = {
   feature?: Prisma.FeatureOmit
   pitch?: Prisma.PitchOmit
   pitchReview?: Prisma.PitchReviewOmit
+  pitchTaskSuggestion?: Prisma.PitchTaskSuggestionOmit
   task?: Prisma.TaskOmit
   githubWebhookEvent?: Prisma.GithubWebhookEventOmit
 }
