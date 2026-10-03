@@ -1538,3 +1538,9 @@ main {
     transform: none;
   }
 }
+
+.forge-character-poster__art picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
