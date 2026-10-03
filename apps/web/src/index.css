@@ -971,3 +971,38 @@ main {
 @media (max-width: 640px) {
   .forge-agent-pulse__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+
+/* Chromatic Forge atmosphere — stronger color without turning the HQ into glassmorphism. */
+.forge-shell {
+  background:
+    radial-gradient(ellipse 42% 34% at 82% 5%, rgba(255,45,125,.18), transparent 68%),
+    radial-gradient(ellipse 38% 34% at 52% 22%, rgba(155,92,255,.16), transparent 70%),
+    radial-gradient(ellipse 42% 38% at 8% 74%, rgba(25,230,255,.13), transparent 68%),
+    radial-gradient(ellipse 34% 30% at 76% 82%, rgba(215,255,0,.075), transparent 70%),
+    linear-gradient(135deg,#050507 0%,#090812 42%,#07090d 70%,#050505 100%);
+}
+.forge-shell::after {
+  content:"";
+  position:fixed;
+  inset:-20%;
+  z-index:-2;
+  pointer-events:none;
+  background:
+    conic-gradient(from 210deg at 50% 50%, transparent 0 22%, rgba(255,45,125,.045) 28%, transparent 36% 52%, rgba(25,230,255,.04) 58%, transparent 66% 82%, rgba(155,92,255,.045) 90%, transparent 96%);
+  filter:blur(45px);
+  animation:forge-color-drift 18s ease-in-out infinite alternate;
+}
+.forge-main {
+  background:
+    radial-gradient(ellipse 55% 40% at 88% 4%, rgba(255,45,125,.11), transparent 70%),
+    radial-gradient(ellipse 48% 38% at 4% 82%, rgba(25,230,255,.08), transparent 70%);
+}
+@keyframes forge-color-drift {
+  0% { transform:translate3d(-2%,-1%,0) rotate(0deg) scale(1); }
+  50% { transform:translate3d(2%,1%,0) rotate(2deg) scale(1.03); }
+  100% { transform:translate3d(-1%,2%,0) rotate(-1deg) scale(1.06); }
+}
+@media (prefers-reduced-motion:reduce) {
+  .forge-shell::after { animation:none; }
+}
