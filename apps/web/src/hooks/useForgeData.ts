@@ -43,6 +43,8 @@ export function useForgeData() {
   }, [])
 
   useEffect(() => {
+    // Initial synchronization intentionally hydrates independent slices.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load()
 
     const refresh = () => {
