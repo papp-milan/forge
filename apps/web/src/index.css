@@ -1390,30 +1390,77 @@ main {
   box-shadow: 8px 8px 0 rgba(23,20,17,.16) !important;
 }
 
+/* Agent pulse: light mode is a true editorial light surface. */
 .forge-theme-light .forge-agent-pulse {
-  background: #171411 !important;
-  color: #fffaf0 !important;
+  background: #fffaf0 !important;
+  color: #171411 !important;
+  border: 2px solid rgba(23,20,17,.18) !important;
+  box-shadow: 8px 8px 0 rgba(23,20,17,.16) !important;
 }
 
-.forge-theme-light .forge-agent-pulse .forge-agent-pulse__title {
-  border-bottom-color: rgba(255,255,255,.14) !important;
-}
-
-.forge-theme-light .forge-agent-pulse .forge-agent-pulse__agent {
-  border-right-color: rgba(255,255,255,.1) !important;
-}
-
-.forge-theme-light .forge-agent-pulse .forge-agent-pulse__meta {
-  background: rgba(255,255,255,.055) !important;
-  border-top-color: rgba(255,255,255,.12) !important;
-}
-
-.forge-theme-light .forge-agent-pulse .forge-kicker {
-  color: #ff6b72 !important;
+.forge-theme-light .forge-agent-pulse__title {
+  background: linear-gradient(90deg, rgba(227,38,46,.045), transparent 55%) !important;
+  border-bottom-color: rgba(23,20,17,.16) !important;
 }
 
 .forge-theme-light .forge-agent-pulse__title > span {
-  color: #d7ff00 !important;
+  color: #b21c25 !important;
+}
+
+.forge-theme-light .forge-agent-pulse__grid {
+  gap: 1.5rem !important;
+  padding: 1.5rem !important;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(23,20,17,.018) 24px),
+    #f5eadb !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent {
+  border: 2px solid color-mix(in srgb, var(--agent-color) 62%, #171411 18%) !important;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--agent-color) 8%, #fffaf0), #fffaf0 72%) !important;
+  box-shadow: 7px 7px 0 var(--agent-color) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent::before {
+  background: var(--agent-color) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--agent-color) 35%, transparent) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent::after {
+  color: color-mix(in srgb, var(--agent-color) 78%, #171411) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent .forge-ascii-agent {
+  background: color-mix(in srgb, var(--agent-color) 3%, #fffaf0) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent .forge-ascii-agent::before {
+  border-color: color-mix(in srgb, var(--agent-color) 38%, #171411 18%) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent .forge-ascii-agent::after {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 8px, rgba(23,20,17,.025) 9px, transparent 10px),
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--agent-color) 5%, transparent), transparent) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent .forge-ascii-agent pre {
+  text-shadow: 0 0 5px color-mix(in srgb, currentColor 28%, transparent) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__meta {
+  background: color-mix(in srgb, var(--agent-color) 7%, #fffaf0) !important;
+  border-top-color: color-mix(in srgb, var(--agent-color) 28%, rgba(23,20,17,.12)) !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-agent-pulse__meta strong {
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-agent-pulse__meta span {
+  color: var(--agent-color) !important;
 }
 
 .forge-theme-light .forge-decision-row {
@@ -1782,8 +1829,8 @@ main {
 
 .forge-agent-pulse__grid {
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 1rem;
-  padding: 1rem;
+  gap: 1.5rem !important;
+  padding: 1.5rem !important;
   background:
     repeating-linear-gradient(0deg, transparent 0 23px, rgba(255,255,255,.018) 24px),
     #08080a;
