@@ -12,6 +12,7 @@ import { OrchestratorModule } from './orchestrator/orchestrator.module.js';
 import { MemoryModule } from './memory/memory.module.js';
 import { AuditModule } from './audit/audit.module.js';
 import { RuntimeModule } from './runtime/runtime.module.js';
+import { AgentsModule } from './agents/agents.module.js';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RuntimeModule } from './runtime/runtime.module.js';
     MemoryModule,
     AuditModule,
     RuntimeModule,
+    AgentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
