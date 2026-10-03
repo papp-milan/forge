@@ -61,6 +61,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     this.running = true;
 
     try {
+      await this.recoverRetryableTasks();
       await this.prepareEngineerTasks();
       await this.runEngineerTasks();
       await this.runQaTasks();
@@ -77,6 +78,34 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       });
     } finally {
       this.running = false;
+    }
+  }
+
+  private async recoverRetryableTasks() {
+    const tasks = await this.prisma.task.findMany({
+      where: { status: 'BLOCKED', assignee: { role: { in: ['ENGINEER', 'UI_UX'] }, status: 'ACTIVE' } },
+      orderBy: { updatedAt: 'asc' },
+      take: 10,
+      include: { feature: { select: { projectId: true } } },
+    });
+
+    for (const task of tasks) {
+      const runs = await this.agentRuns.recentForTask(task.id, 1);
+      const latest = runs[0];
+      if (!latest || latest.attempt >= latest.maxAttempts || latest.status !== 'FAILED') continue;
+
+      await this.prisma.task.update({
+        where: { id: task.id },
+        data: { status: task.branchName ? 'IN_PROGRESS' : 'TODO' },
+      });
+      await this.audit.record({
+        actor: 'system',
+        type: 'WORKER_STARTED',
+        projectId: task.feature.projectId,
+        entityType: 'task',
+        entityId: task.id,
+        summary: `Retrying blocked task (attempt ${latest.attempt + 1}/${latest.maxAttempts})`,
+      });
     }
   }
 
@@ -197,6 +226,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         kind: 'ENGINEERING',
         projectId: task.feature.projectId,
         taskId: task.id,
+        attempt: ((await this.agentRuns.recentForTask(task.id, 1))[0]?.attempt ?? 0) + 1,
         context: { title: task.title, runtime: this.runtime.mode() },
       });
       try {
@@ -218,9 +248,15 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         if (task.assignee?.role === 'UI_UX') {
           await this.apollo.runTask(task.id);
         } else {
-          await this.hephaistos.runTask(task.id);
+          const result = task.assignee?.role === 'UI_UX'
+            ? await this.apollo.runTask(task.id)
+            : await this.hephaistos.runTask(task.id);
+          if (result.status === 'BLOCKED') {
+            await this.agentRuns.fail(run.id, result.result ?? result);
+          } else {
+            await this.agentRuns.complete(run.id, result);
+          }
         }
-        await this.agentRuns.complete(run.id, { status: 'COMPLETED' });
       } catch (error) {
         await this.agentRuns.fail(run.id, error);
         await this.audit.record({
