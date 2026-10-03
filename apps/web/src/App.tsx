@@ -21,27 +21,11 @@ function createMetricShadowPlan(): Array<string | null> {
   return plan
 }
 
-const DEFAULT_CREW: Employee[] = [
-  { id: 'fallback-athena', name: 'Athena', role: 'TEAM_LEAD', status: 'ACTIVE', color: '#8b5cf6' },
-  { id: 'fallback-apollo', name: 'Apollo', role: 'UI_UX', status: 'ACTIVE', color: '#f59e0b' },
-  { id: 'fallback-hephaistos', name: 'Hephaistos', role: 'ENGINEER', status: 'ACTIVE', color: '#ef4444' },
-  { id: 'fallback-artemis', name: 'Artemis', role: 'QA', status: 'ACTIVE', color: '#22c55e' },
-  { id: 'fallback-nike', name: 'Nike', role: 'DEVOPS', status: 'ACTIVE', color: '#06b6d4' },
-  { id: 'fallback-atlas', name: 'Atlas', role: 'DEVOPS', status: 'ACTIVE', color: '#3b82f6' },
-]
-
-async function api<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  })
-
-  if (!response.ok) {
-    const message = await response.text()
-    throw new Error(message || `Request failed: ${response.status}`)
-  }
-
-  return response.json()
+type View = 'overview' | 'approvals' | 'employees' | 'development' | 'activity'
+const VIEW_ORDER: View[] = ['overview', 'approvals', 'employees', 'development', 'activity']
+const pathToView = (path: string): View => {
+  const candidate = path.replace(/^\//, '').split('/')[0] as View
+  return VIEW_ORDER.includes(candidate) ? candidate : 'overview'
 }
 
 function App() {
@@ -54,12 +38,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
-  const viewOrder = ['overview', 'approvals', 'employees', 'development', 'activity'] as const
-  type View = (typeof viewOrder)[number]
-  const pathToView = (path: string): View => {
-    const candidate = path.replace(/^\//, '').split('/')[0] as View
-    return viewOrder.includes(candidate) ? candidate : 'overview'
-  }
+  const viewOrder = VIEW_ORDER
   const [view, setView] = useState<View>(() => pathToView(window.location.pathname))
   const [viewDirection, setViewDirection] = useState<'forward' | 'backward'>('forward')
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
