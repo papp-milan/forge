@@ -1,14 +1,14 @@
 {
   "main": {
-    "id": "8cb634207d8dcbad",
+    "id": "8fba83d5dde9dabc",
     "type": "split",
     "children": [
       {
-        "id": "0eeb562710522a62",
+        "id": "cdfcf5bc3385e78a",
         "type": "tabs",
         "children": [
           {
-            "id": "2a126fc4a322cb69",
+            "id": "39f8bf5ad176592a",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -23,15 +23,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "7dd2fb33840f5296",
+    "id": "4b7077811b2742dd",
     "type": "split",
     "children": [
       {
-        "id": "3b23fe4302220813",
+        "id": "50fa78a696d8bf34",
         "type": "tabs",
         "children": [
           {
-            "id": "630b8b7f47d45352",
+            "id": "ce9b899f91c2bb8d",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -46,7 +46,7 @@
             }
           },
           {
-            "id": "c9624497d79872d7",
+            "id": "4f6346ac488a52bf",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -63,7 +63,7 @@
             }
           },
           {
-            "id": "3c409ae558dd344f",
+            "id": "7670b3927c466cca",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -82,19 +82,20 @@
     "width": 300
   },
   "right": {
-    "id": "6218703806f84efa",
+    "id": "e1d6ded5a2cdd4e0",
     "type": "split",
     "children": [
       {
-        "id": "4379b3441b1fa65a",
+        "id": "01f163d73827ef98",
         "type": "tabs",
         "children": [
           {
-            "id": "41779e7e64fb42ed",
+            "id": "846ab3f015b35720",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
+                "file": "employees/artemis/identity.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -108,11 +109,12 @@
             }
           },
           {
-            "id": "c4c9e9d5cbc9a661",
+            "id": "a8b5c3d74aca45bb",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "employees/artemis/identity.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -121,7 +123,7 @@
             }
           },
           {
-            "id": "2fe516830682728b",
+            "id": "0a62dbee615b84f7",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -136,7 +138,7 @@
             }
           },
           {
-            "id": "dd95d5d3e38fc2d3",
+            "id": "177409ddffd305d2",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -150,11 +152,12 @@
             }
           },
           {
-            "id": "c51ee7dde9dde384",
+            "id": "f63af5d26cbb73fa",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
+                "file": "employees/artemis/identity.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -181,11 +184,6 @@
       "bases:Create new base": false
     }
   },
-  "active": "2a126fc4a322cb69",
-  "lastOpenFiles": [
-    "2026-10-03.md",
-    "principles.md",
-    "Untitled.canvas",
-    "rules.md"
-  ]
+  "active": "ce9b899f91c2bb8d",
+  "lastOpenFiles": []
 }

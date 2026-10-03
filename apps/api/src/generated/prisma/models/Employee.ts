@@ -29,6 +29,7 @@ export type EmployeeMinAggregateOutputType = {
   name: string | null
   role: $Enums.EmployeeRole | null
   status: $Enums.EmployeeStatus | null
+  color: string | null
   description: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -39,6 +40,7 @@ export type EmployeeMaxAggregateOutputType = {
   name: string | null
   role: $Enums.EmployeeRole | null
   status: $Enums.EmployeeStatus | null
+  color: string | null
   description: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +51,7 @@ export type EmployeeCountAggregateOutputType = {
   name: number
   role: number
   status: number
+  color: number
   description: number
   createdAt: number
   updatedAt: number
@@ -61,6 +64,7 @@ export type EmployeeMinAggregateInputType = {
   name?: true
   role?: true
   status?: true
+  color?: true
   description?: true
   createdAt?: true
   updatedAt?: true
@@ -71,6 +75,7 @@ export type EmployeeMaxAggregateInputType = {
   name?: true
   role?: true
   status?: true
+  color?: true
   description?: true
   createdAt?: true
   updatedAt?: true
@@ -81,6 +86,7 @@ export type EmployeeCountAggregateInputType = {
   name?: true
   role?: true
   status?: true
+  color?: true
   description?: true
   createdAt?: true
   updatedAt?: true
@@ -164,6 +170,7 @@ export type EmployeeGroupByOutputType = {
   name: string
   role: $Enums.EmployeeRole
   status: $Enums.EmployeeStatus
+  color: string
   description: string | null
   createdAt: Date
   updatedAt: Date
@@ -195,6 +202,7 @@ export type EmployeeWhereInput = {
   name?: Prisma.StringFilter<"Employee"> | string
   role?: Prisma.EnumEmployeeRoleFilter<"Employee"> | $Enums.EmployeeRole
   status?: Prisma.EnumEmployeeStatusFilter<"Employee"> | $Enums.EmployeeStatus
+  color?: Prisma.StringFilter<"Employee"> | string
   description?: Prisma.StringNullableFilter<"Employee"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
@@ -206,6 +214,7 @@ export type EmployeeOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  color?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -220,6 +229,7 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Employee"> | string
   role?: Prisma.EnumEmployeeRoleFilter<"Employee"> | $Enums.EmployeeRole
   status?: Prisma.EnumEmployeeStatusFilter<"Employee"> | $Enums.EmployeeStatus
+  color?: Prisma.StringFilter<"Employee"> | string
   description?: Prisma.StringNullableFilter<"Employee"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
@@ -231,6 +241,7 @@ export type EmployeeOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  color?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -247,6 +258,7 @@ export type EmployeeScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   role?: Prisma.EnumEmployeeRoleWithAggregatesFilter<"Employee"> | $Enums.EmployeeRole
   status?: Prisma.EnumEmployeeStatusWithAggregatesFilter<"Employee"> | $Enums.EmployeeStatus
+  color?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Employee"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Employee"> | Date | string
@@ -257,6 +269,7 @@ export type EmployeeCreateInput = {
   name: string
   role: $Enums.EmployeeRole
   status?: $Enums.EmployeeStatus
+  color?: string
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -268,6 +281,7 @@ export type EmployeeUncheckedCreateInput = {
   name: string
   role: $Enums.EmployeeRole
   status?: $Enums.EmployeeStatus
+  color?: string
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -279,6 +293,7 @@ export type EmployeeUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
   status?: Prisma.EnumEmployeeStatusFieldUpdateOperationsInput | $Enums.EmployeeStatus
+  color?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -290,6 +305,7 @@ export type EmployeeUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
   status?: Prisma.EnumEmployeeStatusFieldUpdateOperationsInput | $Enums.EmployeeStatus
+  color?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -301,6 +317,7 @@ export type EmployeeCreateManyInput = {
   name: string
   role: $Enums.EmployeeRole
   status?: $Enums.EmployeeStatus
+  color?: string
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -311,6 +328,7 @@ export type EmployeeUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
   status?: Prisma.EnumEmployeeStatusFieldUpdateOperationsInput | $Enums.EmployeeStatus
+  color?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -321,6 +339,7 @@ export type EmployeeUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
   status?: Prisma.EnumEmployeeStatusFieldUpdateOperationsInput | $Enums.EmployeeStatus
+  color?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -331,6 +350,7 @@ export type EmployeeCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  color?: Prisma.SortOrder
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -341,6 +361,7 @@ export type EmployeeMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  color?: Prisma.SortOrder
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -351,6 +372,7 @@ export type EmployeeMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  color?: Prisma.SortOrder
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -390,6 +412,7 @@ export type EmployeeCreateWithoutTasksInput = {
   name: string
   role: $Enums.EmployeeRole
   status?: $Enums.EmployeeStatus
+  color?: string
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -400,6 +423,7 @@ export type EmployeeUncheckedCreateWithoutTasksInput = {
   name: string
   role: $Enums.EmployeeRole
   status?: $Enums.EmployeeStatus
+  color?: string
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -426,6 +450,7 @@ export type EmployeeUpdateWithoutTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
   status?: Prisma.EnumEmployeeStatusFieldUpdateOperationsInput | $Enums.EmployeeStatus
+  color?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -436,6 +461,7 @@ export type EmployeeUncheckedUpdateWithoutTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
   status?: Prisma.EnumEmployeeStatusFieldUpdateOperationsInput | $Enums.EmployeeStatus
+  color?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -477,6 +503,7 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name?: boolean
   role?: boolean
   status?: boolean
+  color?: boolean
   description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -489,6 +516,7 @@ export type EmployeeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   role?: boolean
   status?: boolean
+  color?: boolean
   description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -499,6 +527,7 @@ export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   role?: boolean
   status?: boolean
+  color?: boolean
   description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -509,12 +538,13 @@ export type EmployeeSelectScalar = {
   name?: boolean
   role?: boolean
   status?: boolean
+  color?: boolean
   description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "role" | "status" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
+export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "role" | "status" | "color" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
 export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tasks?: boolean | Prisma.Employee$tasksArgs<ExtArgs>
   _count?: boolean | Prisma.EmployeeCountOutputTypeDefaultArgs<ExtArgs>
@@ -532,6 +562,7 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     name: string
     role: $Enums.EmployeeRole
     status: $Enums.EmployeeStatus
+    color: string
     description: string | null
     createdAt: Date
     updatedAt: Date
@@ -963,6 +994,7 @@ export interface EmployeeFieldRefs {
   readonly name: Prisma.FieldRef<"Employee", 'String'>
   readonly role: Prisma.FieldRef<"Employee", 'EmployeeRole'>
   readonly status: Prisma.FieldRef<"Employee", 'EmployeeStatus'>
+  readonly color: Prisma.FieldRef<"Employee", 'String'>
   readonly description: Prisma.FieldRef<"Employee", 'String'>
   readonly createdAt: Prisma.FieldRef<"Employee", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Employee", 'DateTime'>

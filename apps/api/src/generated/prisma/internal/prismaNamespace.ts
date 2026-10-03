@@ -1147,6 +1147,7 @@ export const EmployeeScalarFieldEnum = {
   name: 'name',
   role: 'role',
   status: 'status',
+  color: 'color',
   description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
