@@ -18,6 +18,11 @@ export class AgentsController {
     return this.workerLoop.status();
   }
 
+  @Post('worker/run-once')
+  runWorkerOnce() {
+    return this.workerLoop.runOnce();
+  }
+
   @Post('apollo/tasks/:taskId/run')
   runApollo(@Param('taskId') taskId: string) {
     return this.apollo.runTask(taskId);
