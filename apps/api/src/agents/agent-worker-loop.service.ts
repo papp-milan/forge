@@ -248,6 +248,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     });
 
     for (const task of tasks) {
+      if ((await this.governance.hasBlockingReviews(task.feature.projectId, task.feature.id)).length > 0) continue;
       const run = await this.agentRuns.start({
         agent: task.assignee?.role === 'UI_UX' ? 'apollo' : 'hephaistos',
         kind: 'ENGINEERING',
@@ -281,6 +282,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
             await this.agentRuns.complete(run.id, result);
           }
       } catch (error) {
+        await this.prisma.task.update({ where: { id: task.id }, data: { status: 'BLOCKED' } });
         await this.agentRuns.fail(run.id, error);
         await this.audit.record({
           actor: task.assignee?.role === 'UI_UX' ? 'apollo' : 'hephaistos',
