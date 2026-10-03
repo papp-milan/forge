@@ -13,6 +13,7 @@ import { MemoryModule } from './memory/memory.module.js';
 import { AuditModule } from './audit/audit.module.js';
 import { RuntimeModule } from './runtime/runtime.module.js';
 import { AgentsModule } from './agents/agents.module.js';
+import { WorkforceModule } from './workforce/workforce.module.js';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AgentsModule } from './agents/agents.module.js';
     AuditModule,
     RuntimeModule,
     AgentsModule,
+    WorkforceModule,
   ],
   controllers: [AppController],
   providers: [AppService],
