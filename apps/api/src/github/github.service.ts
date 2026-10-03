@@ -57,6 +57,99 @@ export class GithubService {
     };
   }
 
+  async getIssues(owner: string, repo: string) {
+    const octokit = await this.getClient();
+
+    const { data } = await octokit.request('GET /repos/{owner}/{repo}/issues', {
+      owner,
+      repo,
+      state: 'open',
+      per_page: 20,
+    });
+
+    return data
+      .filter((issue) => !issue.pull_request)
+      .map((issue) => ({
+        number: issue.number,
+        title: issue.title,
+        state: issue.state,
+        url: issue.html_url,
+        labels: issue.labels.map((label) =>
+          typeof label === 'string' ? label : label.name,
+        ),
+        createdAt: issue.created_at,
+        updatedAt: issue.updated_at,
+      }));
+  }
+
+  async getPullRequests(owner: string, repo: string) {
+    const octokit = await this.getClient();
+
+    const { data } = await octokit.request('GET /repos/{owner}/{repo}/pulls', {
+      owner,
+      repo,
+      state: 'open',
+      per_page: 20,
+    });
+
+    return data.map((pullRequest) => ({
+      number: pullRequest.number,
+      title: pullRequest.title,
+      state: pullRequest.state,
+      url: pullRequest.html_url,
+      branch: pullRequest.head.ref,
+      baseBranch: pullRequest.base.ref,
+      draft: pullRequest.draft,
+      createdAt: pullRequest.created_at,
+      updatedAt: pullRequest.updated_at,
+    }));
+  }
+
+  async getBranches(owner: string, repo: string) {
+    const octokit = await this.getClient();
+
+    const { data } = await octokit.request(
+      'GET /repos/{owner}/{repo}/branches',
+      {
+        owner,
+        repo,
+        per_page: 50,
+      },
+    );
+
+    return data.map((branch) => ({
+      name: branch.name,
+      protected: branch.protected,
+    }));
+  }
+
+  async getRecentCommits(owner: string, repo: string, branch?: string) {
+    const octokit = await this.getClient();
+
+    const { data } = await octokit.request(
+      'GET /repos/{owner}/{repo}/commits',
+      {
+        owner,
+        repo,
+        sha: branch,
+        per_page: 20,
+      },
+    );
+
+    return data.map((commit) => ({
+      sha: commit.sha,
+      message: commit.commit.message,
+      author: commit.commit.author
+        ? {
+            name: commit.commit.author.name,
+            email: commit.commit.author.email,
+            date: commit.commit.author.date,
+          }
+        : null,
+      url: commit.html_url,
+    }));
+  }
+
   async createIssue(owner: string, repo: string, title: string, body?: string) {
     const octokit = await this.getClient();
 
