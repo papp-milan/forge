@@ -203,6 +203,20 @@ function App() {
     }
   }
 
+  const runHephaistos = async (id: string) => {
+    setBusyId(id)
+    setError(null)
+    try {
+      await api(`/api/agents/hephaistos/tasks/${id}/run`, { method: 'POST' })
+      await load()
+      setSelectedTask(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Hephaistos run failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
   const taskAction = async (id: string, action: string, body?: unknown) => {
     setBusyId(id)
     setError(null)
@@ -336,6 +350,7 @@ function App() {
           busy={busyId === selectedTask.id}
           onClose={() => setSelectedTask(null)}
           onAction={taskAction}
+          onRunAgent={runHephaistos}
         />
       )}
 
@@ -698,7 +713,7 @@ function DecisionRow({
   )
 }
 
-function TaskDetails({task, employees, busy, onClose, onAction}: {task: Task; employees: Employee[]; busy: boolean; onClose: () => void; onAction: (id: string, action: string, body?: unknown) => void}) {
+function TaskDetails({task, employees, busy, onClose, onAction, onRunAgent}: {task: Task; employees: Employee[]; busy: boolean; onClose: () => void; onAction: (id: string, action: string, body?: unknown) => void; onRunAgent: (id: string) => void}) {
   const active = employees.filter((employee) => employee.status === 'ACTIVE')
   const next = task.status === 'TODO' ? ['start', 'Start task'] : task.status === 'IN_PROGRESS' ? ['submit-for-review', 'Submit for review'] : task.status === 'BLOCKED' ? ['resume', 'Resume task'] : task.status === 'IN_REVIEW' ? ['complete', 'Mark complete'] : null
   return (
@@ -709,7 +724,7 @@ function TaskDetails({task, employees, busy, onClose, onAction}: {task: Task; em
           <div className="grid gap-3 sm:grid-cols-2"><DetailStat label="Feature" value={task.feature?.title ?? 'Unknown'} /><DetailStat label="Assignee" value={task.assignee?.name ?? 'Unassigned'} /></div>
           {task.description && <p className="text-sm leading-6 text-zinc-300">{task.description}</p>}
           <div><div className="text-xs text-zinc-600">ASSIGNMENT</div><select defaultValue={task.assignee?.id ?? ''} disabled={busy} onChange={(event) => event.target.value && onAction(task.id, 'assign', {employeeId: event.target.value})} className="mt-2 w-full cursor-pointer rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-300"><option value="">Unassigned</option>{active.map((employee) => <option key={employee.id} value={employee.id}>{employee.name} · {employee.role}</option>)}</select></div>
-          <div><div className="text-xs text-zinc-600">WORKFLOW</div><div className="mt-3 flex flex-wrap gap-2">{next && <button disabled={busy} onClick={() => onAction(task.id, next[0])} className="cursor-pointer rounded-lg bg-white px-3 py-2 text-sm font-medium text-black disabled:opacity-50">{next[1]}</button>}{task.status === 'IN_PROGRESS' && <button disabled={busy} onClick={() => onAction(task.id, 'block')} className="cursor-pointer rounded-lg border border-red-400/20 px-3 py-2 text-sm text-red-200 disabled:opacity-50">Block</button>}</div></div>
+          <div><div className="text-xs text-zinc-600">WORKFLOW</div><div className="mt-3 flex flex-wrap gap-2">{task.assignee?.role === 'ENGINEER' && ['TODO', 'IN_PROGRESS'].includes(task.status) && task.branchName && <button disabled={busy} onClick={() => onRunAgent(task.id)} className="cursor-pointer rounded-lg bg-white px-3 py-2 text-sm font-medium text-black disabled:opacity-50">Run Hephaistos</button>}{next && <button disabled={busy} onClick={() => onAction(task.id, next[0])} className="cursor-pointer rounded-lg bg-white px-3 py-2 text-sm font-medium text-black disabled:opacity-50">{next[1]}</button>}{task.status === 'IN_PROGRESS' && <button disabled={busy} onClick={() => onAction(task.id, 'block')} className="cursor-pointer rounded-lg border border-red-400/20 px-3 py-2 text-sm text-red-200 disabled:opacity-50">Block</button>}</div></div>
           <div><div className="text-xs text-zinc-600">GITHUB DELIVERY</div><div className="mt-3 flex flex-wrap gap-2">{!task.githubIssueUrl && <button disabled={busy} onClick={() => onAction(task.id, 'github-issue')} className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 disabled:opacity-50">Create issue</button>}{task.githubIssueUrl && <a href={task.githubIssueUrl} target="_blank" rel="noreferrer" className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300">Issue #{task.githubIssueNumber}</a>}{task.githubIssueUrl && !task.branchName && <button disabled={busy} onClick={() => onAction(task.id, 'github-branch')} className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 disabled:opacity-50">Create branch</button>}{task.branchName && <span className="rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-500">{task.branchName}</span>}{task.branchName && !task.pullRequestUrl && <button disabled={busy} onClick={() => onAction(task.id, 'github-pull-request')} className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 disabled:opacity-50">Create PR</button>}{task.pullRequestUrl && <a href={task.pullRequestUrl} target="_blank" rel="noreferrer" className="cursor-pointer rounded-lg bg-white px-3 py-2 text-xs font-medium text-black">PR #{task.pullRequestNumber}</a>}</div></div>
         </div>
       </section>
