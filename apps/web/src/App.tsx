@@ -87,11 +87,16 @@ const API = import.meta.env.VITE_API_URL ?? ''
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
 
 function createMetricShadowPlan(): Array<string | null> {
-  const indices = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5)
+  const positions = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5)
   const colors = [...METRIC_SHADOW_COLORS].sort(() => Math.random() - 0.5)
   const count = 2 + Math.floor(Math.random() * 4)
-  const selected = new Set(indices.slice(0, count))
-  return indices.map((index) => selected.has(index) ? colors[index % colors.length] : null)
+  const plan: Array<string | null> = Array(6).fill(null)
+
+  positions.slice(0, count).forEach((position, index) => {
+    plan[position] = colors[index]
+  })
+
+  return plan
 }
 
 const DEFAULT_CREW: Employee[] = [
@@ -482,7 +487,7 @@ function Overview({
   onDecisionOpen: (decision: Decision) => void
 }) {
   const active = decisions.filter((d) => ['APPROVED', 'IN_PROGRESS'].includes(d.status))
-  const [metricShadowPlan] = useState<string[]>(() => createMetricShadowPlan() as string[])
+  const [metricShadowPlan] = useState<Array<string | null>>(() => createMetricShadowPlan())
   return (
     <div className="forge-overview-stack">
       <section className="forge-agent-pulse">
