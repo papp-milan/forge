@@ -645,11 +645,14 @@ function CharacterPoster({ employee, state, openTasks, totalTasks }: { employee:
     <div className="forge-character-poster" style={{ '--agent-color': employee.color } as React.CSSProperties}>
       <div className="forge-character-poster__burst">{dialogue.action}!</div>
       <div className="forge-character-poster__art">
-        <img
-          src={`/characters/${characterSlug}.svg`}
-          alt=""
-          className="forge-character-poster__image"
-        />
+        <picture>
+          <source srcSet={`/characters/${characterSlug}.png`} type="image/png" />
+          <img
+            src={`/characters/${characterSlug}.svg`}
+            alt=""
+            className="forge-character-poster__image"
+          />
+        </picture>
         <div className="forge-character-poster__live">
           <span className={`forge-agent-state forge-agent-state--${state.toLowerCase()}`}>
             <span className="forge-agent-state__dot" />
