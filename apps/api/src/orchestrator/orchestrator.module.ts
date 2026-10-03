@@ -8,6 +8,8 @@ import { TeamLeadController } from './team-lead.controller.js';
 import { TeamLeadService } from './team-lead.service.js';
 import { TeamLeadContextService } from './team-lead-context.service.js';
 import { TeamLeadAgentService } from './team-lead-agent.service.js';
+import { TeamLeadActionExecutorService } from './team-lead-action-executor.service.js';
+import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator.service.js';
 
 @Module({
   imports: [PrismaModule, GithubModule, MemoryModule],
@@ -17,6 +19,8 @@ import { TeamLeadAgentService } from './team-lead-agent.service.js';
     TeamLeadService,
     TeamLeadContextService,
     TeamLeadAgentService,
+    TeamLeadDecisionValidatorService,
+    TeamLeadActionExecutorService,
   ],
   exports: [OrchestratorService, TeamLeadService, TeamLeadContextService],
 })

@@ -1,3 +1,5 @@
+import type { EmployeeRole } from '../generated/prisma/enums.js';
+
 export type TeamLeadDecisionType =
   'NO_ACTION' | 'CREATE_PITCH' | 'INVESTIGATE' | 'UPDATE_MEMORY' | 'ESCALATE';
 
@@ -20,12 +22,16 @@ export interface TeamLeadDecision {
 export type TeamLeadAction =
   | {
       type: 'CREATE_PITCH';
+
       title: string;
       description: string;
+
       problem: string;
       solution: string;
       impact: string;
       risks?: string;
+
+      tasks: TeamLeadPitchTask[];
     }
   | {
       type: 'INVESTIGATE';
@@ -42,3 +48,10 @@ export type TeamLeadAction =
       type: 'ESCALATE';
       reason: string;
     };
+
+export interface TeamLeadPitchTask {
+  title: string;
+  description?: string;
+  acceptanceCriteria?: string;
+  role: EmployeeRole;
+}

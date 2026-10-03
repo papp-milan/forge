@@ -6,21 +6,77 @@ import { TeamLeadContext } from './team-lead-context.types.js';
 
 import { TeamLeadDecision } from './team-lead-decision.types.js';
 
+import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator.service.js';
+
+import { TeamLeadActionExecutorService } from './team-lead-action-executor.service.js';
+
 @Injectable()
 export class TeamLeadAgentService {
-  constructor(private readonly contextService: TeamLeadContextService) {}
+  constructor(
+    private readonly contextService: TeamLeadContextService,
+
+    private readonly validator: TeamLeadDecisionValidatorService,
+
+    private readonly executor: TeamLeadActionExecutorService,
+  ) {}
 
   async analyzeProject(projectId: string): Promise<{
     context: TeamLeadContext;
     decision: TeamLeadDecision;
+    validation: ReturnType<TeamLeadDecisionValidatorService['validate']>;
   }> {
     const context = await this.contextService.build(projectId);
 
     const decision = this.analyze(context);
 
+    const validation = this.validator.validate(decision);
+
     return {
       context,
       decision,
+      validation,
+    };
+  }
+
+  async executeDecision(projectId: string) {
+    const analysis = await this.analyzeProject(projectId);
+
+    if (!analysis.validation.valid) {
+      return {
+        status: 'BLOCKED' as const,
+
+        analysis,
+
+        reason: 'Decision failed validation.',
+      };
+    }
+
+    const results = await this.executor.execute(projectId, analysis.decision);
+
+    const executed = results.some((result) => result.status === 'EXECUTED');
+
+    const failed = results.some((result) => result.status === 'FAILED');
+
+    const blocked = results.some((result) => result.status === 'BLOCKED');
+
+    let status: 'EXECUTED' | 'PARTIAL' | 'BLOCKED' | 'FAILED';
+
+    if (failed) {
+      status = 'FAILED';
+    } else if (blocked && executed) {
+      status = 'PARTIAL';
+    } else if (blocked) {
+      status = 'BLOCKED';
+    } else {
+      status = 'EXECUTED';
+    }
+
+    return {
+      status,
+
+      analysis,
+
+      results,
     };
   }
 
@@ -40,6 +96,7 @@ export class TeamLeadAgentService {
         actions: [
           {
             type: 'ESCALATE',
+
             reason:
               'GitHub repository references do not match the project repository.',
           },
@@ -64,6 +121,7 @@ export class TeamLeadAgentService {
         actions: [
           {
             type: 'ESCALATE',
+
             reason:
               'Blocked tasks require investigation before additional work should be assigned.',
           },
@@ -125,6 +183,20 @@ export class TeamLeadAgentService {
 
             risks:
               'The proposed feature may not provide sufficient value and therefore requires CEO approval.',
+
+            tasks: [
+              {
+                title: 'Analyze the next product opportunity',
+
+                description:
+                  'Analyze the project, existing functionality and user needs to identify a concrete feature opportunity.',
+
+                acceptanceCriteria:
+                  'A concrete feature proposal with clear value, scope and acceptance criteria is prepared.',
+
+                role: 'TEAM_LEAD',
+              },
+            ],
           },
         ],
 

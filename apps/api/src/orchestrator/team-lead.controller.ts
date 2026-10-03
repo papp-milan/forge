@@ -42,4 +42,9 @@ export class TeamLeadController {
   analyzeProject(@Param('projectId') projectId: string) {
     return this.agentService.analyzeProject(projectId);
   }
+
+  @Post('projects/:projectId/execute')
+  executeDecision(@Param('projectId') projectId: string) {
+    return this.agentService.executeDecision(projectId);
+  }
 }
