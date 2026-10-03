@@ -380,8 +380,6 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       const allTasksDone = feature.tasks.every((task) => task.status === 'DONE');
 
       if (allTasksDone && feature.status === 'IN_PROGRESS') {
-        // Reaching QA is an explicit lifecycle gate. Never let the worker
-        // jump directly from development to CEO release review.
         await this.features.submitForQa(feature.id);
 
         await this.audit.record({
@@ -391,6 +389,19 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
           entityType: 'feature',
           entityId: feature.id,
           summary: 'Feature "' + feature.title + '" is ready for QA',
+        });
+      }
+
+      if (allTasksDone && feature.status === 'QA') {
+        await this.features.approveQa(feature.id);
+
+        await this.audit.record({
+          actor: 'artemis',
+          type: 'QA_APPROVED',
+          projectId: feature.projectId,
+          entityType: 'feature',
+          entityId: feature.id,
+          summary: 'Feature "' + feature.title + '" passed task-level QA and is ready for CEO release review',
         });
       }
     }
