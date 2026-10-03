@@ -97,7 +97,7 @@ export class MemoryService {
       entityId: metadata.id,
       summary: `Created memory ${relativePath}`,
       data: { path: relativePath, source: metadata.source, type: metadata.type },
-    } as any);
+    });
 
     return result;
   }
@@ -134,7 +134,7 @@ export class MemoryService {
       entityId: metadata.id,
       summary: `Updated memory ${relativePath}`,
       data: { path: relativePath, source: metadata.source, type: metadata.type },
-    } as any);
+    });
 
     return result;
   }
@@ -154,7 +154,7 @@ export class MemoryService {
       entityType: 'memory',
       summary: `Deleted memory ${relativePath}`,
       data: { path: relativePath },
-    } as any);
+    });
   }
 
   private async readFile(filePath: string): Promise<Memory> {
