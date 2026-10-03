@@ -123,7 +123,7 @@ export class GovernanceService {
     });
     if (!review) throw new NotFoundException('Governance review not found.');
     if (review.status === 'RESOLVED') throw new BadRequestException('Resolved reviews cannot be finalized again.');
-    if (['RECOMMENDED', 'REQUIRES_HUMAN_REVIEW'].includes(review.status)) return review;
+    if (review.recommendation && ['RECOMMENDED', 'REQUIRES_HUMAN_REVIEW'].includes(review.status)) return review;
     if (review.opinions.length === 0) {
       throw new BadRequestException('A governance review needs at least one recorded opinion.');
     }
