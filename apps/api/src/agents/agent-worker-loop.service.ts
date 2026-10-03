@@ -139,9 +139,8 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         status: { in: ['TODO', 'IN_PROGRESS'] },
         assignee: { role: { in: ['ENGINEER', 'UI_UX'] }, status: 'ACTIVE' },
         feature: {
-          project: {
-            repository: { not: null },
-          },
+          status: { in: ['PLANNED', 'IN_PROGRESS'] },
+          project: { repository: { not: null } },
         },
       },
       include: {
