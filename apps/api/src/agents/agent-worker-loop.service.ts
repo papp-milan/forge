@@ -8,6 +8,7 @@ import { ApolloService } from './apollo.service.js';
 import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 import { AgentRunService } from './agent-run.service.js';
 import { LeaseService } from '../runtime/lease.service.js';
+import { GovernancePolicyService } from '../governance/governance-policy.service.js';
 
 @Injectable()
 export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
@@ -30,6 +31,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly runtime: AgentRuntimeService,
     private readonly agentRuns: AgentRunService,
     private readonly lease: LeaseService,
+    private readonly governance: GovernancePolicyService,
   ) {}
 
   onModuleInit() {
@@ -64,6 +66,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     this.running = true;
 
     try {
+      await this.recoverStaleRuns();
       await this.recoverRetryableTasks();
       await this.prepareEngineerTasks();
       await this.runEngineerTasks();
@@ -82,6 +85,21 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     } finally {
       this.running = false;
       await this.lease.release('forge:agent-worker-loop');
+    }
+  }
+
+  private async recoverStaleRuns() {
+    const stale = await this.agentRuns.recoverStale();
+    for (const run of stale) {
+      await this.audit.record({
+        actor: 'system',
+        type: 'WORKER_FAILED',
+        projectId: run.projectId ?? undefined,
+        entityType: 'agent_run',
+        entityId: run.id,
+        summary: 'Stale agent run recovered and task blocked',
+        data: { agent: run.agent, taskId: run.taskId },
+      });
     }
   }
 
@@ -132,6 +150,8 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
     for (const task of tasks) {
       if (task.branchName) continue;
+
+      if ((await this.governance.hasBlockingReviews(task.feature.projectId, task.featureId)).length > 0) continue;
 
       const repository = task.feature.project.repository;
       if (!repository) continue;
@@ -341,6 +361,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
     for (const feature of features) {
       if (feature.tasks.length === 0) continue;
+      if ((await this.governance.hasBlockingReviews(feature.projectId, feature.id)).length > 0) continue;
 
       const hasActiveWork = feature.tasks.some((task) =>
         ['TODO', 'IN_PROGRESS', 'IN_REVIEW'].includes(task.status),
