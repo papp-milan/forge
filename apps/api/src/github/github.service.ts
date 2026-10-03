@@ -211,6 +211,26 @@ export class GithubService {
     };
   }
 
+  async mergePullRequest(owner: string, repo: string, pullNumber: number) {
+    const octokit = await this.getClient();
+
+    const { data } = await octokit.request(
+      'PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge',
+      {
+        owner,
+        repo,
+        pull_number: pullNumber,
+        merge_method: 'squash',
+      },
+    );
+
+    return {
+      merged: data.merged,
+      sha: data.sha,
+      message: data.message,
+    };
+  }
+
   async createPullRequest(
     owner: string,
     repo: string,
