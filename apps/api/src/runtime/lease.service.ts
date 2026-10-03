@@ -6,7 +6,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 export class LeaseService {
   private readonly owner = randomUUID();
   private readonly ttlMs = Math.max(
-    Number(process.env['FORGE_LEASE_TTL_MS'] ?? 120_000),
+    Number(process.env['FORGE_LEASE_TTL_MS'] ?? 900_000),
     30_000,
   );
 
