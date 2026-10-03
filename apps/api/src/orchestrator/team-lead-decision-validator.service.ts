@@ -28,6 +28,10 @@ export class TeamLeadDecisionValidatorService {
       violations.push(...this.validateAction(action));
     }
 
+    if (decision.type === 'RELEASE_FEATURE' && !decision.requiresCeoApproval) {
+      violations.push('Feature releases always require CEO approval.');
+    }
+
     const valid = violations.length === 0;
 
     return {
