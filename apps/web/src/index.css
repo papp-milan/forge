@@ -1056,3 +1056,209 @@ main {
 .forge-character-poster__live .forge-agent-state{padding:.28rem .45rem;background:#171717;border:2px solid #fff;color:#fff;box-shadow:3px 3px 0 var(--agent-color);font-size:.54rem}
 .forge-character-poster__live .forge-agent-state__dot{width:6px;height:6px}
 .forge-character-poster__art{min-height:205px;background:#171717}
+
+
+/* =========================================================
+   Light mode hard override — eliminate dark residue
+   ========================================================= */
+.forge-theme-light,
+.forge-theme-light .forge-main,
+.forge-theme-light .forge-content {
+  color: #171411;
+}
+
+.forge-theme-light .forge-sidebar {
+  background: #efe5d5 !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-sidebar::before {
+  color: rgba(23,20,17,.08);
+}
+
+.forge-theme-light .forge-topbar {
+  background: rgba(255,249,239,.96) !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-content::before {
+  color: rgba(23,20,17,.22);
+}
+
+.forge-theme-light main section > div[class*="rounded-2xl"],
+.forge-theme-light .forge-content section.rounded-2xl,
+.forge-theme-light .forge-panel,
+.forge-theme-light .forge-metric,
+.forge-theme-light .forge-agent-pulse {
+  background: #fffaf0 !important;
+  color: #171411 !important;
+  border-color: rgba(23,20,17,.18) !important;
+  box-shadow: 7px 7px 0 rgba(23,20,17,.16) !important;
+}
+
+.forge-theme-light main section > div[class*="rounded-xl"],
+.forge-theme-light .forge-content section.rounded-xl,
+.forge-theme-light .forge-content .rounded-xl {
+  background: #fffaf0 !important;
+  color: #171411 !important;
+  border-color: rgba(23,20,17,.14) !important;
+}
+
+.forge-theme-light main section > div[class*="rounded-2xl"]::after,
+.forge-theme-light .forge-panel::after {
+  opacity: .055;
+  background-image: repeating-linear-gradient(135deg, rgba(23,20,17,.55) 0 1px, transparent 1px 5px);
+}
+
+.forge-theme-light .forge-panel__header,
+.forge-theme-light .forge-agent-pulse__title {
+  border-bottom-color: rgba(23,20,17,.14) !important;
+}
+
+.forge-theme-light .forge-decision-row,
+.forge-theme-light .forge-agent-pulse__agent,
+.forge-theme-light .forge-agent-pulse__meta {
+  border-color: rgba(23,20,17,.11) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__meta {
+  background: rgba(23,20,17,.035) !important;
+}
+
+.forge-theme-light .forge-metric:nth-child(2),
+.forge-theme-light .forge-metric:nth-child(3),
+.forge-theme-light .forge-metric:nth-child(4) {
+  background: #fffaf0 !important;
+}
+
+.forge-theme-light .forge-agent-card {
+  background:
+    radial-gradient(circle at 80% 25%, color-mix(in srgb, var(--agent-color) 13%, transparent), transparent 42%),
+    #fffaf0 !important;
+  color: #171411 !important;
+  border-color: rgba(23,20,17,.22);
+  box-shadow: 8px 8px 0 rgba(23,20,17,.2);
+}
+
+.forge-theme-light .forge-agent-state {
+  background: rgba(23,20,17,.92) !important;
+  color: #fff !important;
+}
+
+.forge-theme-light .forge-action-button,
+.forge-theme-light .forge-status-pill,
+.forge-theme-light .forge-agent-chip {
+  background: rgba(23,20,17,.035) !important;
+  color: #403a34 !important;
+  border-color: rgba(23,20,17,.14) !important;
+}
+
+.forge-theme-light .forge-agent-chip:hover,
+.forge-theme-light .forge-action-button:hover {
+  background: rgba(23,20,17,.08) !important;
+}
+
+.forge-theme-light .forge-theme-toggle,
+.forge-theme-light .forge-refresh {
+  background: #fffaf0 !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-theme-toggle:hover,
+.forge-theme-light .forge-refresh:hover {
+  background: #e3262e !important;
+  color: #fff !important;
+}
+
+.forge-theme-light [class*="border-white/"] {
+  border-color: rgba(23,20,17,.13) !important;
+}
+
+.forge-theme-light [class*="bg-white/"] {
+  background-color: rgba(23,20,17,.035) !important;
+}
+
+.forge-theme-light [class*="hover:bg-white/"]:hover {
+  background-color: rgba(23,20,17,.065) !important;
+}
+
+.forge-theme-light .text-white {
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-nav-item--active,
+.forge-theme-light .forge-nav-item--active .text-white {
+  color: #fff !important;
+}
+
+.forge-theme-light .bg-white {
+  background-color: #171411 !important;
+  color: #fff !important;
+}
+
+.forge-theme-light .text-black {
+  color: #fff !important;
+}
+
+.forge-theme-light [class*="text-zinc-100"] { color: #171411 !important; }
+.forge-theme-light [class*="text-zinc-200"] { color: #2f2924 !important; }
+.forge-theme-light [class*="text-zinc-300"] { color: #413a33 !important; }
+.forge-theme-light [class*="text-zinc-400"] { color: #5c5147 !important; }
+.forge-theme-light [class*="text-zinc-500"] { color: #71655a !important; }
+.forge-theme-light [class*="text-zinc-600"] { color: #85776a !important; }
+.forge-theme-light [class*="text-zinc-700"] { color: #65594e !important; }
+
+.forge-theme-light [class*="hover:text-white"]:hover {
+  color: #171411 !important;
+}
+
+.forge-theme-light .forge-nav-item--active:hover,
+.forge-theme-light .forge-nav-item--active:hover [class*="text-"] {
+  color: #fff !important;
+}
+
+.forge-theme-light select,
+.forge-theme-light option,
+.forge-theme-light textarea,
+.forge-theme-light input {
+  background: #fffaf0 !important;
+  color: #171411 !important;
+  border-color: rgba(23,20,17,.2) !important;
+}
+
+.forge-theme-light [class*="bg-black/20"] {
+  background: rgba(23,20,17,.045) !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light [class*="bg-[#111114]"] {
+  background: #fffaf0 !important;
+  color: #171411 !important;
+}
+
+.forge-theme-light pre {
+  background: #f0e6d7 !important;
+  color: #413a33 !important;
+  border-color: rgba(23,20,17,.14) !important;
+}
+
+.forge-theme-light .forge-modal {
+  background: #fffaf0 !important;
+  color: #171411 !important;
+  border-color: #171411 !important;
+}
+
+.forge-theme-light .forge-modal .border-white\/8,
+.forge-theme-light .forge-modal .border-white\/10 {
+  border-color: rgba(23,20,17,.14) !important;
+}
+
+/* Black backdrop stays black; only the modal content is themed. */
+.forge-theme-light > .fixed.bg-black\/70 {
+  background: rgba(0,0,0,.58) !important;
+}
+
+/* Keep the character artwork itself untouched in light mode. */
+.forge-theme-light .forge-character-poster__image {
+  filter: saturate(1.05) contrast(1.05);
+}
