@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { HermesRuntimeService } from '../runtime/hermes-runtime.service.js';
 import { WorkspaceService } from './workspace.service.js';
 import { AuditService } from '../audit/audit.service.js';
+import { GithubService } from '../github/github.service.js';
 
 @Injectable()
 export class HephaistosService {
@@ -11,6 +12,7 @@ export class HephaistosService {
     private readonly hermes: HermesRuntimeService,
     private readonly workspaces: WorkspaceService,
     private readonly audit: AuditService,
+    private readonly github: GithubService,
   ) {}
 
   async runTask(taskId: string) {
