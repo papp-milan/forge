@@ -8,16 +8,25 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { GithubWebhookService } from './github-webhook.service.js';
 
 @Controller('api/github')
 export class GithubWebhookController {
+  constructor(private readonly webhookService: GithubWebhookService) {}
+
   @Post('webhook')
   @HttpCode(200)
-  handleWebhook(
-    @Req() request: Request & { rawBody?: Buffer },
-    @Headers('x-hub-signature-256') signature: string | undefined,
-    @Headers('x-github-event') event: string | undefined,
-    @Headers('x-github-delivery') delivery: string | undefined,
+  async handleWebhook(
+    @Req()
+    request: Request & {
+      rawBody?: Buffer;
+    },
+    @Headers('x-hub-signature-256')
+    signature: string | undefined,
+    @Headers('x-github-event')
+    event: string | undefined,
+    @Headers('x-github-delivery')
+    delivery: string | undefined,
   ) {
     const secret = process.env['GITHUB_WEBHOOK_SECRET'];
 
@@ -29,6 +38,14 @@ export class GithubWebhookController {
       throw new UnauthorizedException('Missing GitHub webhook signature');
     }
 
+    if (!event) {
+      throw new UnauthorizedException('Missing GitHub event');
+    }
+
+    if (!delivery) {
+      throw new UnauthorizedException('Missing GitHub delivery ID');
+    }
+
     if (!request.rawBody) {
       throw new Error('Raw request body is not available');
     }
@@ -38,6 +55,7 @@ export class GithubWebhookController {
       .digest('hex')}`;
 
     const signatureBuffer = Buffer.from(signature);
+
     const expectedBuffer = Buffer.from(expectedSignature);
 
     if (
@@ -47,7 +65,9 @@ export class GithubWebhookController {
       throw new UnauthorizedException('Invalid GitHub webhook signature');
     }
 
-    console.log(`[GitHub Webhook] ${event} (${delivery})`);
+    const payload = request.body;
+
+    await this.webhookService.handle(delivery, event, payload);
 
     return {
       received: true,

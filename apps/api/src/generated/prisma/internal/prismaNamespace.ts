@@ -402,7 +402,8 @@ export const ModelName = {
   Feature: 'Feature',
   Pitch: 'Pitch',
   PitchReview: 'PitchReview',
-  Task: 'Task'
+  Task: 'Task',
+  GithubWebhookEvent: 'GithubWebhookEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "project" | "employee" | "feature" | "pitch" | "pitchReview" | "task"
+    modelProps: "project" | "employee" | "feature" | "pitch" | "pitchReview" | "task" | "githubWebhookEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -866,6 +867,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    GithubWebhookEvent: {
+      payload: Prisma.$GithubWebhookEventPayload<ExtArgs>
+      fields: Prisma.GithubWebhookEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GithubWebhookEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubWebhookEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GithubWebhookEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubWebhookEventPayload>
+        }
+        findFirst: {
+          args: Prisma.GithubWebhookEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubWebhookEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GithubWebhookEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubWebhookEventPayload>
+        }
+        findMany: {
+          args: Prisma.GithubWebhookEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubWebhookEventPayload>[]
+        }
+        create: {
+          args: Prisma.GithubWebhookEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubWebhookEventPayload>
+        }
+        createMany: {
+          args: Prisma.GithubWebhookEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GithubWebhookEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubWebhookEventPayload>[]
+        }
+        delete: {
+          args: Prisma.GithubWebhookEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubWebhookEventPayload>
+        }
+        update: {
+          args: Prisma.GithubWebhookEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubWebhookEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.GithubWebhookEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GithubWebhookEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GithubWebhookEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubWebhookEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.GithubWebhookEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubWebhookEventPayload>
+        }
+        aggregate: {
+          args: Prisma.GithubWebhookEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGithubWebhookEvent>
+        }
+        groupBy: {
+          args: Prisma.GithubWebhookEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GithubWebhookEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GithubWebhookEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GithubWebhookEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -989,12 +1064,34 @@ export const TaskScalarFieldEnum = {
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
 
 
+export const GithubWebhookEventScalarFieldEnum = {
+  id: 'id',
+  deliveryId: 'deliveryId',
+  event: 'event',
+  action: 'action',
+  repository: 'repository',
+  payload: 'payload',
+  processedAt: 'processedAt',
+  error: 'error',
+  createdAt: 'createdAt'
+} as const
+
+export type GithubWebhookEventScalarFieldEnum = (typeof GithubWebhookEventScalarFieldEnum)[keyof typeof GithubWebhookEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1011,6 +1108,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1142,6 +1248,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1315,6 +1435,7 @@ export type GlobalOmitConfig = {
   pitch?: Prisma.PitchOmit
   pitchReview?: Prisma.PitchReviewOmit
   task?: Prisma.TaskOmit
+  githubWebhookEvent?: Prisma.GithubWebhookEventOmit
 }
 
 /* Types for Logging */

@@ -145,3 +145,20 @@ model Task {
   assigneeId String?
   assignee   Employee? @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
 }
+
+model GithubWebhookEvent {
+  id         String   @id @default(cuid())
+  deliveryId String   @unique
+  event      String
+  action     String?
+  repository String?
+  payload    Json
+
+  processedAt DateTime?
+  error      String?
+
+  createdAt DateTime @default(now())
+
+  @@index([event])
+  @@index([createdAt])
+}

@@ -47,3 +47,8 @@ export type PitchReview = Prisma.PitchReviewModel
  * 
  */
 export type Task = Prisma.TaskModel
+/**
+ * Model GithubWebhookEvent
+ * 
+ */
+export type GithubWebhookEvent = Prisma.GithubWebhookEventModel
