@@ -303,3 +303,244 @@ aside a {
 main {
   z-index: 0;
 }
+
+
+
+/* Forge / agent theatre */
+.forge-tab-stage {
+  min-height: 100%;
+  transform-origin: 50% 8%;
+  will-change: transform, opacity, filter;
+  animation: forge-tab-enter-forward 360ms cubic-bezier(.16,1,.3,1) both;
+}
+
+.forge-tab-stage-backward {
+  animation-name: forge-tab-enter-backward;
+}
+
+@keyframes forge-tab-enter-forward {
+  0% { opacity: 0; transform: translate3d(34px, 0, 0) skewX(-1.5deg); filter: blur(8px); }
+  55% { opacity: 1; transform: translate3d(-4px, 0, 0) skewX(.15deg); filter: blur(0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) skewX(0); filter: blur(0); }
+}
+
+@keyframes forge-tab-enter-backward {
+  0% { opacity: 0; transform: translate3d(-34px, 0, 0) skewX(1.5deg); filter: blur(8px); }
+  55% { opacity: 1; transform: translate3d(4px, 0, 0) skewX(-.15deg); filter: blur(0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) skewX(0); filter: blur(0); }
+}
+
+.forge-roster-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-bottom: 2px solid rgba(255,255,255,.12);
+  padding-bottom: 1.25rem;
+  position: relative;
+}
+
+.forge-roster-heading::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  width: 28%;
+  height: 2px;
+  background: var(--agent-color, #fff);
+  box-shadow: 0 0 24px rgba(255,255,255,.25);
+}
+
+.forge-roster-counter {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .18em;
+  border: 2px solid rgba(255,255,255,.18);
+  padding: .65rem .8rem;
+  background: #050505;
+  box-shadow: 6px 6px 0 rgba(255,255,255,.08);
+  white-space: nowrap;
+}
+
+.forge-agent-card {
+  --agent-color: #fff;
+  position: relative;
+  min-height: 350px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,.13);
+  background:
+    radial-gradient(circle at 80% 25%, color-mix(in srgb, var(--agent-color) 18%, transparent), transparent 42%),
+    linear-gradient(135deg, rgba(255,255,255,.045), rgba(255,255,255,.012) 58%, rgba(0,0,0,.2));
+  box-shadow: 9px 9px 0 rgba(0,0,0,.72), inset 0 0 0 1px rgba(255,255,255,.025);
+  padding: 1.1rem;
+  transition: transform 180ms cubic-bezier(.16,1,.3,1), box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.forge-agent-card:hover {
+  transform: translate(-3px, -3px) rotate(-.25deg);
+  border-color: color-mix(in srgb, var(--agent-color) 65%, white 8%);
+  box-shadow: 13px 13px 0 rgba(0,0,0,.72), 0 0 45px color-mix(in srgb, var(--agent-color) 15%, transparent);
+}
+
+.forge-agent-card__stripe {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--agent-color);
+  box-shadow: 0 0 22px var(--agent-color);
+  opacity: .9;
+}
+
+.forge-kicker {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  color: color-mix(in srgb, var(--agent-color, #fff) 70%, #888);
+}
+
+.forge-agent-state {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.45);
+  padding: .35rem .5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.forge-agent-state__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #777;
+}
+
+.forge-agent-state--working .forge-agent-state__dot {
+  background: var(--agent-color);
+  box-shadow: 0 0 12px var(--agent-color);
+  animation: forge-agent-pulse 650ms ease-in-out infinite alternate;
+}
+
+.forge-agent-state--sleeping .forge-agent-state__dot {
+  background: #6b7280;
+  animation: forge-breathe 1.8s ease-in-out infinite;
+}
+
+.forge-agent-state--blocked .forge-agent-state__dot {
+  background: #ff3355;
+  box-shadow: 0 0 14px #ff3355;
+  animation: forge-agent-pulse 450ms ease-in-out infinite alternate;
+}
+
+.forge-ascii-agent {
+  position: relative;
+  display: flex;
+  min-height: 190px;
+  align-items: center;
+  justify-content: center;
+  margin-top: .7rem;
+  overflow: hidden;
+  font-family: "Courier New", ui-monospace, monospace;
+  text-shadow: 0 0 12px currentColor;
+}
+
+.forge-ascii-agent::before,
+.forge-ascii-agent::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.forge-ascii-agent::before {
+  inset: 12% 8%;
+  border: 1px dashed color-mix(in srgb, currentColor 25%, transparent);
+  transform: skewX(-8deg);
+}
+
+.forge-ascii-agent::after {
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 8px, rgba(255,255,255,.025) 9px, transparent 10px),
+    linear-gradient(90deg, transparent, color-mix(in srgb, currentColor 7%, transparent), transparent);
+  animation: forge-ascii-scan 3.5s linear infinite;
+}
+
+.forge-ascii-agent pre {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  white-space: pre;
+  font-size: clamp(.9rem, 1.4vw, 1.35rem);
+  line-height: 1.15;
+  font-weight: 800;
+  transform: scale(1.08);
+  transition: opacity 120ms steps(2), transform 120ms steps(2);
+}
+
+.forge-ascii-agent__scan {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 15%;
+  height: 1px;
+  background: currentColor;
+  box-shadow: 0 0 14px currentColor;
+  opacity: .35;
+  animation: forge-ascii-line 2.4s ease-in-out infinite;
+}
+
+@keyframes forge-agent-pulse {
+  from { opacity: .45; transform: scale(.75); }
+  to { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes forge-breathe {
+  0%, 100% { opacity: .25; transform: scale(.8); }
+  50% { opacity: .75; transform: scale(1); }
+}
+
+@keyframes forge-ascii-scan {
+  0% { transform: translateY(-70%); opacity: .15; }
+  50% { opacity: .65; }
+  100% { transform: translateY(70%); opacity: .15; }
+}
+
+@keyframes forge-ascii-line {
+  0%, 100% { transform: scaleX(.35); opacity: .15; }
+  50% { transform: scaleX(1); opacity: .65; }
+}
+
+@media (max-width: 640px) {
+  .forge-roster-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .forge-roster-counter {
+    align-self: flex-end;
+  }
+
+  .forge-agent-card {
+    min-height: 320px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-tab-stage,
+  .forge-agent-state--working .forge-agent-state__dot,
+  .forge-agent-state--sleeping .forge-agent-state__dot,
+  .forge-agent-state--blocked .forge-agent-state__dot,
+  .forge-ascii-agent::after,
+  .forge-ascii-agent__scan {
+    animation: none;
+  }
+
+  .forge-agent-card:hover {
+    transform: none;
+  }
+}
