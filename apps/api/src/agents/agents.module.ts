@@ -10,9 +10,10 @@ import { WorkspaceService } from './workspace.service.js';
 import { AgentWorkerLoopService } from './agent-worker-loop.service.js';
 import { ApolloService } from './apollo.service.js';
 import { AgentRunService } from './agent-run.service.js';
+import { GovernanceModule } from '../governance/governance.module.js';
 
 @Module({
-  imports: [PrismaModule, GithubModule, RuntimeModule, AuditModule],
+  imports: [PrismaModule, GithubModule, RuntimeModule, AuditModule, GovernanceModule],
   controllers: [AgentsController],
   providers: [ArtemisService, HephaistosService, ApolloService, WorkspaceService, AgentRunService, AgentWorkerLoopService],
   exports: [ArtemisService, HephaistosService, ApolloService, AgentRunService],
