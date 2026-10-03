@@ -3,6 +3,7 @@ import { ArtemisService } from './artemis.service.js';
 import { HephaistosService } from './hephaistos.service.js';
 import { AgentWorkerLoopService } from './agent-worker-loop.service.js';
 import { ApolloService } from './apollo.service.js';
+import { AgentRunService } from './agent-run.service.js';
 
 @Controller('api/agents')
 export class AgentsController {
@@ -11,6 +12,7 @@ export class AgentsController {
     private readonly artemis: ArtemisService,
     private readonly workerLoop: AgentWorkerLoopService,
     private readonly apollo: ApolloService,
+    private readonly agentRuns: AgentRunService,
   ) {}
 
   @Get('worker/status')
@@ -21,6 +23,11 @@ export class AgentsController {
   @Post('worker/run-once')
   runWorkerOnce() {
     return this.workerLoop.runOnce();
+  }
+
+  @Get('tasks/:taskId/runs')
+  taskRuns(@Param('taskId') taskId: string) {
+    return this.agentRuns.recentForTask(taskId);
   }
 
   @Post('apollo/tasks/:taskId/run')
