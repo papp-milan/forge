@@ -14,12 +14,19 @@ export function useForgeData() {
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const loadingRef = useRef(false)
+  const dynamicLoadingRef = useRef(false)
+  const staticLoadingRef = useRef(false)
+  const activeLoadsRef = useRef(0)
+
+  const setLoadState = (active: boolean) => {
+    activeLoadsRef.current += active ? 1 : -1
+    setLoading(activeLoadsRef.current > 0)
+  }
 
   const loadDynamic = useCallback(async () => {
-    if (loadingRef.current) return
-    loadingRef.current = true
-    setLoading(true)
+    if (dynamicLoadingRef.current) return
+    dynamicLoadingRef.current = true
+    setLoadState(true)
     setError(null)
     try {
       const results = await Promise.allSettled([
@@ -33,14 +40,15 @@ export function useForgeData() {
       if (taskResult.status === 'fulfilled') setTasks(taskResult.value)
       if (featureResult.status === 'fulfilled') setFeatures(featureResult.value)
     } finally {
-      loadingRef.current = false
-      setLoading(false)
+      dynamicLoadingRef.current = false
+      setLoadState(false)
     }
   }, [])
 
   const loadStatic = useCallback(async () => {
-    if (loadingRef.current) return
-    loadingRef.current = true
+    if (staticLoadingRef.current) return
+    staticLoadingRef.current = true
+    setLoadState(true)
     try {
       const results = await Promise.allSettled([
         api<Project[]>('/api/projects'),
@@ -53,7 +61,8 @@ export function useForgeData() {
       if (employeeResult.status === 'fulfilled') setEmployees(employeeResult.value)
       if (auditResult.status === 'fulfilled') setAuditEvents(auditResult.value)
     } finally {
-      loadingRef.current = false
+      staticLoadingRef.current = false
+      setLoadState(false)
     }
   }, [])
 
