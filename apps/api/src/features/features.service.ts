@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateFeatureDto } from './dto/create-feature.dto.js';
 import { UpdateFeatureDto } from './dto/update-feature.dto.js';
+import { CreateFeatureTaskDto } from './dto/create-feature-tasks.dto.js';
 
 @Injectable()
 export class FeaturesService {
@@ -153,5 +154,58 @@ export class FeaturesService {
       where: { id },
       data: { status: 'RELEASED' },
     });
+  }
+
+  async createTasks(featureId: string, tasks: CreateFeatureTaskDto[]) {
+    const feature = await this.prisma.feature.findUnique({
+      where: { id: featureId },
+    });
+
+    if (!feature) {
+      throw new BadRequestException('Feature not found');
+    }
+
+    if (tasks.length === 0) {
+      throw new BadRequestException('At least one task is required');
+    }
+
+    for (const task of tasks) {
+      if (task.assigneeId) {
+        const employee = await this.prisma.employee.findUnique({
+          where: { id: task.assigneeId },
+        });
+
+        if (!employee) {
+          throw new BadRequestException(
+            `Employee ${task.assigneeId} not found`,
+          );
+        }
+
+        if (employee.status !== 'ACTIVE') {
+          throw new BadRequestException(
+            `Employee ${task.assigneeId} is not active`,
+          );
+        }
+      }
+    }
+
+    const createdTasks = await this.prisma.$transaction(
+      tasks.map((task) =>
+        this.prisma.task.create({
+          data: {
+            title: task.title,
+            description: task.description,
+            acceptanceCriteria: task.acceptanceCriteria,
+            featureId,
+            assigneeId: task.assigneeId,
+          },
+          include: {
+            assignee: true,
+          },
+        }),
+      ),
+    );
+
+    return createdTasks;
   }
 }

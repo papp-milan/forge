@@ -10,6 +10,7 @@ import {
 import { FeaturesService } from './features.service.js';
 import { CreateFeatureDto } from './dto/create-feature.dto.js';
 import { UpdateFeatureDto } from './dto/update-feature.dto.js';
+import { CreateFeatureTasksDto } from './dto/create-feature-tasks.dto.js';
 
 @Controller('api/features')
 export class FeaturesController {
@@ -63,5 +64,10 @@ export class FeaturesController {
   @Post(':id/release')
   release(@Param('id') id: string) {
     return this.featuresService.release(id);
+  }
+
+  @Post(':id/tasks')
+  createTasks(@Param('id') id: string, @Body() dto: CreateFeatureTasksDto) {
+    return this.featuresService.createTasks(id, dto.tasks);
   }
 }
