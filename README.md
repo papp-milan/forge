@@ -333,7 +333,7 @@ The next visual exploration lives in `/sketches/characters`. These six original 
 - `05-nike-release.svg` — energetic release / operations identity
 - `06-atlas-infra.svg` — heavier infrastructure / DevOps identity
 
-The intended production direction is to use these characters as reusable portraits, status poses, dialogue moments and animated agent states. The sketches use an original stylish Japanese game/comic dialogue language rather than reproducing any existing character or logo.
+The production UI now uses these characters as illustrated roster posters with reusable dialogue, action bursts and live status overlays. The source board is the visual reference: Persona/game-comic composition, warm editorial light mode, deep graphic dark mode, strong red/black contrast, expressive silhouettes, and minimal futuristic/cyberpunk treatment. The sketches use an original stylish Japanese game/comic dialogue language rather than reproducing any existing character or logo.
 
 ### Branding sketches
 
@@ -379,7 +379,7 @@ GitHub synchronization also avoids resurrecting completed tasks: discovering a p
 
 In `AGENT_RUNTIME=deterministic`, worker execution and feature release are explicitly simulated. Deterministic release does not require a real pull request merge; Hermes/real runtime keeps the GitHub merge gate.
 
-The dashboard also treats agents as visible characters rather than static rows. The two DEVOPS employees are intentionally distinct in the ASCII theatre: Nike is rendered as a release/launch machine, while Atlas is rendered as a heavier infrastructure/compute frame. If the employee API is temporarily unavailable, the built-in six-agent roster remains visible as a cached UI fallback instead of making the entire crew disappear. Production builds use a same-origin `/api` path by default, while Vite proxies `/api` to the local NestJS server during development.
+The dashboard treats agents as visible characters rather than static rows. The roster uses the illustrated character assets from `apps/web/public/characters/`, while the live state layer still exposes sleeping/working/blocked/offline state. If the employee API is temporarily unavailable, the built-in six-agent roster remains visible as a cached UI fallback instead of making the entire crew disappear. Production builds use a same-origin `/api` path by default, while Vite proxies `/api` to the local NestJS server during development.
 
 
 
