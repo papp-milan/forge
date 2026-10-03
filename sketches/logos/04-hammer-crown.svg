@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><style>
+.bg{fill:#fff}.ink{fill:#111}.accent{fill:#ff2d7d}
+@media(prefers-color-scheme:dark){.bg{fill:#08080a}.ink{fill:#fff}.accent{fill:#ff7a00}}
+</style></defs>
+<rect class="bg" width="512" height="512"/>
+<path class="accent" d="M154 74l48 28 54-44 54 44 48-28-18 92H172z"/>
+<path class="ink" d="M96 166h320l-24 62H120z"/>
+<path class="ink" d="M208 228h96v122h68l28 44H112l28-44h68z"/>
+<path class="ink" d="M190 350l-62 66 36 34 92-76 92 76 36-34-62-66z"/>
+<path class="bg" d="M194 184h124v14H194z"/>
+<path class="accent" d="M244 122h24v44h-24z"/>
+</svg>
