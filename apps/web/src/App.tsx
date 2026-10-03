@@ -287,7 +287,7 @@ function App() {
         <div className="border-t border-white/8 p-4">
           <div className="flex items-center gap-2 text-xs text-zinc-500">
             <span className={`size-2 rounded-full ${employees.length ? 'bg-emerald-400' : 'bg-red-400'}`} />
-            {employees.some((employee) => !employee.id.startsWith('fallback-')) ? `Crew online · ${employees.length} agents` : `Crew cached · ${employees.length} agents` : 'Crew cached · API retrying'}
+            {employees.some((employee) => !employee.id.startsWith('fallback-')) ? `Crew online · ${employees.length} agents` : `Crew cached · ${employees.length} agents`}
           </div>
         </div>
       </aside>
