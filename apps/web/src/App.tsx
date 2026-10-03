@@ -9,6 +9,8 @@ import {
   GitPullRequest,
   LayoutDashboard,
   RefreshCw,
+  Sun,
+  Moon,
   ShieldCheck,
   Users,
   X,
@@ -117,6 +119,14 @@ function App() {
   const [busyId, setBusyId] = useState<string | null>(null)
   const [view, setView] = useState<'overview' | 'approvals' | 'employees' | 'development' | 'activity'>('overview')
   const [viewDirection, setViewDirection] = useState<'forward' | 'backward'>('forward')
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'light'
+    return (window.localStorage.getItem('forge-theme') as 'light' | 'dark' | null) ?? 'light'
+  })
+
+  useEffect(() => {
+    window.localStorage.setItem('forge-theme', theme)
+  }, [theme])
 
   const viewOrder = ['overview', 'approvals', 'employees', 'development', 'activity'] as const
   const navigate = (nextView: typeof view) => {
@@ -264,7 +274,7 @@ function App() {
 
 
   return (
-    <div className="forge-shell min-h-screen text-zinc-100">
+    <div className={`forge-shell min-h-screen text-zinc-100 ${theme === 'light' ? 'forge-theme-light' : 'forge-theme-dark'}`}>
       <aside className="forge-sidebar fixed inset-y-0 left-0 hidden w-64 lg:flex lg:flex-col">
         <div className="forge-brand flex h-16 items-center gap-3 px-5">
           <div className="forge-brand-mark flex size-8 items-center justify-center">
@@ -299,13 +309,16 @@ function App() {
             <h1 className="text-lg font-semibold">{view === 'overview' ? 'Company overview' : view === 'approvals' ? 'CEO approvals' : view === 'employees' ? 'Olympus roster' : view === 'development' ? 'Development floor' : 'Activity log'}</h1>
           </div>
 
-          <button
-            onClick={() => void load()}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-300 transition hover:bg-white/10"
-          >
-            <RefreshCw className={`size-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
+          <div className="forge-topbar-actions">
+            <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} className="forge-theme-toggle cursor-pointer" aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
+              {theme === 'light' ? <Moon className="size-4" /> : <Sun className="size-4" />}
+              {theme === 'light' ? 'Dark' : 'Light'}
+            </button>
+            <button onClick={() => void load()} className="forge-refresh cursor-pointer">
+              <RefreshCw className={`size-4 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+          </div>
         </header>
 
         <div className="forge-content mx-auto max-w-[1500px] space-y-6 p-5 lg:p-8">
@@ -607,22 +620,39 @@ function Employees({ employees, tasks }: { employees: Employee[]; tasks: Task[] 
                 </span>
               </div>
 
-              <AgentAscii role={employee.role} state={state} color={employee.color} />
-
-              <div className="mt-4 flex items-end justify-between border-t border-white/10 pt-3">
-                <div>
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-600">Queue</div>
-                  <div className="mt-1 font-mono text-sm">{openTasks.length.toString().padStart(2, '0')} OPEN / {assigned.length.toString().padStart(2, '0')} TOTAL</div>
-                </div>
-                <div className="text-right text-xs text-zinc-500">
-                  {state === 'SLEEPING' ? 'dreaming in the forge' : state === 'WORKING' ? 'building the future' : state === 'BLOCKED' ? 'needs intervention' : 'offline'}
-                </div>
-              </div>
+              <CharacterPoster employee={employee} state={state} openTasks={openTasks.length} totalTasks={assigned.length} />
             </article>
           )
         })}
       </div>
     </section>
+  )
+}
+
+const CHARACTER_DIALOGUE: Record<string, { line: string; action: string }> = {
+  Athena: { line: 'The next move is obvious. Now make it happen.', action: 'COMMAND' },
+  Hephaistos: { line: 'Give me the issue. I will forge the fix.', action: 'BUILD' },
+  Artemis: { line: 'Not yet. I found something worth checking.', action: 'CHECK' },
+  Apollo: { line: 'If it feels right, people will understand it.', action: 'DESIGN' },
+  Nike: { line: 'Green light. Let it fly.', action: 'RELEASE' },
+  Atlas: { line: 'The foundation holds. Keep building.', action: 'DEPLOY' },
+}
+
+function CharacterPoster({ employee, state, openTasks, totalTasks }: { employee: Employee; state: AgentAsciiState; openTasks: number; totalTasks: number }) {
+  const dialogue = CHARACTER_DIALOGUE[employee.name] ?? { line: 'Forge is waiting for the next move.', action: 'STANDBY' }
+  return (
+    <div className="forge-character-poster" style={{ '--agent-color': employee.color } as React.CSSProperties}>
+      <div className="forge-character-poster__burst">{dialogue.action}!</div>
+      <div className="forge-character-poster__art">
+        <div className="forge-character-poster__sun" />
+        <AgentAscii role={employee.role} name={employee.name} state={state} color={employee.color} />
+      </div>
+      <div className="forge-character-poster__dialogue">
+        <div className="forge-character-poster__name">{employee.name}</div>
+        <div className="forge-character-poster__line">“{dialogue.line}”</div>
+        <div className="forge-character-poster__meta"><span>{state}</span><span>{openTasks.toString().padStart(2, '0')} OPEN / {totalTasks.toString().padStart(2, '0')} TOTAL</span></div>
+      </div>
+    </div>
   )
 }
 
