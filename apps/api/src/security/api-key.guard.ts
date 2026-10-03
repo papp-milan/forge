@@ -6,6 +6,7 @@ export class ApiKeyGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const configuredKey = process.env['FORGE_API_KEY'];
     if (!configuredKey) return true;
+    if (requestPath(context) === '/api/github/webhook') return true;
 
     const request = context.switchToHttp().getRequest<Request>();
     const method = request.method.toUpperCase();
@@ -18,4 +19,8 @@ export class ApiKeyGuard implements CanActivate {
     if (supplied !== configuredKey) throw new UnauthorizedException('Valid Forge API credentials are required.');
     return true;
   }
+}
+
+function requestPath(context: ExecutionContext): string {
+  return context.switchToHttp().getRequest<Request>().path;
 }
