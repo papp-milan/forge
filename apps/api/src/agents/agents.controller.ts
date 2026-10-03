@@ -1,9 +1,10 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ArtemisService } from './artemis.service.js';
 import { HephaistosService } from './hephaistos.service.js';
 import { AgentWorkerLoopService } from './agent-worker-loop.service.js';
 import { ApolloService } from './apollo.service.js';
 import { AgentRunService } from './agent-run.service.js';
+import { AgentSessionService } from './agent-session.service.js';
 
 @Controller('api/agents')
 export class AgentsController {
@@ -13,11 +14,52 @@ export class AgentsController {
     private readonly workerLoop: AgentWorkerLoopService,
     private readonly apollo: ApolloService,
     private readonly agentRuns: AgentRunService,
+    private readonly sessions: AgentSessionService,
   ) {}
 
   @Get('worker/status')
   workerStatus() {
     return this.workerLoop.status();
+  }
+
+  @Get('sessions/:sessionId')
+  session(@Param('sessionId') sessionId: string) {
+    return this.sessions.get(sessionId);
+  }
+
+  @Post('sessions')
+  startSession(@Body() body: { agent: string; runtime: string; projectId?: string; taskId?: string }) {
+    return this.sessions.start(body);
+  }
+
+  @Post('sessions/:sessionId/messages')
+  message(@Param('sessionId') sessionId: string, @Body() body: { role: string; content: unknown }) {
+    return this.sessions.message(sessionId, body.role, body.content);
+  }
+
+  @Post('sessions/:sessionId/tool-calls')
+  toolCall(@Param('sessionId') sessionId: string, @Body() body: { name: string; input?: unknown }) {
+    return this.sessions.toolStart(sessionId, body.name, body.input);
+  }
+
+  @Post('sessions/tool-calls/:toolCallId/complete')
+  completeToolCall(@Param('toolCallId') toolCallId: string, @Body() body: { status: string; output?: unknown; error?: string }) {
+    return this.sessions.toolComplete(toolCallId, body.status, body.output, body.error);
+  }
+
+  @Post('sessions/:sessionId/artifacts')
+  artifact(@Param('sessionId') sessionId: string, @Body() body: { name: string; type: string; uri?: string; checksum?: string; metadata?: unknown }) {
+    return this.sessions.artifact({ sessionId, ...body });
+  }
+
+  @Post('sessions/:sessionId/usage')
+  usage(@Param('sessionId') sessionId: string, @Body() body: { provider: string; model?: string; inputTokens?: number; outputTokens?: number; cachedTokens?: number; costUsd?: number }) {
+    return this.sessions.usage(sessionId, body);
+  }
+
+  @Post('sessions/:sessionId/finish')
+  finish(@Param('sessionId') sessionId: string, @Body() body: { status: 'COMPLETED' | 'FAILED' | 'BLOCKED' | 'CANCELLED' }) {
+    return this.sessions.finish(sessionId, body.status);
   }
 
   @Post('worker/run-once')
