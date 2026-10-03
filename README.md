@@ -330,7 +330,7 @@ Forge's original logo exploration lives in `/sketches/logos`. The first five dir
 - `04-hammer-crown.svg` — hammer/anvil mark with a crown-like top
 - `05-industrial-smith.svg` — technical industrial anvil/smith mark
 
-The direction is intentionally inspired by the bold monochrome, manga/print character of Hermes/Nous branding while remaining an original Forge mark rather than copying the Hermes logo. The current source reference uses a stark black/white character mark; Nous' published branding guidance also emphasizes xerox/riso grain, constrained palettes and distressed print texture. citeturn0search0turn0search7
+The direction is intentionally inspired by the bold monochrome, manga/print character of Hermes/Nous branding while remaining an original Forge mark rather than copying the Hermes logo. The current source reference uses a stark black/white character mark; Nous' published branding guidance also emphasizes xerox/riso grain, constrained palettes and distressed print texture.
 
 ### Current delivery safeguards
 
