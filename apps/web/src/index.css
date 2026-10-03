@@ -2131,3 +2131,25 @@ main {
     margin-block: 1.25rem !important;
   }
 }
+
+
+/* Light-mode legacy nth-child shadow rules are superseded by actual live state. */
+.forge-theme-light .forge-agent-pulse__agent[data-agent-state="SLEEPING"],
+.forge-theme-light .forge-agent-pulse__agent[data-agent-state="OFFLINE"] {
+  box-shadow: 6px 6px 0 rgba(23,20,17,.16) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent[data-agent-state="WORKING"],
+.forge-theme-light .forge-agent-pulse__agent[data-agent-state="BLOCKED"] {
+  box-shadow: 7px 7px 0 var(--agent-color) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent[data-agent-state="SLEEPING"]:hover,
+.forge-theme-light .forge-agent-pulse__agent[data-agent-state="OFFLINE"]:hover {
+  box-shadow: 8px 8px 0 rgba(23,20,17,.22) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent[data-agent-state="WORKING"]:hover,
+.forge-theme-light .forge-agent-pulse__agent[data-agent-state="BLOCKED"]:hover {
+  box-shadow: 9px 9px 0 var(--agent-color) !important;
+}
