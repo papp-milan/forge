@@ -7,6 +7,9 @@ import { ArtemisService } from './artemis.service.js';
 import { ApolloService } from './apollo.service.js';
 import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 import { AgentRunService } from './agent-run.service.js';
+import { LeaseService } from '../runtime/lease.service.js';
+import { GovernancePolicyService } from '../governance/governance-policy.service.js';
+import { FeaturesService } from '../features/features.service.js';
 
 @Injectable()
 export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
@@ -28,6 +31,9 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly audit: AuditService,
     private readonly runtime: AgentRuntimeService,
     private readonly agentRuns: AgentRunService,
+    private readonly lease: LeaseService,
+    private readonly governance: GovernancePolicyService,
+    private readonly features: FeaturesService,
   ) {}
 
   onModuleInit() {
@@ -57,10 +63,12 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
   private async cycle() {
     if (this.running) return;
+    if (!(await this.lease.acquire('forge:agent-worker-loop'))) return;
 
     this.running = true;
 
     try {
+      await this.recoverStaleRuns();
       await this.recoverRetryableTasks();
       await this.prepareEngineerTasks();
       await this.runEngineerTasks();
@@ -78,6 +86,22 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       });
     } finally {
       this.running = false;
+      await this.lease.release('forge:agent-worker-loop');
+    }
+  }
+
+  private async recoverStaleRuns() {
+    const stale = await this.agentRuns.recoverStale();
+    for (const run of stale) {
+      await this.audit.record({
+        actor: 'system',
+        type: 'WORKER_FAILED',
+        projectId: run.projectId ?? undefined,
+        entityType: 'agent_run',
+        entityId: run.id,
+        summary: 'Stale agent run recovered and task blocked',
+        data: { agent: run.agent, taskId: run.taskId },
+      });
     }
   }
 
@@ -115,9 +139,8 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         status: { in: ['TODO', 'IN_PROGRESS'] },
         assignee: { role: { in: ['ENGINEER', 'UI_UX'] }, status: 'ACTIVE' },
         feature: {
-          project: {
-            repository: { not: null },
-          },
+          status: { in: ['PLANNED', 'IN_PROGRESS'] },
+          project: { repository: { not: null } },
         },
       },
       include: {
@@ -128,6 +151,8 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
     for (const task of tasks) {
       if (task.branchName) continue;
+
+      if ((await this.governance.hasBlockingReviews(task.feature.projectId, task.featureId)).length > 0) continue;
 
       const repository = task.feature.project.repository;
       if (!repository) continue;
@@ -211,16 +236,18 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         status: { in: ['TODO', 'IN_PROGRESS'] },
         assignee: { role: { in: ['ENGINEER', 'UI_UX'] }, status: 'ACTIVE' },
         branchName: { not: null },
+        feature: { status: { in: ['PLANNED', 'IN_PROGRESS'] } },
       },
       orderBy: { createdAt: 'asc' },
       take: 3,
       include: {
         assignee: true,
-        feature: { select: { projectId: true } },
+        feature: { select: { projectId: true, id: true } },
       },
     });
 
     for (const task of tasks) {
+      if ((await this.governance.hasBlockingReviews(task.feature.projectId, task.feature.id)).length > 0) continue;
       const run = await this.agentRuns.start({
         agent: task.assignee?.role === 'UI_UX' ? 'apollo' : 'hephaistos',
         kind: 'ENGINEERING',
@@ -254,6 +281,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
             await this.agentRuns.complete(run.id, result);
           }
       } catch (error) {
+        await this.prisma.task.update({ where: { id: task.id }, data: { status: 'BLOCKED' } });
         await this.agentRuns.fail(run.id, error);
         await this.audit.record({
           actor: task.assignee?.role === 'UI_UX' ? 'apollo' : 'hephaistos',
@@ -337,28 +365,21 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
     for (const feature of features) {
       if (feature.tasks.length === 0) continue;
+      if ((await this.governance.hasBlockingReviews(feature.projectId, feature.id)).length > 0) continue;
 
       const hasActiveWork = feature.tasks.some((task) =>
         ['TODO', 'IN_PROGRESS', 'IN_REVIEW'].includes(task.status),
       );
 
       if (hasActiveWork && feature.status === 'PLANNED') {
-        await this.prisma.feature.update({
-          where: { id: feature.id },
-          data: { status: 'IN_PROGRESS' },
-        });
+        await this.features.start(feature.id);
         continue;
       }
 
       const allTasksDone = feature.tasks.every((task) => task.status === 'DONE');
 
       if (allTasksDone && feature.status === 'IN_PROGRESS') {
-        // Reaching QA is an explicit lifecycle gate. Never let the worker
-        // jump directly from development to CEO release review.
-        await this.prisma.feature.update({
-          where: { id: feature.id },
-          data: { status: 'QA' },
-        });
+        await this.features.submitForQa(feature.id);
 
         await this.audit.record({
           actor: 'artemis',
@@ -367,6 +388,19 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
           entityType: 'feature',
           entityId: feature.id,
           summary: 'Feature "' + feature.title + '" is ready for QA',
+        });
+      }
+
+      if (allTasksDone && feature.status === 'QA') {
+        await this.features.approveQa(feature.id);
+
+        await this.audit.record({
+          actor: 'artemis',
+          type: 'QA_APPROVED',
+          projectId: feature.projectId,
+          entityType: 'feature',
+          entityId: feature.id,
+          summary: 'Feature "' + feature.title + '" passed task-level QA and is ready for CEO release review',
         });
       }
     }

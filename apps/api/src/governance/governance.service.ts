@@ -21,6 +21,18 @@ export class GovernanceService {
     context: Record<string, unknown>;
     requiresHumanReview?: boolean;
   }) {
+    const existing = await this.prisma.governanceReview.findFirst({
+      where: {
+        projectId: input.projectId,
+        domain: input.domain,
+        subjectType: input.subjectType,
+        subjectId: input.subjectId,
+        status: { not: 'RESOLVED' },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (existing) return this.getReview(existing.id);
+
     const review = await this.prisma.governanceReview.create({
       data: {
         projectId: input.projectId,
@@ -30,6 +42,7 @@ export class GovernanceService {
         title: input.title,
         context: JSON.parse(JSON.stringify(input.context)),
         status: input.requiresHumanReview ? 'REQUIRES_HUMAN_REVIEW' : 'OPEN',
+        requiresHumanReview: input.requiresHumanReview ?? false,
       },
       include: { opinions: true, findings: true },
     });
@@ -109,6 +122,8 @@ export class GovernanceService {
       include: { opinions: true, findings: true },
     });
     if (!review) throw new NotFoundException('Governance review not found.');
+    if (review.status === 'RESOLVED') throw new BadRequestException('Resolved reviews cannot be finalized again.');
+    if (review.recommendation && ['RECOMMENDED', 'REQUIRES_HUMAN_REVIEW'].includes(review.status)) return review;
     if (review.opinions.length === 0) {
       throw new BadRequestException('A governance review needs at least one recorded opinion.');
     }
@@ -147,6 +162,17 @@ export class GovernanceService {
     const resolved = await this.prisma.governanceReview.update({ where: { id: reviewId }, data: { status: 'RESOLVED', recommendation: (review.recommendation ?? '') + '\\n\\nHuman review: ' + comment } , include: { opinions: true, findings: true } });
     await this.audit.record({ actor: 'ceo', type: 'GOVERNANCE_REVIEW_FINALIZED', projectId: review.projectId, entityType: 'governance_review', entityId: reviewId, summary: 'Governance review resolved by human authority', data: { comment } });
     return resolved;
+  }
+
+  async hasBlockingReview(projectId: string, subjectId: string) {
+    return this.prisma.governanceReview.findMany({
+      where: {
+        projectId,
+        subjectId,
+        status: { in: ['OPEN', 'DEBATING', 'REQUIRES_HUMAN_REVIEW'] },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async getReview(reviewId: string) {

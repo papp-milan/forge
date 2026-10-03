@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateFeatureDto } from './dto/create-feature.dto.js';
 import { UpdateFeatureDto } from './dto/update-feature.dto.js';
@@ -78,8 +78,8 @@ export class FeaturesService {
       );
     }
 
-    const planned = await this.prisma.feature.update({ where: { id }, data: { status: 'PLANNED' } });
     await this.governance.requestLifecycleReviews({ projectId: feature.projectId, subjectType: 'FEATURE', subjectId: feature.id, title: feature.title, context: { description: feature.description, lifecycle: 'PLANNING' }, domains: ['ARCHITECTURE','PRIVACY','SECURITY','INFRASTRUCTURE','COST'] });
+    const planned = await this.transition(id, 'PROPOSED', 'PLANNED');
     return planned;
   }
 
@@ -98,10 +98,11 @@ export class FeaturesService {
       );
     }
 
-    return this.prisma.feature.update({
-      where: { id },
-      data: { status: 'IN_PROGRESS' },
-    });
+    if ((await this.governance.hasBlockingReviews(feature.projectId, feature.id)).length > 0) {
+      throw new BadRequestException('Feature cannot start while governance reviews remain blocking.');
+    }
+
+    return this.transition(id, 'PLANNED', 'IN_PROGRESS');
   }
 
   async submitForQa(id: string) {
@@ -138,10 +139,7 @@ export class FeaturesService {
       );
     }
 
-    return this.prisma.feature.update({
-      where: { id },
-      data: { status: 'QA' },
-    });
+    return this.transition(id, 'IN_PROGRESS', 'QA');
   }
 
   async approveQa(id: string) {
@@ -159,10 +157,15 @@ export class FeaturesService {
       );
     }
 
-    return this.prisma.feature.update({
-      where: { id },
-      data: { status: 'READY_FOR_REVIEW' },
+    const tasks = await this.prisma.task.findMany({
+      where: { featureId: id },
+      select: { status: true },
     });
+    if (tasks.length === 0 || tasks.some((task) => task.status !== 'DONE')) {
+      throw new BadRequestException('Feature cannot become release-ready until every task has passed QA.');
+    }
+
+    return this.transition(id, 'QA', 'READY_FOR_REVIEW');
   }
 
   async release(id: string) {
@@ -206,6 +209,14 @@ export class FeaturesService {
 
     if (!feature.project.repository) {
       throw new BadRequestException('Project has no GitHub repository configured');
+    }
+
+    const claimed = await this.prisma.feature.updateMany({
+      where: { id, status: 'READY_FOR_REVIEW' },
+      data: { status: 'RELEASING' },
+    });
+    if (claimed.count !== 1) {
+      throw new ConflictException('Feature release is already in progress or the feature state changed.');
     }
 
     await this.audit.record({
@@ -286,10 +297,7 @@ export class FeaturesService {
         });
       }
 
-      const released = await this.prisma.feature.update({
-        where: { id },
-        data: { status: 'RELEASED' },
-      });
+      const released = await this.transition(id, 'RELEASING', 'RELEASED');
 
       await this.memory.remember({
         scope: 'projects',
@@ -311,6 +319,10 @@ export class FeaturesService {
 
       return released;
     } catch (error) {
+      await this.prisma.feature.updateMany({
+        where: { id, status: 'RELEASING' },
+        data: { status: 'READY_FOR_REVIEW' },
+      });
       await this.audit.record({
         actor: 'ceo',
         type: 'RELEASE_FAILED',
@@ -324,6 +336,23 @@ export class FeaturesService {
       });
       throw error;
     }
+  }
+
+  private async transition(
+    id: string,
+    from: 'PROPOSED' | 'PLANNED' | 'IN_PROGRESS' | 'QA' | 'READY_FOR_REVIEW' | 'RELEASING',
+    to: 'PLANNED' | 'IN_PROGRESS' | 'QA' | 'READY_FOR_REVIEW' | 'RELEASING' | 'RELEASED',
+  ) {
+    const result = await this.prisma.feature.updateMany({
+      where: { id, status: from },
+      data: { status: to },
+    });
+    if (result.count !== 1) {
+      const current = await this.prisma.feature.findUnique({ where: { id }, select: { status: true } });
+      if (!current) throw new BadRequestException('Feature not found');
+      throw new ConflictException(`Feature transition ${from} -> ${to} failed; current status is ${current.status}.`);
+    }
+    return this.prisma.feature.findUniqueOrThrow({ where: { id } });
   }
 
   async createTasks(featureId: string, tasks: CreateFeatureTaskDto[]) {

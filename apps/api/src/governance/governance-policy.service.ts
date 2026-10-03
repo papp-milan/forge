@@ -22,7 +22,6 @@ export class GovernancePolicyService {
   }
 
   async hasBlockingReviews(projectId: string, subjectId: string) {
-    const reviews = await this.governance.listReviews({ projectId });
-    return reviews.filter((review) => review.subjectId === subjectId && ['OPEN', 'DEBATING', 'REQUIRES_HUMAN_REVIEW'].includes(review.status));
+    return this.governance.hasBlockingReview(projectId, subjectId);
   }
 }

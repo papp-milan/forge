@@ -53,6 +53,29 @@ export class AgentRunService {
     });
   }
 
+  async recoverStale(maxAgeMs = Math.max(Number(process.env['AGENT_RUN_STALE_MS'] ?? 900_000), 60_000)) {
+    const cutoff = new Date(Date.now() - maxAgeMs);
+    const stale = await this.prisma.agentRun.findMany({
+      where: { status: 'RUNNING', startedAt: { lt: cutoff } },
+      select: { id: true, taskId: true, projectId: true, agent: true },
+    });
+
+    if (stale.length === 0) return [];
+
+    await this.prisma.$transaction([
+      ...stale.map((run) => this.prisma.agentRun.update({
+        where: { id: run.id },
+        data: { status: 'FAILED', error: 'Agent run exceeded the stale-run timeout.', completedAt: new Date() },
+      })),
+      ...stale.filter((run) => run.taskId).map((run) => this.prisma.task.updateMany({
+        where: { id: run.taskId!, status: { in: ['TODO', 'IN_PROGRESS', 'IN_REVIEW'] } },
+        data: { status: 'BLOCKED' },
+      })),
+    ]);
+
+    return stale;
+  }
+
   async recentForTask(taskId: string, limit = 10) {
     return this.prisma.agentRun.findMany({ where: { taskId }, orderBy: { createdAt: 'desc' }, take: limit });
   }

@@ -15,7 +15,7 @@ export class ReconciliationService {
     const [owner, repo] = normalized.split('/');
     if (!owner || !repo) return { projectId, status: 'FAILED', reason: 'INVALID_REPOSITORY' };
 
-    const prs = await this.github.getPullRequests(owner, repo);
+    const prs = await this.github.getPullRequests(owner, repo, 'all');
     const branches = await this.github.getBranches(owner, repo);
     const prByBranch = new Map(prs.map((pr) => [pr.branch, pr]));
     const findings: unknown[] = [];
@@ -27,6 +27,11 @@ export class ReconciliationService {
         if (pr && (!task.pullRequestNumber || task.pullRequestNumber !== pr.number)) {
           await this.prisma.task.update({ where: { id: task.id }, data: { pullRequestNumber: pr.number, pullRequestUrl: pr.url } });
           findings.push({ taskId: task.id, action: 'LINKED_PULL_REQUEST', pullRequest: pr.number });
+        }
+        if (pr && pr.state === 'closed' && !pr.merged) {
+          await this.prisma.task.update({ where: { id: task.id }, data: { status: 'BLOCKED' } });
+          findings.push({ taskId: task.id, action: 'BLOCKED_CLOSED_UNMERGED_PR', pullRequest: pr.number });
+          continue;
         }
         if (!branches.some((branch) => branch.name === task.branchName) && !pr) {
           await this.prisma.task.update({ where: { id: task.id }, data: { status: 'BLOCKED' } });

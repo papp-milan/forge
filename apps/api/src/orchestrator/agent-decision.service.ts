@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { TeamLeadActionExecutorService } from './team-lead-action-executor.service.js';
 import { TeamLeadDecision } from './team-lead-decision.types.js';
@@ -158,10 +158,29 @@ export class AgentDecisionService {
       return { decision, results: [] };
     }
 
+    if (decision.status === 'EXECUTING') {
+      throw new ConflictException('Decision execution is already in progress.');
+    }
+
     if (decision.status !== 'APPROVED') {
       throw new BadRequestException(
         `Only approved decisions can be executed. Current status: ${decision.status}`,
       );
+    }
+
+    if (decision.requiresCeoApproval && !decision.approvedAt) {
+      throw new BadRequestException('CEO approval is required before this decision can execute.');
+    }
+
+    const claimed = await this.prisma.agentDecision.updateMany({
+      where: { id, status: 'APPROVED' },
+      data: { status: 'EXECUTING' },
+    });
+
+    if (claimed.count !== 1) {
+      const current = await this.get(id);
+      if (current.status === 'EXECUTED') return { decision: current, results: [] };
+      throw new ConflictException(`Decision execution could not be claimed. Current status: ${current.status}`);
     }
 
     await this.audit.record({
@@ -185,42 +204,46 @@ export class AgentDecisionService {
       requiresCeoApproval: decision.requiresCeoApproval,
     };
 
-    const results = await this.executor.execute(decision.projectId, typedDecision);
+    try {
+      const results = await this.executor.execute(decision.projectId, typedDecision);
+      const failed = results.some((result) => result.status === 'FAILED');
+      const blocked = results.some((result) => result.status === 'BLOCKED');
+      const executed = results.some((result) => result.status === 'EXECUTED');
 
-    const failed = results.some((result) => result.status === 'FAILED');
-    const blocked = results.some((result) => result.status === 'BLOCKED');
-    const executed = results.some((result) => result.status === 'EXECUTED');
+      const status = failed ? 'FAILED' : blocked ? 'BLOCKED' : 'EXECUTED';
+      const updated = await this.prisma.agentDecision.update({
+        where: { id },
+        data: { status, executedAt: executed ? new Date() : undefined },
+        include: { project: true },
+      });
 
-    const status = failed
-      ? 'FAILED'
-      : blocked
-        ? 'BLOCKED'
-        : 'EXECUTED';
+      await this.audit.record({
+        actor: 'system',
+        type: status === 'EXECUTED' ? 'DECISION_EXECUTED' : status === 'BLOCKED' ? 'DECISION_BLOCKED' : 'DECISION_FAILED',
+        projectId: decision.projectId,
+        entityType: 'agent_decision',
+        entityId: id,
+        summary: decision.title,
+        data: { results },
+      });
 
-    const updated = await this.prisma.agentDecision.update({
-      where: { id },
-      data: {
-        status,
-        executedAt: executed ? new Date() : undefined,
-      },
-      include: { project: true },
-    });
-
-    await this.audit.record({
-      actor: 'system',
-      type:
-        status === 'EXECUTED'
-          ? 'DECISION_EXECUTED'
-          : status === 'BLOCKED'
-            ? 'DECISION_BLOCKED'
-            : 'DECISION_FAILED',
-      projectId: decision.projectId,
-      entityType: 'agent_decision',
-      entityId: id,
-      summary: decision.title,
-      data: { results },
-    });
-
-    return { decision: updated, results };
+      return { decision: updated, results };
+    } catch (error) {
+      const updated = await this.prisma.agentDecision.update({
+        where: { id },
+        data: { status: 'FAILED' },
+        include: { project: true },
+      });
+      await this.audit.record({
+        actor: 'system',
+        type: 'DECISION_FAILED',
+        projectId: decision.projectId,
+        entityType: 'agent_decision',
+        entityId: id,
+        summary: decision.title,
+        data: { error: error instanceof Error ? error.message : String(error) },
+      });
+      return { decision: updated, results: [{ status: 'FAILED', actionType: 'DECISION', reason: error instanceof Error ? error.message : String(error) }] };
+    }
   }
 }
