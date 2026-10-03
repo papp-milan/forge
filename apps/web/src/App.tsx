@@ -109,8 +109,7 @@ function App() {
       if (decisionResult.status === 'fulfilled') setDecisions(decisionResult.value)
       if (taskResult.status === 'fulfilled') setTasks(taskResult.value)
       if (featureResult.status === 'fulfilled') setFeatures(featureResult.value)
-      if (employeeResult.status === 'fulfilled') setEmployees(employeeResult.value.length ? employeeResult.value : DEFAULT_CREW)
-      else setEmployees(DEFAULT_CREW)
+      if (employeeResult.status === 'fulfilled') setEmployees(employeeResult.value)
       if (auditResult.status === 'fulfilled') setAuditEvents(auditResult.value)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load Forge state.')
