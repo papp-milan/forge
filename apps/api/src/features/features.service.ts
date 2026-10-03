@@ -108,6 +108,25 @@ export class FeaturesService {
       );
     }
 
+    const tasks = await this.prisma.task.findMany({
+      where: { featureId: id },
+      select: { status: true },
+    });
+
+    if (tasks.length === 0) {
+      throw new BadRequestException(
+        'Feature cannot enter QA without at least one task',
+      );
+    }
+
+    const unfinished = tasks.filter((task) => task.status !== 'DONE');
+
+    if (unfinished.length > 0) {
+      throw new BadRequestException(
+        `Feature cannot enter QA while ${unfinished.length} task(s) are not done`,
+      );
+    }
+
     return this.prisma.feature.update({
       where: { id },
       data: { status: 'QA' },
