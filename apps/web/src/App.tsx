@@ -416,6 +416,7 @@ function Overview({
   onReject,
   onRunAthena,
   onOpen,
+  onDecisionOpen,
 }: {
   projects: Project[]
   pending: Decision[]
@@ -530,7 +531,6 @@ function Development({
   projects,
   features,
   tasks,
-  employees,
   selectedProjectId,
   onSelectProject,
   onTaskOpen,
