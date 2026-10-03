@@ -48,8 +48,4 @@ export class TeamLeadController {
     return this.agentService.run(projectId);
   }
 
-  @Post('projects/:projectId/execute')
-  executeDecision(@Param('projectId') projectId: string) {
-    return this.agentService.executeDecision(projectId);
-  }
 }
