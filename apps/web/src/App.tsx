@@ -117,7 +117,7 @@ function App() {
     setError(null)
 
     try {
-      const [projectData, decisionData, taskData, featureData, employeeData] = await Promise.all([
+      const [projectData, decisionData, taskData, featureData, employeeData, auditData] = await Promise.all([
         api<Project[]>('/api/projects'),
         api<Decision[]>('/api/agent-decisions'),
         api<Task[]>('/api/tasks'),
