@@ -39,6 +39,18 @@ Project → Team Lead decision → approval → feature → tasks → implementa
 - Hermes: orchestration / agent runtime
 
 
+## Character design direction
+
+Forge's character/agent visual design should be inspired by:
+
+- Deadlock — bold, stylized character silhouettes and strong visual identity
+- Valorant — polished stylized hero design and readable role-based visual language
+- Persona 5 Royal — graphic, expressive, rebellious presentation and strong character personality
+- Cartoon-ish — intentionally stylized rather than photorealistic
+
+The overall direction is a cohesive stylized character universe: expressive, memorable, slightly edgy, and clearly game-inspired without directly copying any individual game's characters or assets.
+
+
 ## Governance roles
 
 - Architecture Board: multi-agent technical review body that continuously evaluates architecture, infrastructure evolution, technical debt, scalability, technology choices, and alternatives.
