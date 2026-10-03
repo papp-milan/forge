@@ -211,6 +211,25 @@ export class GithubService {
     };
   }
 
+  async isPullRequestMerged(owner: string, repo: string, pullNumber: number) {
+    const octokit = await this.getClient();
+
+    const { data } = await octokit.request(
+      'GET /repos/{owner}/{repo}/pulls/{pull_number}',
+      {
+        owner,
+        repo,
+        pull_number: pullNumber,
+      },
+    );
+
+    return {
+      merged: Boolean(data.merged_at),
+      state: data.state,
+      url: data.html_url,
+    };
+  }
+
   async mergePullRequest(owner: string, repo: string, pullNumber: number) {
     const octokit = await this.getClient();
 
