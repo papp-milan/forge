@@ -9,5 +9,6 @@ import { ReconciliationService } from './reconciliation.service.js';
   imports: [PrismaModule, GithubModule, AuditModule],
   controllers: [ReconciliationController],
   providers: [ReconciliationService],
+  exports: [ReconciliationService],
 })
 export class ReconciliationModule {}
