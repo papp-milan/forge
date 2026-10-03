@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module.js';
-import { AuditModule } from '../audit/audit.module.js';
-import { RuntimeModule } from '../runtime/runtime.module.js';
 import { GithubModule } from '../github/github.module.js';
 import { MemoryModule } from '../memory/memory.module.js';
+import { AuditModule } from '../audit/audit.module.js';
+import { RuntimeModule } from '../runtime/runtime.module.js';
 import { OrchestratorController } from './orchestrator.controller.js';
 import { OrchestratorService } from './orchestrator.service.js';
 import { TeamLeadController } from './team-lead.controller.js';
@@ -14,6 +14,7 @@ import { TeamLeadActionExecutorService } from './team-lead-action-executor.servi
 import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator.service.js';
 import { AgentDecisionService } from './agent-decision.service.js';
 import { AgentDecisionController } from './agent-decision.controller.js';
+import { OrchestratorLoopService } from './orchestrator-loop.service.js';
 
 @Module({
   imports: [PrismaModule, GithubModule, MemoryModule, AuditModule, RuntimeModule],
@@ -27,9 +28,10 @@ import { AgentDecisionController } from './agent-decision.controller.js';
     TeamLeadService,
     TeamLeadContextService,
     TeamLeadAgentService,
-    TeamLeadDecisionValidatorService,
     TeamLeadActionExecutorService,
+    TeamLeadDecisionValidatorService,
     AgentDecisionService,
+    OrchestratorLoopService,
   ],
   exports: [
     OrchestratorService,
