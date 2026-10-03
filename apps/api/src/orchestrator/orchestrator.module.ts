@@ -18,9 +18,10 @@ import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator
 import { AgentDecisionService } from './agent-decision.service.js';
 import { AgentDecisionController } from './agent-decision.controller.js';
 import { OrchestratorLoopService } from './orchestrator-loop.service.js';
+import { ReconciliationModule } from '../reconciliation/reconciliation.module.js';
 
 @Module({
-  imports: [PrismaModule, GithubModule, MemoryModule, AuditModule, RuntimeModule, FeaturesModule],
+  imports: [PrismaModule, GithubModule, MemoryModule, AuditModule, RuntimeModule, FeaturesModule, ReconciliationModule],
   controllers: [
     OrchestratorController,
     TeamLeadController,
