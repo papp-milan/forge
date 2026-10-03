@@ -22,6 +22,21 @@ type Project = {
   repository?: string | null
 }
 
+type Task = {
+  id: string
+  title: string
+  status: string
+  assignee?: { id: string; name: string; role: string } | null
+  feature?: { title: string } | null
+}
+
+type Employee = {
+  id: string
+  name: string
+  role: string
+  status: string
+}
+
 type Decision = {
   id: string
   agent: string
@@ -56,6 +71,8 @@ async function api<T>(path: string, options?: RequestInit): Promise<T> {
 function App() {
   const [projects, setProjects] = useState<Project[]>([])
   const [decisions, setDecisions] = useState<Decision[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [employees, setEmployees] = useState<Employee[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -65,13 +82,17 @@ function App() {
     setError(null)
 
     try {
-      const [projectData, decisionData] = await Promise.all([
+      const [projectData, decisionData, taskData, employeeData] = await Promise.all([
         api<Project[]>('/api/projects'),
         api<Decision[]>('/api/agent-decisions'),
+        api<Task[]>('/api/tasks'),
+        api<Employee[]>('/api/employees'),
       ])
 
       setProjects(projectData)
       setDecisions(decisionData)
+      setTasks(taskData)
+      setEmployees(employeeData)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load Forge state.')
     } finally {
@@ -183,6 +204,13 @@ function App() {
             <Metric icon={<ShieldCheck />} label="Pending approval" value={pending.length} emphasis />
             <Metric icon={<Activity />} label="Agent decisions" value={decisions.length} />
             <Metric icon={<Zap />} label="Active decisions" value={active.length} />
+            <Metric icon={<GitPullRequest />} label="Tasks" value={tasks.length} />
+            <Metric
+              icon={<AlertTriangle />}
+              label="Blocked tasks"
+              value={tasks.filter((task) => task.status === 'BLOCKED').length}
+              emphasis={tasks.some((task) => task.status === 'BLOCKED')}
+            />
           </section>
 
           <section className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
@@ -240,6 +268,50 @@ function App() {
             </div>
           </section>
 
+          <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.025]">
+              <div className="border-b border-white/8 px-5 py-4">
+                <h2 className="font-semibold">Workforce</h2>
+                <p className="mt-1 text-sm text-zinc-500">Current employees available to Forge.</p>
+              </div>
+              <div className="divide-y divide-white/6">
+                {employees.length === 0 && <EmptyState message="No employees registered yet." />}
+                {employees.map((employee) => (
+                  <div key={employee.id} className="flex items-center gap-3 px-5 py-3">
+                    <span className="size-2 rounded-full bg-emerald-400" />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm">{employee.name}</div>
+                      <div className="text-xs text-zinc-500">{employee.role}</div>
+                    </div>
+                    <span className="text-xs text-zinc-600">{employee.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/8 bg-white/[0.025]">
+              <div className="border-b border-white/8 px-5 py-4">
+                <h2 className="font-semibold">Task board</h2>
+                <p className="mt-1 text-sm text-zinc-500">Work distributed by the Team Lead.</p>
+              </div>
+              <div className="divide-y divide-white/6">
+                {tasks.length === 0 && <EmptyState message="No tasks created yet." />}
+                {tasks.slice(0, 8).map((task) => (
+                  <div key={task.id} className="flex items-center gap-3 px-5 py-3">
+                    <StatusDot status={task.status} />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm">{task.title}</div>
+                      <div className="text-xs text-zinc-500">
+                        {task.assignee?.name ?? 'Unassigned'} · {task.assignee?.role ?? 'No manpower'}
+                      </div>
+                    </div>
+                    <span className="text-[10px] uppercase tracking-wider text-zinc-600">{task.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
           <section className="rounded-2xl border border-white/8 bg-white/[0.025]">
             <div className="border-b border-white/8 px-5 py-4">
               <h2 className="font-semibold">Recent agent activity</h2>
@@ -260,15 +332,6 @@ function App() {
                   <div className="hidden text-xs text-zinc-600 sm:block">
                     {new Date(decision.createdAt).toLocaleString()}
                   </div>
-                  {decision.status === 'APPROVED' && (
-                    <button
-                      onClick={() => void execute(decision.id)}
-                      disabled={busyId === decision.id}
-                      className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/8 disabled:opacity-50"
-                    >
-                      Execute
-                    </button>
-                  )}
                 </div>
               ))}
             </div>
