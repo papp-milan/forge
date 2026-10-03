@@ -151,6 +151,26 @@ export class AgentDecisionService {
     return rejected;
   }
 
+  async recoverStaleExecuting(maxAgeMs = Math.max(Number(process.env['AGENT_DECISION_STALE_MS'] ?? process.env['AGENT_RUN_STALE_MS'] ?? 900_000), 60_000)) {
+    const cutoff = new Date(Date.now() - maxAgeMs);
+    const stale = await this.prisma.agentDecision.findMany({
+      where: { status: 'EXECUTING', executionStartedAt: { lt: cutoff } },
+      select: { id: true, projectId: true, title: true },
+    });
+    for (const decision of stale) {
+      await this.prisma.agentDecision.updateMany({
+        where: { id: decision.id, status: 'EXECUTING' },
+        data: { status: 'FAILED' },
+      });
+      await this.audit.record({
+        actor: 'system', type: 'DECISION_FAILED', projectId: decision.projectId,
+        entityType: 'agent_decision', entityId: decision.id,
+        summary: decision.title, data: { reason: 'stale_execution_recovered' },
+      });
+    }
+    return stale;
+  }
+
   async execute(id: string) {
     const decision = await this.get(id);
 
@@ -174,7 +194,7 @@ export class AgentDecisionService {
 
     const claimed = await this.prisma.agentDecision.updateMany({
       where: { id, status: 'APPROVED' },
-      data: { status: 'EXECUTING' },
+      data: { status: 'EXECUTING', executionStartedAt: new Date() },
     });
 
     if (claimed.count !== 1) {
