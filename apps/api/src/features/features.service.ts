@@ -3,10 +3,16 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateFeatureDto } from './dto/create-feature.dto.js';
 import { UpdateFeatureDto } from './dto/update-feature.dto.js';
 import { CreateFeatureTaskDto } from './dto/create-feature-tasks.dto.js';
+import { GithubService } from '../github/github.service.js';
+import { AuditService } from '../audit/audit.service.js';
 
 @Injectable()
 export class FeaturesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly github: GithubService,
+    private readonly audit: AuditService,
+  ) {}
 
   findAll() {
     return this.prisma.feature.findMany({
@@ -157,6 +163,12 @@ export class FeaturesService {
   async release(id: string) {
     const feature = await this.prisma.feature.findUnique({
       where: { id },
+      include: {
+        project: true,
+        tasks: {
+          include: { assignee: true },
+        },
+      },
     });
 
     if (!feature) {
@@ -169,10 +181,104 @@ export class FeaturesService {
       );
     }
 
-    return this.prisma.feature.update({
-      where: { id },
-      data: { status: 'RELEASED' },
+    if (feature.tasks.length === 0) {
+      throw new BadRequestException('Feature cannot be released without tasks');
+    }
+
+    const unfinished = feature.tasks.filter((task) => task.status !== 'DONE');
+    if (unfinished.length > 0) {
+      throw new BadRequestException(
+        `Feature cannot be released while ${unfinished.length} task(s) are not done`,
+      );
+    }
+
+    if (!feature.project.repository) {
+      throw new BadRequestException('Project has no GitHub repository configured');
+    }
+
+    await this.audit.record({
+      actor: 'ceo',
+      type: 'RELEASE_STARTED',
+      projectId: feature.projectId,
+      entityType: 'feature',
+      entityId: feature.id,
+      summary: feature.title,
     });
+
+    try {
+      const parts = feature.project.repository
+        .replace(/^https?:\/\/(www\.)?github\.com\//, '')
+        .replace(/\.git$/, '')
+        .replace(/\/$/, '')
+        .split('/');
+
+      if (parts.length !== 2) {
+        throw new BadRequestException('Project repository is not a valid GitHub repository');
+      }
+
+      const [owner, repo] = parts;
+
+      for (const task of feature.tasks) {
+        if (task.assignee?.role === 'ENGINEER' && !task.pullRequestNumber) {
+          throw new BadRequestException(
+            `Engineer task "${task.title}" has no pull request`,
+          );
+        }
+
+        if (!task.pullRequestNumber) {
+          continue;
+        }
+
+        const mergeState = await this.github.isPullRequestMerged(
+          owner,
+          repo,
+          task.pullRequestNumber,
+        );
+
+        if (!mergeState.merged) {
+          const merged = await this.github.mergePullRequest(
+            owner,
+            repo,
+            task.pullRequestNumber,
+          );
+
+          if (!merged.merged) {
+            throw new BadRequestException(
+              `Pull request #${task.pullRequestNumber} could not be merged`,
+            );
+          }
+        }
+      }
+
+      const released = await this.prisma.feature.update({
+        where: { id },
+        data: { status: 'RELEASED' },
+      });
+
+      await this.audit.record({
+        actor: 'ceo',
+        type: 'RELEASED',
+        projectId: feature.projectId,
+        entityType: 'feature',
+        entityId: feature.id,
+        summary: feature.title,
+      });
+
+      return released;
+    } catch (error) {
+      await this.audit.record({
+        actor: 'ceo',
+        type: 'RELEASE_FAILED',
+        projectId: feature.projectId,
+        entityType: 'feature',
+        entityId: feature.id,
+        summary: feature.title,
+        data: {
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
+      throw error;
+    }
   }
 
   async createTasks(featureId: string, tasks: CreateFeatureTaskDto[]) {
