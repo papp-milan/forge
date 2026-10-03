@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { appendFile, mkdir, readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { randomUUID } from 'node:crypto';
 
 export type AuditActor = 'ceo' | 'athena' | 'hephaistos' | 'artemis' | 'apollo' | 'nike' | 'atlas' | 'system';
 export type AuditEventType =
@@ -25,7 +26,7 @@ export class AuditService {
 
   async record(event: Omit<AuditEvent, 'id' | 'timestamp'>): Promise<AuditEvent> {
     const result: AuditEvent = {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       timestamp: new Date().toISOString(),
       ...event,
     };
