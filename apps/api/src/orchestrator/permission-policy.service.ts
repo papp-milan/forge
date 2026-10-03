@@ -16,6 +16,7 @@ export class PermissionPolicyService {
     SECURITY_BOARD: new Set(['GOVERNANCE_SECURITY']),
     INFRASTRUCTURE_ARCHITECT: new Set(['GOVERNANCE_INFRASTRUCTURE']),
     FINOPS: new Set(['GOVERNANCE_COST']),
+    SYSTEM: new Set(['RELEASE_FEATURE']),
     CEO: new Set(['*']),
   };
 
