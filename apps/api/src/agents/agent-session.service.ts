@@ -30,6 +30,9 @@ export class AgentSessionService {
   }
 
   async toolComplete(id: string, status: string, output?: unknown, error?: string) {
+    const existing = await this.prisma.agentToolCall.findUnique({ where: { id }, select: { id: true, status: true } });
+    if (!existing) throw new NotFoundException('Agent tool call not found');
+    if (existing.status !== 'RUNNING') throw new BadRequestException('Only running tool calls can be completed.');
     return this.prisma.agentToolCall.update({ where: { id }, data: { status, output: output === undefined ? undefined : JSON.parse(JSON.stringify(output)), error, completedAt: new Date() } });
   }
 
@@ -41,7 +44,10 @@ export class AgentSessionService {
     return this.prisma.agentUsage.upsert({ where: { sessionId }, create: { sessionId, ...input }, update: { ...input } });
   }
 
-  finish(id: string, status: 'COMPLETED' | 'FAILED' | 'BLOCKED' | 'CANCELLED') {
+  async finish(id: string, status: 'COMPLETED' | 'FAILED' | 'BLOCKED' | 'CANCELLED') {
+    const session = await this.prisma.agentSession.findUnique({ where: { id }, select: { status: true } });
+    if (!session) throw new NotFoundException('Agent session not found');
+    if (session.status !== 'RUNNING') throw new BadRequestException('Only running sessions can be finished.');
     return this.prisma.agentSession.update({ where: { id }, data: { status, completedAt: new Date() } });
   }
 }
