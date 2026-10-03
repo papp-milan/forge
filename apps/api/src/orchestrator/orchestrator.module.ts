@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module.js';
+import { AuditModule } from '../audit/audit.module.js';
 import { GithubModule } from '../github/github.module.js';
 import { MemoryModule } from '../memory/memory.module.js';
 import { OrchestratorController } from './orchestrator.controller.js';
@@ -14,7 +15,7 @@ import { AgentDecisionService } from './agent-decision.service.js';
 import { AgentDecisionController } from './agent-decision.controller.js';
 
 @Module({
-  imports: [PrismaModule, GithubModule, MemoryModule],
+  imports: [PrismaModule, GithubModule, MemoryModule, AuditModule],
   controllers: [
     OrchestratorController,
     TeamLeadController,
