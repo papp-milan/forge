@@ -33,9 +33,7 @@ export class TeamLeadDecisionValidatorService {
     return {
       valid,
       executable: valid && decision.actions.length > 0,
-
       requiresCeoApproval: decision.requiresCeoApproval,
-
       violations,
     };
   }
@@ -44,16 +42,14 @@ export class TeamLeadDecisionValidatorService {
     switch (action.type) {
       case 'CREATE_PITCH':
         return this.validateCreatePitch(action);
-
       case 'INVESTIGATE':
         return this.validateInvestigation(action);
-
       case 'UPDATE_MEMORY':
         return this.validateMemoryUpdate(action);
-
       case 'ESCALATE':
         return this.validateEscalation(action);
-
+      case 'RELEASE_FEATURE':
+        return this.validateReleaseFeature(action);
       default:
         return ['Unknown Team Lead action.'];
     }
@@ -64,26 +60,11 @@ export class TeamLeadDecisionValidatorService {
   ): string[] {
     const violations: string[] = [];
 
-    if (!action.title.trim()) {
-      violations.push('Pitch title cannot be empty.');
-    }
-
-    if (!action.description.trim()) {
-      violations.push('Pitch description cannot be empty.');
-    }
-
-    if (!action.problem.trim()) {
-      violations.push('Pitch problem cannot be empty.');
-    }
-
-    if (!action.solution.trim()) {
-      violations.push('Pitch solution cannot be empty.');
-    }
-
-    if (!action.impact.trim()) {
-      violations.push('Pitch impact cannot be empty.');
-    }
-
+    if (!action.title.trim()) violations.push('Pitch title cannot be empty.');
+    if (!action.description.trim()) violations.push('Pitch description cannot be empty.');
+    if (!action.problem.trim()) violations.push('Pitch problem cannot be empty.');
+    if (!action.solution.trim()) violations.push('Pitch solution cannot be empty.');
+    if (!action.impact.trim()) violations.push('Pitch impact cannot be empty.');
     if (action.tasks.length === 0) {
       violations.push('A pitch must contain at least one task suggestion.');
     }
@@ -95,15 +76,8 @@ export class TeamLeadDecisionValidatorService {
     action: Extract<TeamLeadAction, { type: 'INVESTIGATE' }>,
   ): string[] {
     const violations: string[] = [];
-
-    if (!action.question.trim()) {
-      violations.push('Investigation question cannot be empty.');
-    }
-
-    if (!action.scope.trim()) {
-      violations.push('Investigation scope cannot be empty.');
-    }
-
+    if (!action.question.trim()) violations.push('Investigation question cannot be empty.');
+    if (!action.scope.trim()) violations.push('Investigation scope cannot be empty.');
     return violations;
   }
 
@@ -120,13 +94,8 @@ export class TeamLeadDecisionValidatorService {
       violations.push('Memory path must remain inside the Forge memory vault.');
     }
 
-    if (!action.reason.trim()) {
-      violations.push('Memory update requires a reason.');
-    }
-
-    if (!action.content.trim()) {
-      violations.push('Memory content cannot be empty.');
-    }
+    if (!action.reason.trim()) violations.push('Memory update requires a reason.');
+    if (!action.content.trim()) violations.push('Memory content cannot be empty.');
 
     return violations;
   }
@@ -134,10 +103,16 @@ export class TeamLeadDecisionValidatorService {
   private validateEscalation(
     action: Extract<TeamLeadAction, { type: 'ESCALATE' }>,
   ): string[] {
-    if (!action.reason.trim()) {
-      return ['Escalation reason cannot be empty.'];
-    }
+    return action.reason.trim()
+      ? []
+      : ['Escalation reason cannot be empty.'];
+  }
 
-    return [];
+  private validateReleaseFeature(
+    action: Extract<TeamLeadAction, { type: 'RELEASE_FEATURE' }>,
+  ): string[] {
+    return action.featureId.trim()
+      ? []
+      : ['Release decision requires a feature id.'];
   }
 }
