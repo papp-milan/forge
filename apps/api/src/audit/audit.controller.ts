@@ -12,14 +12,10 @@ export class AuditController {
     @Query('limit') limit?: string,
   ) {
     const parsedLimit = limit ? Number(limit) : undefined;
-
     return this.audit.list({
       projectId,
       type,
-      limit:
-        parsedLimit && Number.isFinite(parsedLimit)
-          ? Math.min(Math.max(parsedLimit, 1), 500)
-          : undefined,
+      limit: parsedLimit && Number.isFinite(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 500) : undefined,
     });
   }
 }
