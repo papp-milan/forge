@@ -2182,3 +2182,64 @@ main > div::before {
     gap: 1.25rem;
   }
 }
+
+
+/* =========================================================
+   Final overview rhythm + live/random card shadows
+   ========================================================= */
+.forge-overview-stack {
+  gap: 0 !important;
+}
+
+.forge-overview-stack > section + section {
+  margin-top: 2rem !important;
+}
+
+.forge-metric--random-shadow {
+  box-shadow: 7px 7px 0 var(--metric-shadow) !important;
+}
+
+.forge-theme-light .forge-metric--random-shadow {
+  box-shadow: 7px 7px 0 var(--metric-shadow) !important;
+}
+
+.forge-theme-light .forge-metric:not(.forge-metric--random-shadow) {
+  box-shadow: 7px 7px 0 rgba(23,20,17,.16) !important;
+}
+
+/* Character cards only get their chromatic shadow while actually working. */
+.forge-agent-pulse__agent {
+  box-shadow: 6px 6px 0 rgba(23,20,17,.16) !important;
+}
+
+.forge-agent-pulse__agent[data-agent-state="WORKING"] {
+  box-shadow: 7px 7px 0 var(--agent-color) !important;
+}
+
+.forge-agent-pulse__agent[data-agent-state="WORKING"]:hover {
+  box-shadow: 9px 9px 0 var(--agent-color) !important;
+}
+
+.forge-agent-pulse__agent[data-agent-state="BLOCKED"],
+.forge-agent-pulse__agent[data-agent-state="SLEEPING"],
+.forge-agent-pulse__agent[data-agent-state="OFFLINE"] {
+  box-shadow: 6px 6px 0 rgba(23,20,17,.16) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent {
+  box-shadow: 6px 6px 0 rgba(23,20,17,.16) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent[data-agent-state="WORKING"] {
+  box-shadow: 7px 7px 0 var(--agent-color) !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent[data-agent-state="WORKING"]:hover {
+  box-shadow: 9px 9px 0 var(--agent-color) !important;
+}
+
+@media (max-width: 640px) {
+  .forge-overview-stack > section + section {
+    margin-top: 1.25rem !important;
+  }
+}
