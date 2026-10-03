@@ -6,6 +6,7 @@ import {
   TeamLeadDecision,
 } from './team-lead-decision.types.js';
 import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator.service.js';
+import { MemoryService } from '../memory/memory.service.js';
 
 export type ActionExecutionStatus =
   'EXECUTED' | 'SKIPPED' | 'BLOCKED' | 'FAILED';
@@ -22,6 +23,7 @@ export class TeamLeadActionExecutorService {
   constructor(
     private readonly validator: TeamLeadDecisionValidatorService,
     private readonly teamLeadService: TeamLeadService,
+    private readonly memory: MemoryService,
   ) {}
 
   async execute(
@@ -63,11 +65,7 @@ export class TeamLeadActionExecutorService {
           };
 
         case 'UPDATE_MEMORY':
-          return {
-            status: 'BLOCKED',
-            actionType: action.type,
-            reason: 'Memory execution is not implemented yet.',
-          };
+          return await this.executeUpdateMemory(action);
 
         case 'ESCALATE':
           return {
@@ -88,6 +86,25 @@ export class TeamLeadActionExecutorService {
     }
   }
 
+  private async executeUpdateMemory(
+    action: Extract<TeamLeadAction, { type: 'UPDATE_MEMORY' }>,
+  ): Promise<ActionExecutionResult> {
+    const memory = await this.memory.remember({
+      scope: 'company',
+      subject: action.path,
+      type: 'learning',
+      source: 'team_lead',
+      confidence: 'medium',
+      content: action.content + '\n\nReason: ' + action.reason + '\nRequested path: ' + action.path,
+    });
+
+    return {
+      status: 'EXECUTED',
+      actionType: action.type,
+      result: { memory: memory.path },
+    };
+  }
+
   private async executeCreatePitch(
     projectId: string,
     action: Extract<TeamLeadAction, { type: 'CREATE_PITCH' }>,
@@ -103,6 +120,15 @@ export class TeamLeadActionExecutorService {
     });
 
     const execution = await this.teamLeadService.approveProposal(pitch.id);
+
+    await this.memory.remember({
+      scope: 'projects',
+      subject: 'pitch-' + pitch.id,
+      type: 'decision',
+      source: 'team_lead',
+      confidence: 'high',
+      content: 'Athena created and approved the pitch "' + action.title + '". Problem: ' + action.problem + ' Solution: ' + action.solution + ' Impact: ' + action.impact,
+    });
 
     return {
       status: execution.manpower.sufficient ? 'EXECUTED' : 'BLOCKED',
