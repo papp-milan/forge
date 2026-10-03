@@ -7,6 +7,7 @@ import { GithubService } from '../github/github.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 import { GovernancePolicyService } from '../governance/governance-policy.service.js';
+import { MemoryService } from '../memory/memory.service.js';
 
 @Injectable()
 export class FeaturesService {
@@ -16,6 +17,7 @@ export class FeaturesService {
     private readonly audit: AuditService,
     private readonly runtime: AgentRuntimeService,
     private readonly governance: GovernancePolicyService,
+    private readonly memory: MemoryService,
   ) {}
 
   findAll() {
@@ -287,6 +289,15 @@ export class FeaturesService {
       const released = await this.prisma.feature.update({
         where: { id },
         data: { status: 'RELEASED' },
+      });
+
+      await this.memory.remember({
+        scope: 'projects',
+        subject: 'release-' + feature.id,
+        type: 'decision',
+        source: 'nike',
+        confidence: 'high',
+        content: `Feature "${feature.title}" was released after QA, governance gates, and GitHub release checks.`,
       });
 
       await this.audit.record({
