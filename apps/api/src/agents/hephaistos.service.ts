@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { HermesRuntimeService } from '../runtime/hermes-runtime.service.js';
+import { AgentRuntimeService } from '../runtime/hermes-runtime.service.js';
 import { WorkspaceService } from './workspace.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { GithubService } from '../github/github.service.js';
@@ -9,7 +9,7 @@ import { GithubService } from '../github/github.service.js';
 export class HephaistosService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly hermes: HermesRuntimeService,
+    private readonly runtime: AgentRuntimeService,
     private readonly workspaces: WorkspaceService,
     private readonly audit: AuditService,
     private readonly github: GithubService,
@@ -36,7 +36,7 @@ export class HephaistosService {
     });
 
     try {
-      const result = await this.hermes.run({ cwd: workspace.cwd, env: workspace.env, maxTurns: 80, prompt: this.buildPrompt(task) });
+      const result = await this.runtime.run({ cwd: workspace.cwd, env: workspace.env, maxTurns: 80, prompt: this.buildPrompt(task) });
       const success = result.exitCode === 0 && result.text.length > 0;
       await this.audit.record({
         actor: 'hephaistos', type: success ? 'WORKER_COMPLETED' : 'WORKER_FAILED',
