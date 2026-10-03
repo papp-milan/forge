@@ -40,7 +40,7 @@ export interface Memory {
 export class MemoryService {
   constructor(private readonly audit: AuditService) {}
 
-  private readonly memoryRoot = path.resolve(process.cwd(), '../../memory');
+  private readonly memoryRoot = path.resolve(process.env['FORGE_MEMORY_ROOT'] ?? path.resolve(process.cwd(), '../../memory'));
 
   async list(scope?: string): Promise<Memory[]> {
     const directory = scope ? this.resolveScope(scope) : this.memoryRoot;
@@ -48,6 +48,28 @@ export class MemoryService {
     const files = await this.findMarkdownFiles(directory);
 
     return Promise.all(files.map((filePath) => this.readFile(filePath)));
+  }
+
+  async remember(input: {
+    scope: 'company' | 'projects' | 'employees';
+    subject: string;
+    type: MemoryType;
+    source: MemorySource;
+    confidence?: MemoryConfidence;
+    content: string;
+  }): Promise<Memory> {
+    const slug = input.subject.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
+    const id = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+    const relativePath = input.scope + '/' + slug + '-' + id + '.md';
+    const today = this.today();
+    return this.create(relativePath, {
+      id,
+      type: input.type,
+      confidence: input.confidence ?? 'medium',
+      source: input.source,
+      created: today,
+      updated: today,
+    }, input.content);
   }
 
   async get(relativePath: string): Promise<Memory> {
