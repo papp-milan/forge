@@ -54,7 +54,13 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
-  const [view, setView] = useState<'overview' | 'approvals' | 'employees' | 'development' | 'activity'>('overview')
+  const viewOrder = ['overview', 'approvals', 'employees', 'development', 'activity'] as const
+  type View = (typeof viewOrder)[number]
+  const pathToView = (path: string): View => {
+    const candidate = path.replace(/^\//, '').split('/')[0] as View
+    return viewOrder.includes(candidate) ? candidate : 'overview'
+  }
+  const [view, setView] = useState<View>(() => pathToView(window.location.pathname))
   const [viewDirection, setViewDirection] = useState<'forward' | 'backward'>('forward')
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') return 'light'
@@ -73,11 +79,17 @@ function App() {
     window.setTimeout(() => setThemeTransition(false), 900)
   }
 
-  const viewOrder = ['overview', 'approvals', 'employees', 'development', 'activity'] as const
-  const navigate = (nextView: typeof view) => {
+  useEffect(() => {
+    const onPopState = () => setView(pathToView(window.location.pathname))
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  const navigate = (nextView: View) => {
     const currentIndex = viewOrder.indexOf(view)
     const nextIndex = viewOrder.indexOf(nextView)
     setViewDirection(nextIndex >= currentIndex ? 'forward' : 'backward')
+    window.history.pushState({}, '', nextView === 'overview' ? '/' : `/${nextView}`)
     setView(nextView)
   }
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
