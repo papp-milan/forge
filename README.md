@@ -354,8 +354,18 @@ Forge's original logo exploration lives in `/sketches/logos`. The first five dir
 - `13-hammer-shadow.svg` — oversized hammer silhouette with hard shadow
 - `14-iron-giant.svg` — monumental armored forge figure
 - `15-three-forgers.svg` — three-worker council around a shared forge
+- `16-forge-phoenix.svg` — organic phoenix emblem
+- `17-hephaistos-seal.svg` — circular forge/seal mark
+- `18-olympian-forge.svg` — classical Olympian forge emblem
+- `19-anvil-flame.svg` — anvil and flame symbol
+- `20-forge-spirit.svg` — expressive forge-spirit face
+- `21-winged-anvil.svg` — winged anvil mark
+- `22-divine-smith.svg` — stylized divine smith emblem
+- `23-solar-forge.svg` — solar forge symbol
+- `24-mythic-hammer.svg` — mythic hammer mark
+- `25-forge-ouroboros.svg` — circular forge/renewal mark
 
-The direction is intentionally inspired by the bold monochrome, manga/print character of Hermes/Nous branding while remaining an original Forge mark rather than copying the Hermes logo. The second batch explores human/worker silhouettes and large shadow figures more aggressively. The current source reference uses a stark black/white character mark; Nous' published branding guidance also emphasizes xerox/riso grain, constrained palettes and distressed print texture.
+The direction is intentionally moving away from purely rectangular/brutalist marks toward rounder, more organic emblems with fire, anvil, hammer, phoenix and mythological motifs. The visual language remains inspired by bold manga/print graphics while remaining original Forge branding rather than copying the Hermes logo. The second batch explores human/worker silhouettes and large shadow figures more aggressively. The current source reference uses a stark black/white character mark; Nous' published branding guidance also emphasizes xerox/riso grain, constrained palettes and distressed print texture.
 
 ### Current delivery safeguards
 
