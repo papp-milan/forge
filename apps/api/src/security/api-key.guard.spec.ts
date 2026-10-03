@@ -28,4 +28,8 @@ describe('ApiKeyGuard', () => {
     expect(() => new ApiKeyGuard().canActivate(context('GET', '/api/observability/overview'))).toThrow(UnauthorizedException);
     expect(new ApiKeyGuard().canActivate(context('GET', '/api/observability/overview', {'x-forge-api-key': 'secret'}))).toBe(true);
   });
+  it('does not break the GitHub webhook endpoint', () => {
+    process.env['FORGE_API_KEY'] = 'secret';
+    expect(new ApiKeyGuard().canActivate(context('POST', '/api/github/webhook'))).toBe(true);
+  });
 });
