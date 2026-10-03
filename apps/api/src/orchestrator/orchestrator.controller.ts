@@ -14,11 +14,6 @@ export class OrchestratorController {
     return this.orchestrator.analyzeProject(projectId);
   }
 
-  @Post('projects/:projectId/run')
-  run(@Param('projectId') projectId: string) {
-    return this.orchestrator.run(projectId);
-  }
-
   @Get('status')
   status() {
     return this.loop.status();
