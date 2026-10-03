@@ -53,6 +53,18 @@ type Employee = {
   status: string
 }
 
+type AuditEvent = {
+  id: string
+  timestamp: string
+  actor: string
+  type: string
+  projectId?: string
+  entityType?: string
+  entityId?: string
+  summary: string
+  data?: Record<string, unknown>
+}
+
 type Decision = {
   id: string
   agent: string
@@ -90,6 +102,7 @@ function App() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [features, setFeatures] = useState<Feature[]>([])
   const [employees, setEmployees] = useState<Employee[]>([])
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -110,6 +123,7 @@ function App() {
         api<Task[]>('/api/tasks'),
         api<Feature[]>('/api/features'),
         api<Employee[]>('/api/employees'),
+        api<AuditEvent[]>('/api/audit?limit=100'),
       ])
 
       setProjects(projectData)
@@ -117,6 +131,7 @@ function App() {
       setTasks(taskData)
       setFeatures(featureData)
       setEmployees(employeeData)
+      setAuditEvents(auditData)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load Forge state.')
     } finally {
@@ -300,7 +315,7 @@ function App() {
             />
           )}
 
-          {view === 'activity' && <ActivityView decisions={decisions} onOpen={setSelectedDecision} />}
+          {view === 'activity' && <ActivityView events={auditEvents} />}
         </div>
       </main>
 
@@ -560,26 +575,26 @@ function ProjectStat({ label, value }: { label: string; value: number }) {
   )
 }
 
-function ActivityView({ decisions, onOpen }: { decisions: Decision[]; onOpen: (decision: Decision) => void }) {
+function ActivityView({ events }: { events: AuditEvent[] }) {
   return (
-    <Panel title="Activity" subtitle="Persistent decisions produced by the company.">
-      {decisions.length === 0 ? <EmptyState message="No agent activity yet." /> : decisions.map((decision) => (
-        <button
-          key={decision.id}
-          onClick={() => onOpen(decision)}
-          className="flex w-full cursor-pointer items-center gap-4 border-b border-white/6 px-5 py-4 text-left hover:bg-white/[0.025]"
-        >
-          <StatusDot status={decision.status} />
-          <div className="flex-1">
-            <div className="text-sm">{decision.title}</div>
-            <div className="mt-1 text-xs text-zinc-500">{decision.agent} · {decision.project.name} · {decision.priority}</div>
+    <Panel title="Activity" subtitle="Immutable company audit trail from agent and CEO actions.">
+      {events.length === 0 ? <EmptyState message="No audit events recorded yet." /> : events.map((event) => (
+        <div key={event.id} className="flex items-start gap-4 border-b border-white/6 px-5 py-4">
+          <StatusDot status={event.type.includes('FAILED') || event.type.includes('BLOCKED') ? 'BLOCKED' : event.type.includes('EXECUTED') ? 'EXECUTED' : event.type.includes('APPROVED') ? 'APPROVED' : 'PENDING'} />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="text-sm">{event.summary}</div>
+              <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{event.type}</span>
+            </div>
+            <div className="mt-1 text-xs text-zinc-500">{event.actor} {event.projectId ? `· ${event.projectId}` : ''}</div>
           </div>
-          <span className="text-xs text-zinc-600">{new Date(decision.createdAt).toLocaleString()}</span>
-        </button>
+          <span className="shrink-0 text-xs text-zinc-600">{new Date(event.timestamp).toLocaleString()}</span>
+        </div>
       ))}
     </Panel>
   )
 }
+
 
 function Panel({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return <section className="rounded-2xl border border-white/8 bg-white/[0.025]"><div className="border-b border-white/8 px-5 py-4"><h2 className="font-semibold">{title}</h2><p className="mt-1 text-sm text-zinc-500">{subtitle}</p></div>{children}</section>
