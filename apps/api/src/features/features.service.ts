@@ -6,6 +6,7 @@ import { CreateFeatureTaskDto } from './dto/create-feature-tasks.dto.js';
 import { GithubService } from '../github/github.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
+import { GovernancePolicyService } from '../governance/governance-policy.service.js';
 
 @Injectable()
 export class FeaturesService {
@@ -14,6 +15,7 @@ export class FeaturesService {
     private readonly github: GithubService,
     private readonly audit: AuditService,
     private readonly runtime: AgentRuntimeService,
+    private readonly governance: GovernancePolicyService,
   ) {}
 
   findAll() {
@@ -74,10 +76,9 @@ export class FeaturesService {
       );
     }
 
-    return this.prisma.feature.update({
-      where: { id },
-      data: { status: 'PLANNED' },
-    });
+    const planned = await this.prisma.feature.update({ where: { id }, data: { status: 'PLANNED' } });
+    await this.governance.requestLifecycleReviews({ projectId: feature.projectId, subjectType: 'FEATURE', subjectId: feature.id, title: feature.title, context: { description: feature.description, lifecycle: 'PLANNING' }, domains: ['ARCHITECTURE','PRIVACY','SECURITY','INFRASTRUCTURE','COST'] });
+    return planned;
   }
 
   async start(id: string) {
@@ -191,6 +192,13 @@ export class FeaturesService {
     if (unfinished.length > 0) {
       throw new BadRequestException(
         `Feature cannot be released while ${unfinished.length} task(s) are not done`,
+      );
+    }
+
+    const blockingReviews = await this.governance.hasBlockingReviews(feature.projectId, feature.id);
+    if (blockingReviews.length > 0) {
+      throw new BadRequestException(
+        `Feature cannot be released while ${blockingReviews.length} governance review(s) remain unresolved.`,
       );
     }
 
