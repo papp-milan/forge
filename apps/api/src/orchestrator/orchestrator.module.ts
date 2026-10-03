@@ -1,3 +1,4 @@
+import { SafetyPolicyService } from './safety-policy.service.js';
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { GithubModule } from '../github/github.module.js';
@@ -25,6 +26,7 @@ import { OrchestratorLoopService } from './orchestrator-loop.service.js';
     AgentDecisionController,
   ],
   providers: [
+    SafetyPolicyService,
     OrchestratorService,
     TeamLeadService,
     TeamLeadContextService,
