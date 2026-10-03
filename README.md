@@ -36,7 +36,7 @@ Team Lead    UI/UX   Engineering
 
 - **Web:** React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui, Base UI, Lucide, Inter
 - **Development proxy:** the dashboard uses same-origin `/api` requests in development; Vite proxies them to the NestJS API on port 3000. `VITE_API_URL` can override this when an external API origin is intentional.
-- **Visual direction:** high-contrast Forge/Olympus command center inspired by comic/manga interfaces, Persona-like graphic energy and Hermes-style agent tooling; bright agent colors, hard shadows, grain/noise, glow and directional motion
+- **Visual direction:** expressive Forge/Olympus HQ inspired by comic/manga interfaces, Persona-like graphic energy, Deadlock-like character presence and Hermes-style agent tooling; brighter backgrounds, stronger reds, vivid agent colors, hard graphic accents, grain/noise, glow and directional motion; light and dark modes are both first-class
 - **API:** NestJS 12, TypeScript, ESM, PostgreSQL, Prisma 7
 - **Automation:** GitHub App, GitHub webhooks, GitHub Issues/branches/PRs
 - **Employees:** Athena, Apollo, Hephaistos, Artemis, Nike, Atlas — each with a stable role color
@@ -320,7 +320,20 @@ Additional control-plane capabilities now include:
 - **Worker simulation:** `POST /api/agents/worker/run-once` executes one worker cycle using the configured runtime.
 - **Memory location:** `FORGE_MEMORY_ROOT` can point Forge at an Obsidian vault or another persistent Markdown root.
 
-The dashboard design direction is now a high-contrast Forge/Olympus command center influenced by comic/manga graphics, Persona-like visual energy and Hermes/Nous-style agent tooling. The UI uses bright agent colors, hard offset shadows, grain/noise, glow and directional motion rather than generic glassmorphism. UI concept sketches live in `/sketches`.
+The dashboard design direction is now an expressive Forge/Olympus headquarters influenced by comic/manga graphics, Persona-like graphic energy, Deadlock-like character presence and Hermes/Nous-style agent tooling. The UI is intentionally less cyberpunk and less purely brutalist: it favors brighter surfaces, stronger reds, organic character silhouettes, bold editorial typography, hard graphic accents, grain/noise, glow and energetic motion. Light and dark mode are both part of the visual system. UI concept sketches live in `/sketches`.
+
+### Character sketches
+
+The next visual exploration lives in `/sketches/characters`. These six original role sheets explore the future character language of the Forge workforce, including expressive silhouettes and angled black/red/white dialogue panels:
+
+- `01-athena-command.svg` — decisive Team Lead / strategist
+- `02-hephaistos-forge.svg` — physical builder / engineering identity
+- `03-artemis-qa.svg` — precise QA / reviewer identity
+- `04-apollo-ui.svg` — expressive UI/UX designer identity
+- `05-nike-release.svg` — energetic release / operations identity
+- `06-atlas-infra.svg` — heavier infrastructure / DevOps identity
+
+The intended production direction is to use these characters as reusable portraits, status poses, dialogue moments and animated agent states. The sketches use an original stylish Japanese game/comic dialogue language rather than reproducing any existing character or logo.
 
 ### Branding sketches
 

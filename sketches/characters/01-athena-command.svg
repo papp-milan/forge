@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+<defs><filter id="rough"><feTurbulence baseFrequency=".018" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2"/></filter></defs>
+<rect width="1200" height="800" fill="#f3ead8"/><path d="M0 0h1200v800H0z" fill="#fff9ed"/>
+<path d="M760 0h440v800H700z" fill="#171717"/><path d="M730 0l130 0-160 800H570z" fill="#e31b23"/>
+<text x="54" y="70" font-family="Arial Black,sans-serif" font-size="30" fill="#171717">FORGE // CHARACTER SKETCH 01</text>
+<text x="54" y="105" font-family="monospace" font-size="17">ATHENA — TEAM LEAD / PRODUCT STRATEGY</text>
+<!-- stylized figure -->
+<g filter="url(#rough)">
+<path d="M360 185q55-72 128 0l-18 65q-45 35-93 0z" fill="#111"/>
+<path d="M374 200q35-30 83 0l-8 55q-35 27-67 0z" fill="#ead7c0"/>
+<path d="M385 175l-35 38 48-14 48 15 25-42-47-8z" fill="#e31b23"/>
+<path d="M375 285l-55 125 45 38 45-85 32 85 55-28-50-135z" fill="#191919"/>
+<path d="M355 330l-90 55 25 31 105-40z" fill="#e31b23"/>
+<path d="M485 330l110 18-5 38-119-18z" fill="#171717"/>
+<path d="M410 448l-30 185h52l23-185zM470 448l18 185h50l-19-185z" fill="#171717"/>
+<path d="M368 635h68l-4 18h-74zM482 635h64l8 18h-72z" fill="#e31b23"/>
+</g>
+<circle cx="645" cy="330" r="8" fill="#e31b23"/><circle cx="665" cy="310" r="5" fill="#171717"/>
+<!-- dialogue -->
+<path d="M65 610L700 560 730 745 90 790z" fill="#111" stroke="#fff9ed" stroke-width="7"/>
+<path d="M90 610h220l-18 48H78z" fill="#e31b23"/>
+<text x="108" y="643" font-family="Arial Black,sans-serif" font-size="24" fill="#fff">ATHENA</text>
+<text x="108" y="690" font-family="Arial Black,sans-serif" font-size="29" fill="#fff">"New product idea incoming.</text>
+<text x="108" y="728" font-family="Arial Black,sans-serif" font-size="29" fill="#fff">Let's decide what matters."</text>
+<text x="815" y="95" font-family="Arial Black,sans-serif" font-size="52" fill="#fff" transform="rotate(-5 815 95)">THINK.</text>
+<text x="805" y="145" font-family="monospace" font-size="17" fill="#fff">OBSERVE / PROPOSE / DELEGATE</text>
+</svg>
