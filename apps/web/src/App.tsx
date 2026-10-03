@@ -1,13 +1,397 @@
-import './App.css'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  Activity,
+  AlertTriangle,
+  Check,
+  ChevronRight,
+  CircleDot,
+  Cpu,
+  GitPullRequest,
+  LayoutDashboard,
+  RefreshCw,
+  ShieldCheck,
+  Users,
+  X,
+  Zap,
+} from 'lucide-react'
+
+type Project = {
+  id: string
+  name: string
+  description?: string | null
+  repository?: string | null
+}
+
+type Decision = {
+  id: string
+  agent: string
+  type: string
+  priority: string
+  title: string
+  reasoning: string
+  evidence: unknown
+  actions: unknown
+  requiresCeoApproval: boolean
+  status: string
+  createdAt: string
+  project: Project
+}
+
+const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+
+async function api<T>(path: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(`${API}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  })
+
+  if (!response.ok) {
+    const message = await response.text()
+    throw new Error(message || `Request failed: ${response.status}`)
+  }
+
+  return response.json()
+}
 
 function App() {
+  const [projects, setProjects] = useState<Project[]>([])
+  const [decisions, setDecisions] = useState<Decision[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [busyId, setBusyId] = useState<string | null>(null)
+
+  const load = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const [projectData, decisionData] = await Promise.all([
+        api<Project[]>('/api/projects'),
+        api<Decision[]>('/api/agent-decisions'),
+      ])
+
+      setProjects(projectData)
+      setDecisions(decisionData)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to load Forge state.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void load()
+  }, [])
+
+  const pending = useMemo(
+    () => decisions.filter((decision) => decision.status === 'PENDING'),
+    [decisions],
+  )
+
+  const active = useMemo(
+    () =>
+      decisions.filter((decision) =>
+        ['APPROVED', 'IN_PROGRESS'].includes(decision.status),
+      ),
+    [decisions],
+  )
+
+  const resolve = async (id: string, action: 'approve' | 'reject') => {
+    setBusyId(id)
+
+    try {
+      await api(`/api/agent-decisions/${id}/${action}`, {
+        method: 'PATCH',
+        body: JSON.stringify({}),
+      })
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Action failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const execute = async (id: string) => {
+    setBusyId(id)
+
+    try {
+      await api(`/api/agent-decisions/${id}/execute`, { method: 'POST' })
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Execution failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
   return (
-      <main className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-        <h1 className="text-5xl font-bold">
-          Forge
-        </h1>
+    <div className="min-h-screen bg-[#09090b] text-zinc-100">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-white/8 bg-[#0c0c0f] lg:flex lg:flex-col">
+        <div className="flex h-16 items-center gap-3 border-b border-white/8 px-5">
+          <div className="flex size-8 items-center justify-center rounded-lg bg-white text-black">
+            <Zap className="size-4" />
+          </div>
+          <div>
+            <div className="font-semibold tracking-tight">Forge</div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">AI company HQ</div>
+          </div>
+        </div>
+
+        <nav className="flex-1 space-y-1 p-3">
+          <NavItem icon={<LayoutDashboard />} label="Overview" active />
+          <NavItem icon={<ShieldCheck />} label="Approvals" count={pending.length} />
+          <NavItem icon={<Users />} label="Employees" />
+          <NavItem icon={<GitPullRequest />} label="Development" />
+          <NavItem icon={<Activity />} label="Activity" />
+        </nav>
+
+        <div className="border-t border-white/8 p-4">
+          <div className="flex items-center gap-2 text-xs text-zinc-500">
+            <span className="size-2 rounded-full bg-emerald-400" />
+            Control plane online
+          </div>
+        </div>
+      </aside>
+
+      <main className="lg:pl-64">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-white/8 bg-[#09090b]/90 px-5 backdrop-blur-xl lg:px-8">
+          <div>
+            <div className="text-xs text-zinc-500">Olympus / HQ</div>
+            <h1 className="text-lg font-semibold">Company overview</h1>
+          </div>
+
+          <button
+            onClick={() => void load()}
+            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-300 transition hover:bg-white/10"
+          >
+            <RefreshCw className={`size-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </header>
+
+        <div className="mx-auto max-w-7xl space-y-6 p-5 lg:p-8">
+          {error && (
+            <div className="flex items-start gap-3 rounded-xl border border-red-400/20 bg-red-400/5 p-4 text-sm text-red-200">
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+              <div>{error}</div>
+            </div>
+          )}
+
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <Metric icon={<Cpu />} label="Projects" value={projects.length} />
+            <Metric icon={<ShieldCheck />} label="Pending approval" value={pending.length} emphasis />
+            <Metric icon={<Activity />} label="Agent decisions" value={decisions.length} />
+            <Metric icon={<Zap />} label="Active decisions" value={active.length} />
+          </section>
+
+          <section className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.025]">
+              <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
+                <div>
+                  <h2 className="font-semibold">CEO approval queue</h2>
+                  <p className="mt-1 text-sm text-zinc-500">Decisions waiting for your attention.</p>
+                </div>
+                <span className="rounded-full bg-white/8 px-2.5 py-1 text-xs text-zinc-400">
+                  {pending.length} pending
+                </span>
+              </div>
+
+              <div className="divide-y divide-white/6">
+                {pending.length === 0 && (
+                  <EmptyState message="No decisions are waiting for approval." />
+                )}
+
+                {pending.map((decision) => (
+                  <DecisionRow
+                    key={decision.id}
+                    decision={decision}
+                    busy={busyId === decision.id}
+                    onApprove={() => void resolve(decision.id, 'approve')}
+                    onReject={() => void resolve(decision.id, 'reject')}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/8 bg-white/[0.025]">
+              <div className="border-b border-white/8 px-5 py-4">
+                <h2 className="font-semibold">Projects</h2>
+                <p className="mt-1 text-sm text-zinc-500">Connected products under Forge.</p>
+              </div>
+
+              <div className="divide-y divide-white/6">
+                {projects.length === 0 && <EmptyState message="No projects registered yet." />}
+                {projects.map((project) => (
+                  <div key={project.id} className="flex items-center gap-3 px-5 py-4">
+                    <div className="flex size-9 items-center justify-center rounded-lg bg-white/6">
+                      <CircleDot className="size-4 text-zinc-400" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium">{project.name}</div>
+                      <div className="truncate text-xs text-zinc-500">
+                        {project.repository ?? 'No repository connected'}
+                      </div>
+                    </div>
+                    <ChevronRight className="size-4 text-zinc-600" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-white/8 bg-white/[0.025]">
+            <div className="border-b border-white/8 px-5 py-4">
+              <h2 className="font-semibold">Recent agent activity</h2>
+              <p className="mt-1 text-sm text-zinc-500">Persistent decisions produced by the company.</p>
+            </div>
+
+            <div className="divide-y divide-white/6">
+              {decisions.length === 0 && <EmptyState message="No agent decisions yet." />}
+              {decisions.slice(0, 8).map((decision) => (
+                <div key={decision.id} className="flex items-center gap-4 px-5 py-4">
+                  <StatusDot status={decision.status} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm">{decision.title}</div>
+                    <div className="mt-1 text-xs text-zinc-500">
+                      {decision.agent} · {decision.project.name} · {decision.priority}
+                    </div>
+                  </div>
+                  <div className="hidden text-xs text-zinc-600 sm:block">
+                    {new Date(decision.createdAt).toLocaleString()}
+                  </div>
+                  {decision.status === 'APPROVED' && (
+                    <button
+                      onClick={() => void execute(decision.id)}
+                      disabled={busyId === decision.id}
+                      className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/8 disabled:opacity-50"
+                    >
+                      Execute
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
       </main>
+    </div>
   )
 }
 
-export default App
+function NavItem({
+  icon,
+  label,
+  active,
+  count,
+}: {
+  icon: React.ReactNode
+  label: string
+  active?: boolean
+  count?: number
+}) {
+  return (
+    <div
+      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm ${
+        active ? 'bg-white/8 text-white' : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'
+      }`}
+    >
+      <span className="size-4">{icon}</span>
+      <span className="flex-1">{label}</span>
+      {count ? <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px]">{count}</span> : null}
+    </div>
+  )
+}
+
+function Metric({
+  icon,
+  label,
+  value,
+  emphasis,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: number
+  emphasis?: boolean
+}) {
+  return (
+    <div className="rounded-2xl border border-white/8 bg-white/[0.025] p-5">
+      <div className="flex items-center justify-between">
+        <div className="text-xs uppercase tracking-wider text-zinc-500">{label}</div>
+        <span className={emphasis ? 'text-amber-300' : 'text-zinc-500'}>{icon}</span>
+      </div>
+      <div className="mt-3 text-3xl font-semibold tracking-tight">{value}</div>
+    </div>
+  )
+}
+
+function DecisionRow({
+  decision,
+  busy,
+  onApprove,
+  onReject,
+}: {
+  decision: Decision
+  busy: boolean
+  onApprove: () => void
+  onReject: () => void
+}) {
+  return (
+    <div className="px-5 py-5">
+      <div className="flex gap-4">
+        <div className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-400/10 text-amber-300">
+          <ShieldCheck className="size-4" />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="font-medium">{decision.title}</h3>
+            <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-500">
+              {decision.priority}
+            </span>
+          </div>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">{decision.reasoning}</p>
+          <div className="mt-3 text-xs text-zinc-600">
+            {decision.agent} · {decision.project.name} · {new Date(decision.createdAt).toLocaleString()}
+          </div>
+
+          <div className="mt-4 flex gap-2">
+            <button
+              onClick={onApprove}
+              disabled={busy}
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-black hover:bg-zinc-200 disabled:opacity-50"
+            >
+              <Check className="size-4" />
+              Approve
+            </button>
+            <button
+              onClick={onReject}
+              disabled={busy}
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:bg-white/8 disabled:opacity-50"
+            >
+              <X className="size-4" />
+              Reject
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function StatusDot({ status }: { status: string }) {
+  const color =
+    status === 'EXECUTED'
+      ? 'bg-emerald-400'
+      : status === 'PENDING'
+        ? 'bg-amber-400'
+        : status === 'FAILED' || status === 'BLOCKED'
+          ? 'bg-red-400'
+          : 'bg-zinc-500'
+
+  return <span className={`size-2 shrink-0 rounded-full ${color}`} />
+}
+
+function EmptyState({ message }: { message: string }) {
+  return <div className="px-5 py-10 text-center text-sm text-zinc-600">{message}</div>
+}
