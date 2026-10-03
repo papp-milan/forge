@@ -197,6 +197,18 @@ function App() {
       </aside>
 
       <main className="forge-main lg:pl-64">
+        <nav className="forge-mobile-nav sticky top-0 z-20 flex gap-1 overflow-x-auto border-b border-white/8 bg-black/20 p-2 backdrop-blur lg:hidden" aria-label="Forge sections">
+          {VIEW_ORDER.map((item) => (
+            <button
+              key={item}
+              onClick={() => navigate(item)}
+              aria-current={view === item ? 'page' : undefined}
+              className={`shrink-0 rounded-lg px-3 py-2 text-xs font-medium uppercase tracking-wide transition ${view === item ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-white'}`}
+            >
+              {item}
+            </button>
+          ))}
+        </nav>
         <header className="forge-topbar sticky top-0 z-10 flex h-16 items-center justify-between px-5 lg:px-8">
           <div>
             <div className="text-xs text-zinc-500">Olympus / HQ / {view.toUpperCase()}</div>
