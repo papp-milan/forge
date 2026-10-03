@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { SafetyPolicyService } from './safety-policy.service.js';
 import {
   TeamLeadAction,
   TeamLeadDecision,
@@ -13,6 +14,8 @@ export interface DecisionValidationResult {
 
 @Injectable()
 export class TeamLeadDecisionValidatorService {
+  constructor(private readonly safety: SafetyPolicyService) {}
+
   validate(decision: TeamLeadDecision): DecisionValidationResult {
     const violations: string[] = [];
 
