@@ -2153,3 +2153,32 @@ main {
 .forge-theme-light .forge-agent-pulse__agent[data-agent-state="BLOCKED"]:hover {
   box-shadow: 9px 9px 0 var(--agent-color) !important;
 }
+
+
+/* =========================================================
+   Final overview rhythm + clean top navigation
+   ========================================================= */
+.forge-topbar {
+  border-bottom: 0 !important;
+}
+
+.forge-topbar::after,
+main > div::before {
+  display: none !important;
+}
+
+.forge-overview-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.forge-overview-stack > section {
+  margin: 0 !important;
+}
+
+@media (max-width: 640px) {
+  .forge-overview-stack {
+    gap: 1.25rem;
+  }
+}
