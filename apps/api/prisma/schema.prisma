@@ -105,6 +105,7 @@ model Project {
   pitches       Pitch[]
   agentDecisions AgentDecision[]
   agentRuns      AgentRun[]
+  agentSessions  AgentSession[]
   governanceReviews GovernanceReview[]
 }
 
@@ -209,6 +210,7 @@ model Task {
 
   assigneeId String?
   assignee   Employee? @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  agentSessions AgentSession[]
   agentRuns   AgentRun[]
 }
 
