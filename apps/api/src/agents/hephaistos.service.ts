@@ -44,7 +44,39 @@ export class HephaistosService {
         data: { repository: workspace.repository, branch: workspace.branch, sessionId: result.sessionId, exitCode: result.exitCode, text: result.text.slice(-4000), tokens: result.tokens ?? null },
       });
       if (success) {
-        const updated = await this.prisma.task.update({ where: { id: task.id }, data: { status: 'IN_REVIEW' }, include: { assignee: true, feature: true } });
+        const [owner, repo] = workspace.repository.split('/');
+        let pullRequestNumber = task.pullRequestNumber ?? null;
+        let pullRequestUrl = task.pullRequestUrl ?? null;
+
+        if (!pullRequestNumber) {
+          const repository = await this.github.getRepository(owner, repo);
+          const pullRequest = await this.github.createPullRequest(
+            owner,
+            repo,
+            task.title,
+            task.branchName,
+            repository.defaultBranch,
+            [
+              'Implemented by Hephaistos.',
+              '',
+              'Task: ' + task.title,
+              'Acceptance criteria: ' + (task.acceptanceCriteria ?? 'See task description.'),
+            ].join('\n'),
+          );
+          pullRequestNumber = pullRequest.number;
+          pullRequestUrl = pullRequest.url;
+        }
+
+        const updated = await this.prisma.task.update({
+          where: { id: task.id },
+          data: {
+            status: 'IN_REVIEW',
+            pullRequestNumber,
+            pullRequestUrl,
+          },
+          include: { assignee: true, feature: true },
+        });
+
         return { status: 'IN_REVIEW', task: updated, result };
       }
       await this.prisma.task.update({ where: { id: task.id }, data: { status: 'BLOCKED' } });
