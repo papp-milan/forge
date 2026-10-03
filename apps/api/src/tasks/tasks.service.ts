@@ -160,4 +160,37 @@ export class TasksService {
       },
     });
   }
+
+  async assign(id: string, employeeId: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+    });
+
+    if (!task) {
+      throw new BadRequestException('Task not found');
+    }
+
+    const employee = await this.prisma.employee.findUnique({
+      where: { id: employeeId },
+    });
+
+    if (!employee) {
+      throw new BadRequestException('Employee not found');
+    }
+
+    if (employee.status !== 'ACTIVE') {
+      throw new BadRequestException('Employee is not active');
+    }
+
+    return this.prisma.task.update({
+      where: { id },
+      data: {
+        assigneeId: employeeId,
+      },
+      include: {
+        assignee: true,
+        feature: true,
+      },
+    });
+  }
 }

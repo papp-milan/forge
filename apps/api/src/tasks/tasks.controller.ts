@@ -10,6 +10,7 @@ import {
 import { TasksService } from './tasks.service.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
+import { AssignTaskDto } from './dto/a.js';
 
 @Controller('api/tasks')
 export class TasksController {
@@ -63,5 +64,10 @@ export class TasksController {
   @Post(':id/complete')
   complete(@Param('id') id: string) {
     return this.tasksService.complete(id);
+  }
+
+  @Post(':id/assign')
+  assign(@Param('id') id: string, @Body() dto: AssignTaskDto) {
+    return this.tasksService.assign(id, dto.employeeId);
   }
 }
