@@ -9,6 +9,7 @@ import { PitchesModule } from './pitches/pitches.module.js';
 import { TasksModule } from './tasks/tasks.module.js';
 import { GithubModule } from './github/github.module.js';
 import { OrchestratorModule } from './orchestrator/orchestrator.module.js';
+import { MemoryModule } from './memory/memory.module.js';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { OrchestratorModule } from './orchestrator/orchestrator.module.js';
     TasksModule,
     GithubModule,
     OrchestratorModule,
+    MemoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
