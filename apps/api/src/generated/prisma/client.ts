@@ -66,3 +66,8 @@ export type Pitch = Prisma.PitchModel
  * 
  */
 export type PitchReview = Prisma.PitchReviewModel
+/**
+ * Model Task
+ * 
+ */
+export type Task = Prisma.TaskModel

@@ -6,6 +6,7 @@ import { ProjectsModule } from './projects/projects.module.js';
 import { EmployeesModule } from './employees/employees.module.js';
 import { FeaturesModule } from './features/features.module.js';
 import { PitchesModule } from './pitches/pitches.module.js';
+import { TasksModule } from './tasks/tasks.module.js';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PitchesModule } from './pitches/pitches.module.js';
     EmployeesModule,
     FeaturesModule,
     PitchesModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -55,7 +55,8 @@ export const ModelName = {
   Employee: 'Employee',
   Feature: 'Feature',
   Pitch: 'Pitch',
-  PitchReview: 'PitchReview'
+  PitchReview: 'PitchReview',
+  Task: 'Task'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -136,6 +137,21 @@ export const PitchReviewScalarFieldEnum = {
 } as const
 
 export type PitchReviewScalarFieldEnum = (typeof PitchReviewScalarFieldEnum)[keyof typeof PitchReviewScalarFieldEnum]
+
+
+export const TaskScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  acceptanceCriteria: 'acceptanceCriteria',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  featureId: 'featureId',
+  assigneeId: 'assigneeId'
+} as const
+
+export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
 
 
 export const SortOrder = {

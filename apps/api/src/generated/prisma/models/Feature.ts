@@ -200,6 +200,7 @@ export type FeatureWhereInput = {
   projectId?: Prisma.StringFilter<"Feature"> | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   pitches?: Prisma.PitchListRelationFilter
+  tasks?: Prisma.TaskListRelationFilter
 }
 
 export type FeatureOrderByWithRelationInput = {
@@ -212,6 +213,7 @@ export type FeatureOrderByWithRelationInput = {
   projectId?: Prisma.SortOrder
   project?: Prisma.ProjectOrderByWithRelationInput
   pitches?: Prisma.PitchOrderByRelationAggregateInput
+  tasks?: Prisma.TaskOrderByRelationAggregateInput
 }
 
 export type FeatureWhereUniqueInput = Prisma.AtLeast<{
@@ -227,6 +229,7 @@ export type FeatureWhereUniqueInput = Prisma.AtLeast<{
   projectId?: Prisma.StringFilter<"Feature"> | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   pitches?: Prisma.PitchListRelationFilter
+  tasks?: Prisma.TaskListRelationFilter
 }, "id">
 
 export type FeatureOrderByWithAggregationInput = {
@@ -264,6 +267,7 @@ export type FeatureCreateInput = {
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutFeaturesInput
   pitches?: Prisma.PitchCreateNestedManyWithoutFeatureInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutFeatureInput
 }
 
 export type FeatureUncheckedCreateInput = {
@@ -275,6 +279,7 @@ export type FeatureUncheckedCreateInput = {
   updatedAt?: Date | string
   projectId: string
   pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutFeatureInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutFeatureInput
 }
 
 export type FeatureUpdateInput = {
@@ -286,6 +291,7 @@ export type FeatureUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutFeaturesNestedInput
   pitches?: Prisma.PitchUpdateManyWithoutFeatureNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutFeatureNestedInput
 }
 
 export type FeatureUncheckedUpdateInput = {
@@ -297,6 +303,7 @@ export type FeatureUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   pitches?: Prisma.PitchUncheckedUpdateManyWithoutFeatureNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutFeatureNestedInput
 }
 
 export type FeatureCreateManyInput = {
@@ -373,6 +380,11 @@ export type FeatureNullableScalarRelationFilter = {
   isNot?: Prisma.FeatureWhereInput | null
 }
 
+export type FeatureScalarRelationFilter = {
+  is?: Prisma.FeatureWhereInput
+  isNot?: Prisma.FeatureWhereInput
+}
+
 export type FeatureCreateNestedManyWithoutProjectInput = {
   create?: Prisma.XOR<Prisma.FeatureCreateWithoutProjectInput, Prisma.FeatureUncheckedCreateWithoutProjectInput> | Prisma.FeatureCreateWithoutProjectInput[] | Prisma.FeatureUncheckedCreateWithoutProjectInput[]
   connectOrCreate?: Prisma.FeatureCreateOrConnectWithoutProjectInput | Prisma.FeatureCreateOrConnectWithoutProjectInput[]
@@ -435,6 +447,20 @@ export type FeatureUpdateOneWithoutPitchesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FeatureUpdateToOneWithWhereWithoutPitchesInput, Prisma.FeatureUpdateWithoutPitchesInput>, Prisma.FeatureUncheckedUpdateWithoutPitchesInput>
 }
 
+export type FeatureCreateNestedOneWithoutTasksInput = {
+  create?: Prisma.XOR<Prisma.FeatureCreateWithoutTasksInput, Prisma.FeatureUncheckedCreateWithoutTasksInput>
+  connectOrCreate?: Prisma.FeatureCreateOrConnectWithoutTasksInput
+  connect?: Prisma.FeatureWhereUniqueInput
+}
+
+export type FeatureUpdateOneRequiredWithoutTasksNestedInput = {
+  create?: Prisma.XOR<Prisma.FeatureCreateWithoutTasksInput, Prisma.FeatureUncheckedCreateWithoutTasksInput>
+  connectOrCreate?: Prisma.FeatureCreateOrConnectWithoutTasksInput
+  upsert?: Prisma.FeatureUpsertWithoutTasksInput
+  connect?: Prisma.FeatureWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FeatureUpdateToOneWithWhereWithoutTasksInput, Prisma.FeatureUpdateWithoutTasksInput>, Prisma.FeatureUncheckedUpdateWithoutTasksInput>
+}
+
 export type FeatureCreateWithoutProjectInput = {
   id?: string
   title: string
@@ -443,6 +469,7 @@ export type FeatureCreateWithoutProjectInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pitches?: Prisma.PitchCreateNestedManyWithoutFeatureInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutFeatureInput
 }
 
 export type FeatureUncheckedCreateWithoutProjectInput = {
@@ -453,6 +480,7 @@ export type FeatureUncheckedCreateWithoutProjectInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutFeatureInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutFeatureInput
 }
 
 export type FeatureCreateOrConnectWithoutProjectInput = {
@@ -502,6 +530,7 @@ export type FeatureCreateWithoutPitchesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutFeaturesInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutFeatureInput
 }
 
 export type FeatureUncheckedCreateWithoutPitchesInput = {
@@ -512,6 +541,7 @@ export type FeatureUncheckedCreateWithoutPitchesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   projectId: string
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutFeatureInput
 }
 
 export type FeatureCreateOrConnectWithoutPitchesInput = {
@@ -538,6 +568,7 @@ export type FeatureUpdateWithoutPitchesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutFeaturesNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutFeatureNestedInput
 }
 
 export type FeatureUncheckedUpdateWithoutPitchesInput = {
@@ -548,6 +579,67 @@ export type FeatureUncheckedUpdateWithoutPitchesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutFeatureNestedInput
+}
+
+export type FeatureCreateWithoutTasksInput = {
+  id?: string
+  title: string
+  description: string
+  status?: $Enums.FeatureStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  project: Prisma.ProjectCreateNestedOneWithoutFeaturesInput
+  pitches?: Prisma.PitchCreateNestedManyWithoutFeatureInput
+}
+
+export type FeatureUncheckedCreateWithoutTasksInput = {
+  id?: string
+  title: string
+  description: string
+  status?: $Enums.FeatureStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  projectId: string
+  pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutFeatureInput
+}
+
+export type FeatureCreateOrConnectWithoutTasksInput = {
+  where: Prisma.FeatureWhereUniqueInput
+  create: Prisma.XOR<Prisma.FeatureCreateWithoutTasksInput, Prisma.FeatureUncheckedCreateWithoutTasksInput>
+}
+
+export type FeatureUpsertWithoutTasksInput = {
+  update: Prisma.XOR<Prisma.FeatureUpdateWithoutTasksInput, Prisma.FeatureUncheckedUpdateWithoutTasksInput>
+  create: Prisma.XOR<Prisma.FeatureCreateWithoutTasksInput, Prisma.FeatureUncheckedCreateWithoutTasksInput>
+  where?: Prisma.FeatureWhereInput
+}
+
+export type FeatureUpdateToOneWithWhereWithoutTasksInput = {
+  where?: Prisma.FeatureWhereInput
+  data: Prisma.XOR<Prisma.FeatureUpdateWithoutTasksInput, Prisma.FeatureUncheckedUpdateWithoutTasksInput>
+}
+
+export type FeatureUpdateWithoutTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumFeatureStatusFieldUpdateOperationsInput | $Enums.FeatureStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneRequiredWithoutFeaturesNestedInput
+  pitches?: Prisma.PitchUpdateManyWithoutFeatureNestedInput
+}
+
+export type FeatureUncheckedUpdateWithoutTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumFeatureStatusFieldUpdateOperationsInput | $Enums.FeatureStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  pitches?: Prisma.PitchUncheckedUpdateManyWithoutFeatureNestedInput
 }
 
 export type FeatureCreateManyProjectInput = {
@@ -567,6 +659,7 @@ export type FeatureUpdateWithoutProjectInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pitches?: Prisma.PitchUpdateManyWithoutFeatureNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutFeatureNestedInput
 }
 
 export type FeatureUncheckedUpdateWithoutProjectInput = {
@@ -577,6 +670,7 @@ export type FeatureUncheckedUpdateWithoutProjectInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pitches?: Prisma.PitchUncheckedUpdateManyWithoutFeatureNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutFeatureNestedInput
 }
 
 export type FeatureUncheckedUpdateManyWithoutProjectInput = {
@@ -595,10 +689,12 @@ export type FeatureUncheckedUpdateManyWithoutProjectInput = {
 
 export type FeatureCountOutputType = {
   pitches: number
+  tasks: number
 }
 
 export type FeatureCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pitches?: boolean | FeatureCountOutputTypeCountPitchesArgs
+  tasks?: boolean | FeatureCountOutputTypeCountTasksArgs
 }
 
 /**
@@ -618,6 +714,13 @@ export type FeatureCountOutputTypeCountPitchesArgs<ExtArgs extends runtime.Types
   where?: Prisma.PitchWhereInput
 }
 
+/**
+ * FeatureCountOutputType without action
+ */
+export type FeatureCountOutputTypeCountTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TaskWhereInput
+}
+
 
 export type FeatureSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -629,6 +732,7 @@ export type FeatureSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   projectId?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   pitches?: boolean | Prisma.Feature$pitchesArgs<ExtArgs>
+  tasks?: boolean | Prisma.Feature$tasksArgs<ExtArgs>
   _count?: boolean | Prisma.FeatureCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["feature"]>
 
@@ -668,6 +772,7 @@ export type FeatureOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type FeatureInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   pitches?: boolean | Prisma.Feature$pitchesArgs<ExtArgs>
+  tasks?: boolean | Prisma.Feature$tasksArgs<ExtArgs>
   _count?: boolean | Prisma.FeatureCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FeatureIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -682,6 +787,7 @@ export type $FeaturePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     project: Prisma.$ProjectPayload<ExtArgs>
     pitches: Prisma.$PitchPayload<ExtArgs>[]
+    tasks: Prisma.$TaskPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1087,6 +1193,7 @@ export interface Prisma__FeatureClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   pitches<T extends Prisma.Feature$pitchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Feature$pitchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  tasks<T extends Prisma.Feature$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Feature$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1545,6 +1652,30 @@ export type Feature$pitchesArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.PitchScalarFieldEnum | Prisma.PitchScalarFieldEnum[]
+}
+
+/**
+ * Feature.tasks
+ */
+export type Feature$tasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Task
+   */
+  select?: Prisma.TaskSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Task
+   */
+  omit?: Prisma.TaskOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TaskInclude<ExtArgs> | null
+  where?: Prisma.TaskWhereInput
+  orderBy?: Prisma.TaskOrderByWithRelationInput | Prisma.TaskOrderByWithRelationInput[]
+  cursor?: Prisma.TaskWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TaskScalarFieldEnum | Prisma.TaskScalarFieldEnum[]
 }
 
 /**
