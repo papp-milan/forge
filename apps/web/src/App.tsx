@@ -138,10 +138,18 @@ function App() {
     if (typeof window === 'undefined') return 'light'
     return (window.localStorage.getItem('forge-theme') as 'light' | 'dark' | null) ?? 'light'
   })
+  const [themeTransition, setThemeTransition] = useState(false)
 
   useEffect(() => {
     window.localStorage.setItem('forge-theme', theme)
   }, [theme])
+
+  const switchTheme = () => {
+    if (themeTransition) return
+    setThemeTransition(true)
+    setTheme(theme === 'light' ? 'dark' : 'light')
+    window.setTimeout(() => setThemeTransition(false), 900)
+  }
 
   const viewOrder = ['overview', 'approvals', 'employees', 'development', 'activity'] as const
   const navigate = (nextView: typeof view) => {
@@ -289,7 +297,14 @@ function App() {
 
 
   return (
-    <div className={`forge-shell min-h-screen text-zinc-100 ${theme === 'light' ? 'forge-theme-light' : 'forge-theme-dark'}`}>
+    <div className={`forge-shell min-h-screen text-zinc-100 ${theme === 'light' ? 'forge-theme-light' : 'forge-theme-dark'} ${themeTransition ? 'forge-theme-transitioning' : ''}`}>
+      {themeTransition && (
+        <div className="forge-theme-wind" aria-hidden="true">
+          <span className="forge-theme-wind__streak forge-theme-wind__streak--one" />
+          <span className="forge-theme-wind__streak forge-theme-wind__streak--two" />
+          <span className="forge-theme-wind__streak forge-theme-wind__streak--three" />
+        </div>
+      )}
       <aside className="forge-sidebar fixed inset-y-0 left-0 hidden w-64 lg:flex lg:flex-col">
         <div className="forge-brand flex h-16 items-center gap-3 px-5">
           <div className="forge-brand-mark flex size-9 items-center justify-center overflow-hidden">
@@ -325,7 +340,7 @@ function App() {
           </div>
 
           <div className="forge-topbar-actions">
-            <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} className="forge-theme-toggle cursor-pointer" aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
+            <button onClick={switchTheme} className="forge-theme-toggle cursor-pointer" aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
               {theme === 'light' ? <Moon className="size-4" /> : <Sun className="size-4" />}
               {theme === 'light' ? 'Dark' : 'Light'}
             </button>
