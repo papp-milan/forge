@@ -445,6 +445,33 @@ function Overview({
   const active = decisions.filter((d) => ['APPROVED', 'IN_PROGRESS'].includes(d.status))
   return (
     <>
+      <section className="forge-agent-pulse">
+        <div className="forge-agent-pulse__title">
+          <div>
+            <div className="forge-kicker">OLYMPUS / AGENT PULSE</div>
+            <h2 className="mt-1 text-xl font-black uppercase tracking-[-0.04em]">The company is alive.</h2>
+          </div>
+          <span>{employees.filter((employee) => employee.status === 'ACTIVE').length.toString().padStart(2, '0')} ACTIVE</span>
+        </div>
+        <div className="forge-agent-pulse__grid">
+          {employees.slice(0, 6).map((employee) => {
+            const openTasks = tasks.filter((task) => task.assignee?.id === employee.id && task.status !== 'DONE')
+            const blocked = openTasks.some((task) => task.status === 'BLOCKED')
+            const state: AgentAsciiState = employee.status !== 'ACTIVE' ? 'OFFLINE' : blocked ? 'BLOCKED' : openTasks.length ? 'WORKING' : 'SLEEPING'
+            return (
+              <div key={employee.id} className="forge-agent-pulse__agent" style={{ '--agent-color': employee.color } as React.CSSProperties}>
+                <AgentAscii role={employee.role} state={state} color={employee.color} />
+                <div className="forge-agent-pulse__meta">
+                  <strong>{employee.name}</strong>
+                  <span>{state} · {openTasks.length.toString().padStart(2, '0')} TASKS</span>
+                </div>
+              </div>
+            )
+          })}
+          {employees.length === 0 && <EmptyState message="No agents registered yet." />}
+        </div>
+      </section>
+
       <section className="forge-metrics-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Metric icon={<Cpu />} label="Projects" value={projects.length} />
         <Metric icon={<ShieldCheck />} label="Pending approval" value={pending.length} emphasis />
