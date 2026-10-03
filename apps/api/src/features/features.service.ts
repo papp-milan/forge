@@ -157,6 +157,14 @@ export class FeaturesService {
       );
     }
 
+    const tasks = await this.prisma.task.findMany({
+      where: { featureId: id },
+      select: { status: true },
+    });
+    if (tasks.length === 0 || tasks.some((task) => task.status !== 'DONE')) {
+      throw new BadRequestException('Feature cannot become release-ready until every task has passed QA.');
+    }
+
     return this.transition(id, 'QA', 'READY_FOR_REVIEW');
   }
 
