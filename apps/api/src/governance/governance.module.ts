@@ -9,6 +9,6 @@ import { GovernancePolicyService } from './governance-policy.service.js';
   imports: [PrismaModule, AuditModule],
   controllers: [GovernanceController],
   providers: [GovernanceService, GovernancePolicyService],
-  exports: [GovernanceService],
+  exports: [GovernanceService, GovernancePolicyService],
 })
 export class GovernanceModule {}
