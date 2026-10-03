@@ -126,7 +126,7 @@ function App() {
     setError(null)
 
     try {
-      const [projectData, decisionData, taskData, featureData, employeeData, auditData] = await Promise.all([
+      const results = await Promise.allSettled([
         api<Project[]>('/api/projects'),
         api<Decision[]>('/api/agent-decisions'),
         api<Task[]>('/api/tasks'),
@@ -135,12 +135,18 @@ function App() {
         api<AuditEvent[]>('/api/audit?limit=100'),
       ])
 
-      setProjects(projectData)
-      setDecisions(decisionData)
-      setTasks(taskData)
-      setFeatures(featureData)
-      setEmployees(employeeData)
-      setAuditEvents(auditData)
+      const [projectResult, decisionResult, taskResult, featureResult, employeeResult, auditResult] = results
+      const firstFailure = results.find((result) => result.status === 'rejected')
+      if (firstFailure?.status === 'rejected') {
+        setError(firstFailure.reason instanceof Error ? firstFailure.reason.message : 'Some Forge services are unavailable.')
+      }
+
+      if (projectResult.status === 'fulfilled') setProjects(projectResult.value)
+      if (decisionResult.status === 'fulfilled') setDecisions(decisionResult.value)
+      if (taskResult.status === 'fulfilled') setTasks(taskResult.value)
+      if (featureResult.status === 'fulfilled') setFeatures(featureResult.value)
+      if (employeeResult.status === 'fulfilled') setEmployees(employeeResult.value)
+      if (auditResult.status === 'fulfilled') setAuditEvents(auditResult.value)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load Forge state.')
     } finally {
