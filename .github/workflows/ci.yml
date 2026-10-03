@@ -25,6 +25,7 @@ jobs:
         working-directory: .
       - run: pnpm prisma generate
       - run: pnpm build
+      - run: pnpm test
 
   web:
     runs-on: ubuntu-latest
