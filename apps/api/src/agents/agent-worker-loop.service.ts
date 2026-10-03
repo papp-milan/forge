@@ -9,6 +9,7 @@ import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 import { AgentRunService } from './agent-run.service.js';
 import { LeaseService } from '../runtime/lease.service.js';
 import { GovernancePolicyService } from '../governance/governance-policy.service.js';
+import { FeaturesService } from '../features/features.service.js';
 
 @Injectable()
 export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
@@ -32,6 +33,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly agentRuns: AgentRunService,
     private readonly lease: LeaseService,
     private readonly governance: GovernancePolicyService,
+    private readonly features: FeaturesService,
   ) {}
 
   onModuleInit() {
@@ -368,10 +370,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       );
 
       if (hasActiveWork && feature.status === 'PLANNED') {
-        await this.prisma.feature.update({
-          where: { id: feature.id },
-          data: { status: 'IN_PROGRESS' },
-        });
+        await this.features.start(feature.id);
         continue;
       }
 
@@ -380,10 +379,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       if (allTasksDone && feature.status === 'IN_PROGRESS') {
         // Reaching QA is an explicit lifecycle gate. Never let the worker
         // jump directly from development to CEO release review.
-        await this.prisma.feature.update({
-          where: { id: feature.id },
-          data: { status: 'QA' },
-        });
+        await this.features.submitForQa(feature.id);
 
         await this.audit.record({
           actor: 'artemis',
