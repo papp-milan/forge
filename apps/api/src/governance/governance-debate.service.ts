@@ -6,7 +6,7 @@ export interface GovernancePerspective {
   role: string;
   stance: 'SUPPORT' | 'OPPOSE' | 'CONDITIONAL' | 'ABSTAIN';
   rationale: string;
-  evidence?: unknown[];
+  evidence?: Record<string, unknown>;
 }
 
 @Injectable()
@@ -59,6 +59,6 @@ export class GovernanceDebateService {
       ? `Dissent recorded: ${oppose} opposing and ${conditional} conditional perspective(s).`
       : null;
 
-    return this.governance.finalizeReview(reviewId, recommendation, dissent);
+    return this.governance.finalizeReview(reviewId, { recommendation, dissent });
   }
 }
