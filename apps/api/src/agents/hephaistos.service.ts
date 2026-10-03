@@ -44,6 +44,14 @@ export class HephaistosService {
         data: { repository: workspace.repository, branch: workspace.branch, sessionId: result.sessionId, exitCode: result.exitCode, text: result.text.slice(-4000), tokens: result.tokens ?? null },
       });
       if (success) {
+        if (this.runtime.mode() === 'deterministic') {
+          const updated = await this.prisma.task.update({
+            where: { id: task.id },
+            data: { status: 'IN_REVIEW' },
+            include: { assignee: true, feature: true },
+          });
+          return { status: 'SIMULATED_IN_REVIEW', task: updated, result };
+        }
         try {
           const [owner, repo] = workspace.repository.split('/');
           let pullRequestNumber = task.pullRequestNumber ?? null;
