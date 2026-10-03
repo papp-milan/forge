@@ -35,6 +35,7 @@ Team Lead    UI/UX   Engineering
 ## Current stack
 
 - **Web:** React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui, Base UI, Lucide, Inter
+- **Development proxy:** the dashboard uses same-origin `/api` requests in development; Vite proxies them to the NestJS API on port 3000. `VITE_API_URL` can override this when an external API origin is intentional.
 - **Visual direction:** high-contrast Forge/Olympus command center inspired by comic/manga interfaces, Persona-like graphic energy and Hermes-style agent tooling; bright agent colors, hard shadows, grain/noise, glow and directional motion
 - **API:** NestJS 12, TypeScript, ESM, PostgreSQL, Prisma 7
 - **Automation:** GitHub App, GitHub webhooks, GitHub Issues/branches/PRs
@@ -217,6 +218,7 @@ GITHUB_APP_ID="..."
 GITHUB_INSTALLATION_ID="..."
 GITHUB_PRIVATE_KEY_PATH="secrets/github-app.pem"
 GITHUB_WEBHOOK_SECRET="..."
+VITE_API_URL=""
 FORGE_AUTONOMOUS="false"
 FORGE_AUTONOMOUS_INTERVAL_MS="300000"
 FORGE_WORKSPACE_ROOT="/tmp/forge-workspaces"
@@ -334,6 +336,11 @@ Forge's original logo exploration lives in `/sketches/logos`. The first five dir
 - `08-iron-council.svg` — three worker silhouettes around a shared forge
 - `09-hammerman-shadow.svg` — foreground smith with an oversized background shadow
 - `10-forge-idol.svg` — monumental smith/anvil emblem
+- `11-forgemaster.svg` — compact forge-master figure with anvil base
+- `12-anvil-king.svg` — crowned geometric anvil/forge emblem
+- `13-hammer-shadow.svg` — oversized hammer silhouette with hard shadow
+- `14-iron-giant.svg` — monumental armored forge figure
+- `15-three-forgers.svg` — three-worker council around a shared forge
 
 The direction is intentionally inspired by the bold monochrome, manga/print character of Hermes/Nous branding while remaining an original Forge mark rather than copying the Hermes logo. The second batch explores human/worker silhouettes and large shadow figures more aggressively. The current source reference uses a stark black/white character mark; Nous' published branding guidance also emphasizes xerox/riso grain, constrained palettes and distressed print texture.
 
@@ -349,7 +356,7 @@ GitHub synchronization also avoids resurrecting completed tasks: discovering a p
 
 In `AGENT_RUNTIME=deterministic`, worker execution and feature release are explicitly simulated. Deterministic release does not require a real pull request merge; Hermes/real runtime keeps the GitHub merge gate.
 
-The dashboard also treats agents as visible characters rather than static rows. If the employee API is temporarily unavailable, the built-in six-agent roster remains visible as a cached UI fallback instead of making the entire crew disappear. Production builds use a same-origin `/api` path by default, while Vite proxies `/api` to the local NestJS server during development.
+The dashboard also treats agents as visible characters rather than static rows. The two DEVOPS employees are intentionally distinct in the ASCII theatre: Nike is rendered as a release/launch machine, while Atlas is rendered as a heavier infrastructure/compute frame. If the employee API is temporarily unavailable, the built-in six-agent roster remains visible as a cached UI fallback instead of making the entire crew disappear. Production builds use a same-origin `/api` path by default, while Vite proxies `/api` to the local NestJS server during development.
 
 
 
@@ -357,3 +364,22 @@ The dashboard also treats agents as visible characters rather than static rows. 
 - **Agent theatre:** each employee has animated ASCII art with role-specific silhouettes.
 - **Live agent states:** agents sleep when they have no open work, animate as working when tasks are queued, and switch to a blocked state when assigned work is blocked.
 - **Reduced-motion support:** CSS animations are disabled when the user requests reduced motion.
+
+
+## Local API troubleshooting
+
+If Firefox reports repeated CORS errors such as `CORS request did not succeed` with status `(null)`, the most common cause is that the API process is not reachable rather than a NestJS CORS policy failure. The web app intentionally calls relative `/api/*` URLs in development so the Vite proxy handles the cross-origin boundary.
+
+Check the API directly:
+
+~~~bash
+curl http://localhost:3000/api/health
+~~~
+
+A healthy API returns JSON with `status: "ok"`. If the command cannot connect, start the API with:
+
+~~~bash
+pnpm dev:api
+~~~
+
+The lightweight health endpoint is available at `GET /api/health`.
