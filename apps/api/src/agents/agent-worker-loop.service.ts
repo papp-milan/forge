@@ -66,6 +66,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     if (!(await this.lease.acquire('forge:agent-worker-loop'))) return;
 
     this.running = true;
+    this.github.beginCycle();
 
     try {
       await this.recoverStaleRuns();
@@ -85,6 +86,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         },
       });
     } finally {
+      this.github.endCycle();
       this.running = false;
       await this.lease.release('forge:agent-worker-loop');
     }
