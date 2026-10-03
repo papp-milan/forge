@@ -27,6 +27,13 @@ export interface AuditEvent {
   data?: Record<string, unknown>;
 }
 
+type AuditListOptions = {
+  projectId?: string;
+  type?: AuditEventType;
+  limit?: number;
+  before?: Date;
+};
+
 @Injectable()
 export class AuditService {
   private readonly auditRoot = path.resolve(process.cwd(), '../../memory/audit');
@@ -39,30 +46,41 @@ export class AuditService {
     return result;
   }
 
-  async list(options?: { projectId?: string; type?: AuditEventType; limit?: number }): Promise<AuditEvent[]> {
+  async list(options?: AuditListOptions): Promise<AuditEvent[]> {
     const files = await this.listFiles();
     const events: AuditEvent[] = [];
+    const before = options?.before?.getTime();
+
     for (const filePath of files.reverse()) {
       let raw: string;
       try { raw = await readFile(filePath, 'utf8'); } catch { continue; }
+
       for (const line of raw.split('\n').filter(Boolean).reverse()) {
-        try { events.push(JSON.parse(line) as AuditEvent); } catch {}
-        if (options?.limit && events.length >= options.limit) return this.filter(events, options);
+        try {
+          const event = JSON.parse(line) as AuditEvent;
+          if (before !== undefined && new Date(event.timestamp).getTime() >= before) continue;
+          if (options?.projectId && event.projectId !== options.projectId) continue;
+          if (options?.type && event.type !== options.type) continue;
+          events.push(event);
+          if (options?.limit && events.length >= options.limit) return events;
+        } catch {
+          // Ignore malformed historical records so one bad line cannot hide the rest.
+        }
       }
     }
-    return this.filter(events, options);
-  }
 
-  private filter(events: AuditEvent[], options?: { projectId?: string; type?: AuditEventType; limit?: number }) {
-    return events.filter((event) => !options?.projectId || event.projectId === options.projectId)
-      .filter((event) => !options?.type || event.type === options.type)
-      .slice(0, options?.limit ?? 100);
+    return events.slice(0, options?.limit ?? 100);
   }
 
   private async listFiles(): Promise<string[]> {
     try {
       const entries = await readdir(this.auditRoot, { withFileTypes: true });
-      return entries.filter((entry) => entry.isFile() && entry.name.endsWith('.jsonl')).sort().map((entry) => path.join(this.auditRoot, entry.name));
-    } catch { return []; }
+      return entries
+        .filter((entry) => entry.isFile() && entry.name.endsWith('.jsonl'))
+        .sort()
+        .map((entry) => path.join(this.auditRoot, entry.name));
+    } catch {
+      return [];
+    }
   }
 }
