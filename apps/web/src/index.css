@@ -2264,12 +2264,12 @@ main > div::before {
 .forge-theme-light .forge-kicker,
 .forge-theme-light .forge-panel__mark,
 .forge-theme-light .forge-text-action {
-  color: var(--forge-orange) !important;
+  color: #e3262e !important;
 }
 
 .forge-theme-light .forge-panel__header::after {
-  background: var(--forge-orange) !important;
-  box-shadow: 0 0 10px color-mix(in srgb, var(--forge-orange) 30%, transparent) !important;
+  background: #e3262e !important;
+  box-shadow: 0 0 10px rgba(227,38,46,.28) !important;
 }
 
 .forge-theme-light .forge-text-action:hover {
@@ -2279,12 +2279,12 @@ main > div::before {
 
 /* Keep the overview sections separated by a real 2rem vertical rhythm. */
 .forge-overview-stack {
-  gap: 2rem !important;
+  gap: 1rem !important;
 }
 
 @media (max-width: 640px) {
   .forge-overview-stack {
-    gap: 1.25rem !important;
+    gap: .75rem !important;
   }
 }
 
