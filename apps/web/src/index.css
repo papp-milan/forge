@@ -2082,3 +2082,52 @@ main {
     padding: 1rem !important;
   }
 }
+
+
+/* =========================================================
+   Pulse composition — state-driven shadows + section spacing
+   ========================================================= */
+.forge-agent-pulse {
+  margin-bottom: 2rem !important;
+}
+
+.forge-theme-light .forge-agent-pulse__agent,
+.forge-agent-pulse__agent {
+  box-shadow: 6px 6px 0 rgba(23,20,17,.16) !important;
+}
+
+/* A chromatic shadow is a live-state signal, not a permanent card decoration. */
+.forge-agent-pulse__agent[data-agent-state="WORKING"],
+.forge-agent-pulse__agent[data-agent-state="BLOCKED"] {
+  box-shadow: 7px 7px 0 var(--agent-color) !important;
+}
+
+.forge-agent-pulse__agent[data-agent-state="SLEEPING"],
+.forge-agent-pulse__agent[data-agent-state="OFFLINE"] {
+  box-shadow: 6px 6px 0 rgba(23,20,17,.16) !important;
+}
+
+.forge-agent-pulse__agent[data-agent-state="WORKING"]:hover,
+.forge-agent-pulse__agent[data-agent-state="BLOCKED"]:hover {
+  box-shadow: 9px 9px 0 var(--agent-color) !important;
+}
+
+.forge-agent-pulse__agent[data-agent-state="SLEEPING"]:hover,
+.forge-agent-pulse__agent[data-agent-state="OFFLINE"]:hover {
+  box-shadow: 8px 8px 0 rgba(23,20,17,.22) !important;
+}
+
+/* The metrics card group needs breathing room from both neighboring sections. */
+.forge-metrics-grid {
+  margin-block: 2rem !important;
+}
+
+@media (max-width: 640px) {
+  .forge-agent-pulse {
+    margin-bottom: 1.25rem !important;
+  }
+
+  .forge-metrics-grid {
+    margin-block: 1.25rem !important;
+  }
+}
