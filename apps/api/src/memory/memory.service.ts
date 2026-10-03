@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { AuditService } from '../audit/audit.service.js';
 
 export type MemoryType = 'fact' | 'decision' | 'learning';
 
@@ -37,6 +38,8 @@ export interface Memory {
 
 @Injectable()
 export class MemoryService {
+  constructor(private readonly audit: AuditService) {}
+
   private readonly memoryRoot = path.resolve(process.cwd(), '../../memory');
 
   async list(scope?: string): Promise<Memory[]> {
@@ -86,7 +89,17 @@ export class MemoryService {
 
     await fs.writeFile(filePath, document, 'utf8');
 
-    return this.readFile(filePath);
+    const result = await this.readFile(filePath);
+    await this.audit.record({
+      actor: metadata.source === 'ceo' ? 'ceo' : 'system',
+      type: 'MEMORY_CREATED',
+      entityType: 'memory',
+      entityId: metadata.id,
+      summary: `Created memory ${relativePath}`,
+      data: { path: relativePath, source: metadata.source, type: metadata.type },
+    } as any);
+
+    return result;
   }
 
   async update(
@@ -113,7 +126,17 @@ export class MemoryService {
 
     await fs.writeFile(filePath, document, 'utf8');
 
-    return this.readFile(filePath);
+    const result = await this.readFile(filePath);
+    await this.audit.record({
+      actor: metadata.source === 'ceo' ? 'ceo' : 'system',
+      type: 'MEMORY_UPDATED',
+      entityType: 'memory',
+      entityId: metadata.id,
+      summary: `Updated memory ${relativePath}`,
+      data: { path: relativePath, source: metadata.source, type: metadata.type },
+    } as any);
+
+    return result;
   }
 
   async delete(relativePath: string): Promise<void> {
@@ -124,6 +147,14 @@ export class MemoryService {
     } catch {
       throw new NotFoundException('Memory not found');
     }
+
+    await this.audit.record({
+      actor: 'system',
+      type: 'MEMORY_DELETED',
+      entityType: 'memory',
+      summary: `Deleted memory ${relativePath}`,
+      data: { path: relativePath },
+    } as any);
   }
 
   private async readFile(filePath: string): Promise<Memory> {
