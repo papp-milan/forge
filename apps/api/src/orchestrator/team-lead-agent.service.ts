@@ -5,6 +5,7 @@ import { TeamLeadContext } from './team-lead-context.types.js';
 import { TeamLeadDecision } from './team-lead-decision.types.js';
 import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator.service.js';
 import { AgentDecisionService } from './agent-decision.service.js';
+import { HermesRuntimeService } from '../runtime/hermes-runtime.service.js';
 
 @Injectable()
 export class TeamLeadAgentService {
@@ -12,6 +13,7 @@ export class TeamLeadAgentService {
     private readonly contextService: TeamLeadContextService,
     private readonly validator: TeamLeadDecisionValidatorService,
     private readonly decisionService: AgentDecisionService,
+    private readonly hermes: HermesRuntimeService,
   ) {}
 
   async analyzeProject(projectId: string): Promise<{
@@ -20,7 +22,9 @@ export class TeamLeadAgentService {
     validation: ReturnType<TeamLeadDecisionValidatorService['validate']>;
   }> {
     const context = await this.contextService.build(projectId);
-    const decision = this.analyze(context);
+    const decision = process.env['TEAM_LEAD_AGENT'] === 'hermes'
+      ? await this.analyzeWithHermes(context)
+      : this.analyze(context);
     const validation = this.validator.validate(decision);
 
     return { context, decision, validation };
@@ -58,6 +62,57 @@ export class TeamLeadAgentService {
       analysis,
       results: execution.results,
     };
+  }
+
+  private async analyzeWithHermes(context: TeamLeadContext): Promise<TeamLeadDecision> {
+    const prompt = [
+      'You are Athena, Forge\'s Team Lead.',
+      'Analyze the supplied project context and return exactly one JSON object.',
+      'Do not use markdown fences. Do not add commentary outside the JSON.',
+      'The JSON must contain: type, priority, title, reasoning, evidence, actions, requiresCeoApproval.',
+      'Allowed types: NO_ACTION, CREATE_PITCH, INVESTIGATE, UPDATE_MEMORY, ESCALATE.',
+      'Allowed priorities: LOW, MEDIUM, HIGH, CRITICAL.',
+      'For CREATE_PITCH, action must contain title, description, problem, solution, impact, risks and tasks.',
+      'Each task must contain title and role; role must be TEAM_LEAD, UI_UX, ENGINEER, QA or DEVOPS.',
+      'Treat CEO approval as mandatory for consequential product decisions.',
+      'Do not invent project facts. Base evidence only on the supplied context.',
+      '',
+      JSON.stringify(context, null, 2),
+    ].join('\\n');
+
+    const result = await this.hermes.run({
+      prompt,
+      maxTurns: 12,
+    });
+
+    if (result.exitCode !== 0 || !result.text) {
+      throw new Error(
+        `Hermes Team Lead run failed with exit code ${result.exitCode}`,
+      );
+    }
+
+    try {
+      return JSON.parse(this.extractJson(result.text)) as TeamLeadDecision;
+    } catch {
+      throw new Error('Hermes returned invalid Team Lead JSON.');
+    }
+  }
+
+  private extractJson(text: string): string {
+    const fenced = text.match(/\`\`\`(?:json)?\\s*([\\s\\S]*?)\`\`\`/i);
+
+    if (fenced?.[1]) {
+      return fenced[1].trim();
+    }
+
+    const first = text.indexOf('{');
+    const last = text.lastIndexOf('}');
+
+    if (first === -1 || last <= first) {
+      throw new Error('Hermes response did not contain a JSON object.');
+    }
+
+    return text.slice(first, last + 1);
   }
 
 
