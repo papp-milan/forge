@@ -96,6 +96,7 @@ function App() {
   const [view, setView] = useState<'overview' | 'approvals' | 'employees' | 'development' | 'activity'>('overview')
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [selectedDecision, setSelectedDecision] = useState<Decision | null>(null)
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
 
   const load = async () => {
     setLoading(true)
@@ -172,6 +173,20 @@ function App() {
       setBusyId(null)
     }
   }
+  const taskAction = async (id: string, action: string, body?: unknown) => {
+    setBusyId(id)
+    setError(null)
+    try {
+      await api(`/api/tasks/${id}/${action}`, { method: 'POST', body: JSON.stringify(body ?? {}) })
+      await load()
+      setSelectedTask(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Task action failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100">
@@ -262,8 +277,10 @@ function App() {
               projects={projects}
               features={features}
               tasks={selectedProjectId ? tasks.filter((task) => task.feature?.projectId === selectedProjectId) : tasks}
+              employees={employees}
               selectedProjectId={selectedProjectId}
               onSelectProject={setSelectedProjectId}
+              onTaskOpen={setSelectedTask}
             />
           )}
 
