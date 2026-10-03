@@ -8,6 +8,7 @@ import {
 import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator.service.js';
 import { MemoryService } from '../memory/memory.service.js';
 import { FeaturesService } from '../features/features.service.js';
+import { PermissionPolicyService } from './permission-policy.service.js';
 
 export type ActionExecutionStatus = 'EXECUTED' | 'SKIPPED' | 'BLOCKED' | 'FAILED';
 
@@ -25,6 +26,7 @@ export class TeamLeadActionExecutorService {
     private readonly teamLeadService: TeamLeadService,
     private readonly memory: MemoryService,
     private readonly features: FeaturesService,
+    private readonly permissions: PermissionPolicyService,
   ) {}
 
   async execute(projectId: string, decision: TeamLeadDecision): Promise<ActionExecutionResult[]> {
@@ -141,6 +143,7 @@ export class TeamLeadActionExecutorService {
     projectId: string,
     action: Extract<TeamLeadAction, { type: 'RELEASE_FEATURE' }>,
   ): Promise<ActionExecutionResult> {
+    this.permissions.assertAction('SYSTEM', action);
     const feature = await this.features.findOne(action.featureId);
 
     if (!feature || feature.projectId !== projectId) {
