@@ -277,8 +277,8 @@ function App() {
     <div className={`forge-shell min-h-screen text-zinc-100 ${theme === 'light' ? 'forge-theme-light' : 'forge-theme-dark'}`}>
       <aside className="forge-sidebar fixed inset-y-0 left-0 hidden w-64 lg:flex lg:flex-col">
         <div className="forge-brand flex h-16 items-center gap-3 px-5">
-          <div className="forge-brand-mark flex size-8 items-center justify-center">
-            <Zap className="size-4" />
+          <div className="forge-brand-mark flex size-9 items-center justify-center overflow-hidden">
+            <img src="/forge-logo.svg" alt="" className="size-full object-cover" />
           </div>
           <div>
             <div className="font-semibold tracking-tight">Forge</div>
