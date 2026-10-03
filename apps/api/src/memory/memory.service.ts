@@ -17,7 +17,8 @@ export type MemorySource =
   | 'engineer'
   | 'qa'
   | 'devops'
-  | 'system';
+  | 'system'
+  | 'nike';
 
 export type MemoryConfidence = 'low' | 'medium' | 'high';
 
