@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Activity, AlertTriangle, Check, CircleDot, ExternalLink, Cpu, GitPullRequest, ShieldCheck, Users, X, Zap } from 'lucide-react'
+import { Activity, AlertTriangle, Check, CircleDot, ExternalLink, Cpu, GitPullRequest, ShieldCheck, X, Zap } from 'lucide-react'
 import type { AuditEvent, Decision, Employee, Feature, Project, Task } from '../types/forge'
 
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
@@ -13,7 +13,7 @@ function createMetricShadowPlan(): Array<string | null> {
   return plan
 }
 
-function NavItem({
+export function NavItem({
   icon,
   label,
   active,
@@ -40,7 +40,7 @@ function NavItem({
   )
 }
 
-function Overview({
+export function Overview({
   projects,
   pending,
   decisions,
@@ -166,7 +166,7 @@ function Overview({
   )
 }
 
-function Approvals({ pending, busyId, onApprove, onReject, onOpen }: { pending: Decision[]; busyId: string | null; onApprove: (id: string) => void; onReject: (id: string) => void; onOpen: (decision: Decision) => void }) {
+export function Approvals({ pending, busyId, onApprove, onReject, onOpen }: { pending: Decision[]; busyId: string | null; onApprove: (id: string) => void; onReject: (id: string) => void; onOpen: (decision: Decision) => void }) {
   return (
     <Panel title="CEO approvals" subtitle="Review decisions proposed by Forge agents.">
       {pending.length === 0 ? <EmptyState message="Approval queue is clear." /> : pending.map((decision) => (
@@ -183,7 +183,7 @@ function Approvals({ pending, busyId, onApprove, onReject, onOpen }: { pending: 
   )
 }
 
-function Employees({ employees, tasks }: { employees: Employee[]; tasks: Task[] }) {
+export function Employees({ employees, tasks }: { employees: Employee[]; tasks: Task[] }) {
   return (
     <section className="space-y-5">
       <div className="forge-roster-heading">
@@ -238,7 +238,7 @@ const CHARACTER_DIALOGUE: Record<string, { line: string; action: string }> = {
   Atlas: { line: 'The foundation holds. Keep building.', action: 'DEPLOY' },
 }
 
-function CharacterPoster({ employee, state, openTasks, totalTasks }: { employee: Employee; state: AgentAsciiState; openTasks: number; totalTasks: number }) {
+export function CharacterPoster({ employee, state, openTasks, totalTasks }: { employee: Employee; state: AgentAsciiState; openTasks: number; totalTasks: number }) {
   const dialogue = CHARACTER_DIALOGUE[employee.name] ?? { line: 'Forge is waiting for the next move.', action: 'STANDBY' }
   const characterSlug = employee.name.toLowerCase()
   return (
@@ -661,7 +661,7 @@ const AGENT_ASCII: Record<string, Record<AgentAsciiState, string[]>> = {
   },
 }
 
-function AgentAscii({ role, name, state, color }: { role: string; name?: string; state: AgentAsciiState; color: string }) {
+export function AgentAscii({ role, name, state, color }: { role: string; name?: string; state: AgentAsciiState; color: string }) {
   const frames = role === 'DEVOPS' && name === 'Nike' ? AGENT_ASCII.NIKE[state] : role === 'DEVOPS' && name === 'Atlas' ? AGENT_ASCII.ATLAS[state] : AGENT_ASCII[role]?.[state] ?? AGENT_ASCII.DEVOPS[state]
   const [frame, setFrame] = useState(0)
 
@@ -679,7 +679,7 @@ function AgentAscii({ role, name, state, color }: { role: string; name?: string;
   )
 }
 
-function Development({
+export function Development({
   projects,
   features,
   tasks,
@@ -747,7 +747,7 @@ function ProjectStat({ label, value }: { label: string; value: number }) {
   )
 }
 
-function ActivityView({ events }: { events: AuditEvent[] }) {
+export function ActivityView({ events }: { events: AuditEvent[] }) {
   return (
     <Panel title="Activity" subtitle="Immutable company audit trail from agent and CEO actions.">
       {events.length === 0 ? <EmptyState message="No audit events recorded yet." /> : events.map((event) => (
@@ -875,7 +875,7 @@ function DecisionRow({
   )
 }
 
-function TaskDetails({task, employees, busy, onClose, onAction, onRunAgent, onReviewAgent}: {task: Task; employees: Employee[]; busy: boolean; onClose: () => void; onAction: (id: string, action: string, body?: unknown) => void; onRunAgent: (id: string) => void; onReviewAgent: (id: string) => void}) {
+export function TaskDetails({task, employees, busy, onClose, onAction, onRunAgent, onReviewAgent}: {task: Task; employees: Employee[]; busy: boolean; onClose: () => void; onAction: (id: string, action: string, body?: unknown) => void; onRunAgent: (id: string) => void; onReviewAgent: (id: string) => void}) {
   const active = employees.filter((employee) => employee.status === 'ACTIVE')
   const next = task.status === 'TODO' ? ['start', 'Start task'] : task.status === 'IN_PROGRESS' ? ['submit-for-review', 'Submit for review'] : task.status === 'BLOCKED' ? ['resume', 'Resume task'] : task.status === 'IN_REVIEW' ? ['complete', 'Mark complete'] : null
   return (
@@ -894,7 +894,7 @@ function TaskDetails({task, employees, busy, onClose, onAction, onRunAgent, onRe
   )
 }
 
-function FeatureDetails({feature, tasks, busy, onClose, onAction}: {feature: Feature; tasks: Task[]; busy: boolean; onClose: () => void; onAction: (id: string, action: string) => void}) {
+export function FeatureDetails({feature, tasks, busy, onClose, onAction}: {feature: Feature; tasks: Task[]; busy: boolean; onClose: () => void; onAction: (id: string, action: string) => void}) {
   const counts = {
     todo: tasks.filter((task) => task.status === 'TODO').length,
     active: tasks.filter((task) => task.status === 'IN_PROGRESS').length,
@@ -977,7 +977,7 @@ function FeatureDetails({feature, tasks, busy, onClose, onAction}: {feature: Fea
   )
 }
 
-function DecisionDetails({
+export function DecisionDetails({
   decision,
   busy,
   onClose,
@@ -1089,4 +1089,3 @@ function EmptyState({ message }: { message: string }) {
 }
 
 
-export default App
