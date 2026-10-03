@@ -11,6 +11,7 @@ import { GithubModule } from './github/github.module.js';
 import { OrchestratorModule } from './orchestrator/orchestrator.module.js';
 import { MemoryModule } from './memory/memory.module.js';
 import { AuditModule } from './audit/audit.module.js';
+import { RuntimeModule } from './runtime/runtime.module.js';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuditModule } from './audit/audit.module.js';
     OrchestratorModule,
     MemoryModule,
     AuditModule,
+    RuntimeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
