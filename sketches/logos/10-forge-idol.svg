@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><style>
+.bg{fill:#fff}.ink{fill:#080808}.accent{fill:#ff2d7d}.cut{fill:#fff}@media(prefers-color-scheme:dark){.bg{fill:#080808}.ink{fill:#f2f2f2}.accent{fill:#d7ff00}.cut{fill:#080808}}
+</style></defs><rect class="bg" width="512" height="512"/>
+<!-- monumental smith idol -->
+<path class="ink" d="M256 51c45 0 78 32 78 75s-33 75-78 75-78-32-78-75 33-75 78-75z"/>
+<path class="ink" d="M174 199l82 31 82-31 38 119-56 14-29-67 5 87h-80l5-87-29 67-56-14z"/>
+<path class="cut" d="M236 96h40v29h-40z"/>
+<path class="accent" d="M220 213h72l-36 61z"/>
+<!-- anvil pedestal -->
+<path class="ink" d="M65 337h382l-35 48H100zM133 385h246l-27 43H160zM184 428h144l-23 33H207z"/>
+<path class="accent" d="M224 319h64l-16 18h-32z"/>
+</svg>
