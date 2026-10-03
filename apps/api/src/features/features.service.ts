@@ -239,6 +239,18 @@ export class FeaturesService {
           );
 
           if (!mergeState.merged) {
+            const checks = await this.github.getPullRequestChecks(
+              owner,
+              repo,
+              task.pullRequestNumber,
+            );
+
+            if (!checks.ready) {
+              throw new BadRequestException(
+                `Pull request #${task.pullRequestNumber} is not ready: all GitHub checks must complete successfully before autonomous release.`,
+              );
+            }
+
             const merged = await this.github.mergePullRequest(
               owner,
               repo,
