@@ -1,0 +1,224 @@
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { GithubService } from '../github/github.service.js';
+import { AuditService } from '../audit/audit.service.js';
+import { HephaistosService } from './hephaistos.service.js';
+import { ArtemisService } from './artemis.service.js';
+
+@Injectable()
+export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
+  private timer?: NodeJS.Timeout;
+  private running = false;
+
+  private readonly enabled = process.env['FORGE_AUTONOMOUS'] === 'true';
+  private readonly intervalMs = Math.max(
+    Number(process.env['FORGE_AUTONOMOUS_INTERVAL_MS'] ?? 300_000),
+    30_000,
+  );
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly github: GithubService,
+    private readonly hephaistos: HephaistosService,
+    private readonly artemis: ArtemisService,
+    private readonly audit: AuditService,
+  ) {}
+
+  onModuleInit() {
+    if (!this.enabled) return;
+
+    void this.cycle();
+    this.timer = setInterval(() => void this.cycle(), this.intervalMs);
+  }
+
+  onModuleDestroy() {
+    if (this.timer) clearInterval(this.timer);
+  }
+
+  status() {
+    return {
+      enabled: this.enabled,
+      running: this.running,
+      intervalMs: this.intervalMs,
+    };
+  }
+
+  private async cycle() {
+    if (this.running) return;
+
+    this.running = true;
+
+    try {
+      await this.prepareEngineerTasks();
+      await this.runEngineerTasks();
+      await this.runQaTasks();
+      await this.advanceFeatures();
+    } catch (error) {
+      await this.audit.record({
+        actor: 'system',
+        type: 'ORCHESTRATOR_ERROR',
+        entityType: 'agent_worker_loop',
+        summary: 'Autonomous worker loop failed',
+        data: {
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
+    } finally {
+      this.running = false;
+    }
+  }
+
+  private async prepareEngineerTasks() {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        status: { in: ['TODO', 'IN_PROGRESS'] },
+        assignee: { role: 'ENGINEER', status: 'ACTIVE' },
+        feature: {
+          project: {
+            repository: { not: null },
+          },
+        },
+      },
+      include: {
+        feature: { include: { project: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    for (const task of tasks) {
+      if (task.branchName) continue;
+
+      const repository = task.feature.project.repository;
+      if (!repository) continue;
+
+      const normalized = repository
+        .replace(/^https?:\/\/(www\.)?github\.com\//, '')
+        .replace(/\.git$/, '')
+        .replace(/\/$/, '');
+
+      const [owner, repo] = normalized.split('/');
+      if (!owner || !repo) continue;
+
+      try {
+        const branchName = `forge/task-${task.id}`;
+
+        await this.github.createBranch(owner, repo, branchName);
+
+        await this.prisma.task.update({
+          where: { id: task.id },
+          data: { branchName },
+        });
+      } catch (error) {
+        await this.prisma.task.update({
+          where: { id: task.id },
+          data: { status: 'BLOCKED' },
+        });
+
+        await this.audit.record({
+          actor: 'system',
+          type: 'ORCHESTRATOR_ERROR',
+          projectId: task.feature.projectId,
+          entityType: 'task',
+          entityId: task.id,
+          summary: `Could not prepare task "${task.title}"`,
+          data: {
+            error: error instanceof Error ? error.message : String(error),
+          },
+        });
+      }
+    }
+  }
+
+  private async runEngineerTasks() {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        status: { in: ['TODO', 'IN_PROGRESS'] },
+        assignee: { role: 'ENGINEER', status: 'ACTIVE' },
+        branchName: { not: null },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 3,
+    });
+
+    for (const task of tasks) {
+      try {
+        await this.hephaistos.runTask(task.id);
+      } catch (error) {
+        await this.audit.record({
+          actor: 'hephaistos',
+          type: 'WORKER_FAILED',
+          projectId: task.featureId,
+          entityType: 'task',
+          entityId: task.id,
+          summary: `Hephaistos failed to run "${task.title}"`,
+          data: {
+            error: error instanceof Error ? error.message : String(error),
+          },
+        });
+      }
+    }
+  }
+
+  private async runQaTasks() {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        status: 'IN_REVIEW',
+        branchName: { not: null },
+      },
+      orderBy: { updatedAt: 'asc' },
+      take: 3,
+    });
+
+    for (const task of tasks) {
+      try {
+        await this.artemis.reviewTask(task.id);
+      } catch (error) {
+        await this.audit.record({
+          actor: 'artemis',
+          type: 'QA_FAILED',
+          projectId: task.featureId,
+          entityType: 'task',
+          entityId: task.id,
+          summary: `Artemis failed to review "${task.title}"`,
+          data: {
+            error: error instanceof Error ? error.message : String(error),
+          },
+        });
+      }
+    }
+  }
+
+  private async advanceFeatures() {
+    const features = await this.prisma.feature.findMany({
+      where: {
+        status: { in: ['PLANNED', 'IN_PROGRESS', 'QA'] },
+      },
+      include: { tasks: true },
+    });
+
+    for (const feature of features) {
+      if (feature.tasks.length === 0) continue;
+
+      const hasActiveWork = feature.tasks.some((task) =>
+        ['TODO', 'IN_PROGRESS', 'IN_REVIEW'].includes(task.status),
+      );
+
+      if (hasActiveWork && feature.status === 'PLANNED') {
+        await this.prisma.feature.update({
+          where: { id: feature.id },
+          data: { status: 'IN_PROGRESS' },
+        });
+        continue;
+      }
+
+      if (feature.tasks.every((task) => task.status === 'DONE')) {
+        if (feature.status !== 'READY_FOR_REVIEW') {
+          await this.prisma.feature.update({
+            where: { id: feature.id },
+            data: { status: 'READY_FOR_REVIEW' },
+          });
+        }
+      }
+    }
+  }
+}
