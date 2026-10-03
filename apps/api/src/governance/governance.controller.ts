@@ -10,6 +10,11 @@ export class GovernanceController {
     return this.governance.listReviews({ projectId, status });
   }
 
+  @Post('reviews/:reviewId/resolve')
+  resolve(@Param('reviewId') reviewId: string, @Body() body: { comment: string }) {
+    return this.governance.resolveHumanReview(reviewId, body.comment);
+  }
+
   @Get('reviews/:reviewId')
   getReview(@Param('reviewId') reviewId: string) {
     return this.governance.getReview(reviewId);
