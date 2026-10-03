@@ -1,12 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
-import { HermesRuntimeService } from './hermes-runtime.service.js';
+import { AgentRuntimeService } from './agent-runtime.service.js';
 
 @Controller('api/runtime')
 export class RuntimeController {
-  constructor(private readonly hermes: HermesRuntimeService) {}
+  constructor(private readonly runtime: AgentRuntimeService) {}
 
   @Get('hermes/health')
   health() {
-    return this.hermes.health();
+    return this.runtime.health();
   }
 }
