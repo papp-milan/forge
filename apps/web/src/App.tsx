@@ -97,6 +97,7 @@ function App() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [selectedDecision, setSelectedDecision] = useState<Decision | null>(null)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null)
 
   const load = async () => {
     setLoading(true)
@@ -173,6 +174,20 @@ function App() {
       setBusyId(null)
     }
   }
+  const featureAction = async (id: string, action: string) => {
+    setBusyId(id)
+    setError(null)
+    try {
+      await api(`/api/features/${id}/${action}`, { method: 'POST' })
+      await load()
+      setSelectedFeature(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Feature action failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
   const taskAction = async (id: string, action: string, body?: unknown) => {
     setBusyId(id)
     setError(null)
@@ -281,12 +296,23 @@ function App() {
               selectedProjectId={selectedProjectId}
               onSelectProject={setSelectedProjectId}
               onTaskOpen={setSelectedTask}
+              onFeatureOpen={setSelectedFeature}
             />
           )}
 
           {view === 'activity' && <ActivityView decisions={decisions} onOpen={setSelectedDecision} />}
         </div>
       </main>
+
+      {selectedFeature && (
+        <FeatureDetails
+          feature={selectedFeature}
+          tasks={tasks.filter((task) => task.feature?.id === selectedFeature.id)}
+          busy={busyId === selectedFeature.id}
+          onClose={() => setSelectedFeature(null)}
+          onAction={featureAction}
+        />
+      )}
 
       {selectedTask && (
         <TaskDetails
@@ -472,6 +498,7 @@ function Development({
   selectedProjectId,
   onSelectProject,
   onTaskOpen,
+  onFeatureOpen,
 }: {
   projects: Project[]
   features: Feature[]
@@ -480,6 +507,7 @@ function Development({
   selectedProjectId: string | null
   onSelectProject: (id: string | null) => void
   onTaskOpen: (task: Task) => void
+  onFeatureOpen: (feature: Feature) => void
 }) {
   const selectedProject = projects.find((project) => project.id === selectedProjectId) ?? null
   const projectFeatures = selectedProjectId ? features.filter((feature) => feature.projectId === selectedProjectId) : features
@@ -502,7 +530,7 @@ function Development({
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <Panel title="Features" subtitle={selectedProject ? `Features proposed and managed for ${selectedProject.name}.` : 'Features across all projects.'}>
-          {projectFeatures.length === 0 ? <EmptyState message="No features registered for this selection." /> : projectFeatures.map((feature) => <div key={feature.id} className="border-b border-white/6 px-5 py-5"><div className="flex items-start gap-3"><StatusDot status={feature.status} /><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-medium">{feature.title}</h3><span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{feature.status}</span></div><p className="mt-2 text-xs leading-5 text-zinc-500">{feature.description}</p><div className="mt-3 text-xs text-zinc-600">{projectTasks.filter((task) => task.feature?.id === feature.id || task.feature?.title === feature.title).length} tasks</div></div></div></div>)}
+          {projectFeatures.length === 0 ? <EmptyState message="No features registered for this selection." /> : projectFeatures.map((feature) => <button key={feature.id} onClick={() => onFeatureOpen(feature)} className="block w-full cursor-pointer border-b border-white/6 px-5 py-5 text-left transition hover:bg-white/[0.025]"><div className="flex items-start gap-3"><StatusDot status={feature.status} /><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-medium">{feature.title}</h3><span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{feature.status}</span></div><p className="mt-2 text-xs leading-5 text-zinc-500">{feature.description}</p><div className="mt-3 text-xs text-zinc-600">{projectTasks.filter((task) => task.feature?.id === feature.id || task.feature?.title === feature.title).length} tasks</div></div></div></div></button>)}
         </Panel>
 
         <Panel title="Tasks" subtitle={selectedProject ? `Delivery work for ${selectedProject.name}. Click a task to manage it.` : 'Delivery work across all projects.'}>
@@ -668,6 +696,89 @@ function TaskDetails({task, employees, busy, onClose, onAction}: {task: Task; em
           <div><div className="text-xs text-zinc-600">ASSIGNMENT</div><select defaultValue={task.assignee?.id ?? ''} disabled={busy} onChange={(event) => event.target.value && onAction(task.id, 'assign', {employeeId: event.target.value})} className="mt-2 w-full cursor-pointer rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-300"><option value="">Unassigned</option>{active.map((employee) => <option key={employee.id} value={employee.id}>{employee.name} · {employee.role}</option>)}</select></div>
           <div><div className="text-xs text-zinc-600">WORKFLOW</div><div className="mt-3 flex flex-wrap gap-2">{next && <button disabled={busy} onClick={() => onAction(task.id, next[0])} className="cursor-pointer rounded-lg bg-white px-3 py-2 text-sm font-medium text-black disabled:opacity-50">{next[1]}</button>}{task.status === 'IN_PROGRESS' && <button disabled={busy} onClick={() => onAction(task.id, 'block')} className="cursor-pointer rounded-lg border border-red-400/20 px-3 py-2 text-sm text-red-200 disabled:opacity-50">Block</button>}</div></div>
           <div><div className="text-xs text-zinc-600">GITHUB DELIVERY</div><div className="mt-3 flex flex-wrap gap-2">{!task.githubIssueUrl && <button disabled={busy} onClick={() => onAction(task.id, 'github-issue')} className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 disabled:opacity-50">Create issue</button>}{task.githubIssueUrl && <a href={task.githubIssueUrl} target="_blank" rel="noreferrer" className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300">Issue #{task.githubIssueNumber}</a>}{task.githubIssueUrl && !task.branchName && <button disabled={busy} onClick={() => onAction(task.id, 'github-branch')} className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 disabled:opacity-50">Create branch</button>}{task.branchName && <span className="rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-500">{task.branchName}</span>}{task.branchName && !task.pullRequestUrl && <button disabled={busy} onClick={() => onAction(task.id, 'github-pull-request')} className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 disabled:opacity-50">Create PR</button>}{task.pullRequestUrl && <a href={task.pullRequestUrl} target="_blank" rel="noreferrer" className="cursor-pointer rounded-lg bg-white px-3 py-2 text-xs font-medium text-black">PR #{task.pullRequestNumber}</a>}</div></div>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function FeatureDetails({feature, tasks, busy, onClose, onAction}: {feature: Feature; tasks: Task[]; busy: boolean; onClose: () => void; onAction: (id: string, action: string) => void}) {
+  const counts = {
+    todo: tasks.filter((task) => task.status === 'TODO').length,
+    active: tasks.filter((task) => task.status === 'IN_PROGRESS').length,
+    review: tasks.filter((task) => task.status === 'IN_REVIEW').length,
+    done: tasks.filter((task) => task.status === 'DONE').length,
+    blocked: tasks.filter((task) => task.status === 'BLOCKED').length,
+  }
+  const action = feature.status === 'PROPOSED' ? ['plan', 'Plan feature'] :
+    feature.status === 'PLANNED' ? ['start', 'Start development'] :
+    feature.status === 'IN_PROGRESS' ? ['submit-for-qa', 'Submit to QA'] :
+    feature.status === 'QA' ? ['approve-qa', 'Approve QA'] :
+    feature.status === 'READY_FOR_REVIEW' ? ['release', 'Release to production'] : null
+  const releaseGate = feature.status === 'READY_FOR_REVIEW'
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm" onMouseDown={onClose}>
+      <section className="max-h-[88vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-white/10 bg-[#111114] shadow-2xl" onMouseDown={(event) => event.stopPropagation()}>
+        <div className="flex items-start justify-between border-b border-white/8 px-6 py-5">
+          <div><div className="text-xs uppercase tracking-wider text-zinc-500">Feature · {feature.status}</div><h2 className="mt-1 text-xl font-semibold">{feature.title}</h2></div>
+          <button onClick={onClose} className="cursor-pointer rounded-lg p-2 text-zinc-500 hover:bg-white/8"><X className="size-4" /></button>
+        </div>
+        <div className="space-y-6 p-6">
+          <p className="text-sm leading-6 text-zinc-300">{feature.description}</p>
+
+          <div className="grid gap-3 sm:grid-cols-5">
+            <DetailStat label="Todo" value={String(counts.todo)} />
+            <DetailStat label="Active" value={String(counts.active)} />
+            <DetailStat label="Review" value={String(counts.review)} />
+            <DetailStat label="Done" value={String(counts.done)} />
+            <DetailStat label="Blocked" value={String(counts.blocked)} />
+          </div>
+
+          <div>
+            <div className="text-xs uppercase tracking-wider text-zinc-600">Delivery pipeline</div>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+              {['PROPOSED','PLANNED','IN_PROGRESS','QA','READY_FOR_REVIEW','RELEASED'].map((status, index) => (
+                <span key={status} className={`rounded-full border px-3 py-1.5 ${status === feature.status ? 'border-white/25 bg-white/10 text-white' : index < ['PROPOSED','PLANNED','IN_PROGRESS','QA','READY_FOR_REVIEW','RELEASED'].indexOf(feature.status) ? 'border-emerald-400/20 text-emerald-300' : 'border-white/8 text-zinc-600'}`}>
+                  {status}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {feature.status === 'QA' && (
+            <div className="rounded-xl border border-amber-400/15 bg-amber-400/5 p-4">
+              <div className="flex items-center gap-2 text-sm font-medium text-amber-200"><ShieldCheck className="size-4" />QA gate</div>
+              <p className="mt-1 text-xs leading-5 text-zinc-500">The feature is waiting for QA approval before it can enter the CEO release queue.</p>
+            </div>
+          )}
+
+          {releaseGate && (
+            <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-4">
+              <div className="flex items-center gap-2 text-sm font-medium text-emerald-200"><Check className="size-4" />CEO release gate</div>
+              <p className="mt-1 text-xs leading-5 text-zinc-500">QA has approved this feature. Releasing it will mark the feature as production-ready and hand deployment to DevOps/GitHub Actions.</p>
+            </div>
+          )}
+
+          <div>
+            <div className="text-xs uppercase tracking-wider text-zinc-600">Tasks</div>
+            <div className="mt-3 overflow-hidden rounded-xl border border-white/8">
+              {tasks.length === 0 ? <EmptyState message="No tasks attached to this feature." /> : tasks.map((task) => (
+                <div key={task.id} className="flex items-center gap-3 border-b border-white/6 px-4 py-3 last:border-0">
+                  <StatusDot status={task.status} /><div className="min-w-0 flex-1"><div className="truncate text-sm">{task.title}</div><div className="text-xs text-zinc-600">{task.assignee?.name ?? 'Unassigned'} · {task.status}</div></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {action && (
+            <div className="flex items-center justify-between gap-4 border-t border-white/8 pt-5">
+              <div className="text-xs text-zinc-600">{releaseGate ? 'This is the final human release decision.' : 'Advance the feature to the next lifecycle stage.'}</div>
+              <button disabled={busy} onClick={() => onAction(feature.id, action[0])} className={`cursor-pointer rounded-lg px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 ${releaseGate ? 'bg-emerald-400 text-black hover:bg-emerald-300' : 'bg-white text-black hover:bg-zinc-200'}`}>
+                {action[1]}
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </div>
