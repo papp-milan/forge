@@ -82,6 +82,15 @@ type Decision = {
 
 const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
+const DEFAULT_CREW: Employee[] = [
+  { id: 'fallback-athena', name: 'Athena', role: 'TEAM_LEAD', status: 'ACTIVE', color: '#8b5cf6' },
+  { id: 'fallback-apollo', name: 'Apollo', role: 'UI_UX', status: 'ACTIVE', color: '#f59e0b' },
+  { id: 'fallback-hephaistos', name: 'Hephaistos', role: 'ENGINEER', status: 'ACTIVE', color: '#ef4444' },
+  { id: 'fallback-artemis', name: 'Artemis', role: 'QA', status: 'ACTIVE', color: '#22c55e' },
+  { id: 'fallback-nike', name: 'Nike', role: 'DEVOPS', status: 'ACTIVE', color: '#06b6d4' },
+  { id: 'fallback-atlas', name: 'Atlas', role: 'DEVOPS', status: 'ACTIVE', color: '#3b82f6' },
+]
+
 async function api<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API}${path}`, {
     headers: { 'Content-Type': 'application/json' },
@@ -145,7 +154,8 @@ function App() {
       if (decisionResult.status === 'fulfilled') setDecisions(decisionResult.value)
       if (taskResult.status === 'fulfilled') setTasks(taskResult.value)
       if (featureResult.status === 'fulfilled') setFeatures(featureResult.value)
-      if (employeeResult.status === 'fulfilled') setEmployees(employeeResult.value)
+      if (employeeResult.status === 'fulfilled') setEmployees(employeeResult.value.length ? employeeResult.value : DEFAULT_CREW)
+      else setEmployees(DEFAULT_CREW)
       if (auditResult.status === 'fulfilled') setAuditEvents(auditResult.value)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load Forge state.')
@@ -277,7 +287,7 @@ function App() {
         <div className="border-t border-white/8 p-4">
           <div className="flex items-center gap-2 text-xs text-zinc-500">
             <span className={`size-2 rounded-full ${employees.length ? 'bg-emerald-400' : 'bg-red-400'}`} />
-            {employees.length ? `Crew online · ${employees.length} agents` : 'Crew offline · retrying'}
+            {employees.some((employee) => !employee.id.startsWith('fallback-')) ? `Crew online · ${employees.length} agents` : `Crew cached · ${employees.length} agents` : 'Crew cached · API retrying'}
           </div>
         </div>
       </aside>
