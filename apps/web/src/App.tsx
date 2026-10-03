@@ -84,6 +84,16 @@ type Decision = {
 
 const API = import.meta.env.VITE_API_URL ?? ''
 
+const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
+
+function createMetricShadowPlan(): Array<string | null> {
+  const indices = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5)
+  const colors = [...METRIC_SHADOW_COLORS].sort(() => Math.random() - 0.5)
+  const count = 2 + Math.floor(Math.random() * 4)
+  const selected = new Set(indices.slice(0, count))
+  return indices.map((index) => selected.has(index) ? colors[index % colors.length] : null)
+}
+
 const DEFAULT_CREW: Employee[] = [
   { id: 'fallback-athena', name: 'Athena', role: 'TEAM_LEAD', status: 'ACTIVE', color: '#8b5cf6' },
   { id: 'fallback-apollo', name: 'Apollo', role: 'UI_UX', status: 'ACTIVE', color: '#f59e0b' },
@@ -472,6 +482,7 @@ function Overview({
   onDecisionOpen: (decision: Decision) => void
 }) {
   const active = decisions.filter((d) => ['APPROVED', 'IN_PROGRESS'].includes(d.status))
+  const [metricShadowPlan] = useState<string[]>(() => createMetricShadowPlan() as string[])
   return (
     <div className="forge-overview-stack">
       <section className="forge-agent-pulse">
@@ -507,12 +518,12 @@ function Overview({
       </section>
 
       <section className="forge-metrics-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric icon={<Cpu />} label="Projects" value={projects.length} />
-        <Metric icon={<ShieldCheck />} label="Pending approval" value={pending.length} emphasis />
-        <Metric icon={<Activity />} label="Agent decisions" value={decisions.length} />
-        <Metric icon={<Zap />} label="Active decisions" value={active.length} />
-        <Metric icon={<GitPullRequest />} label="Tasks" value={tasks.length} />
-        <Metric icon={<AlertTriangle />} label="Blocked tasks" value={tasks.filter((t) => t.status === 'BLOCKED').length} emphasis={tasks.some((t) => t.status === 'BLOCKED')} />
+        <Metric icon={<Cpu />} label="Projects" value={projects.length} shadowColor={metricShadowPlan[0]} />
+        <Metric icon={<ShieldCheck />} label="Pending approval" value={pending.length} emphasis shadowColor={metricShadowPlan[1]} />
+        <Metric icon={<Activity />} label="Agent decisions" value={decisions.length} shadowColor={metricShadowPlan[2]} />
+        <Metric icon={<Zap />} label="Active decisions" value={active.length} shadowColor={metricShadowPlan[3]} />
+        <Metric icon={<GitPullRequest />} label="Tasks" value={tasks.length} shadowColor={metricShadowPlan[4]} />
+        <Metric icon={<AlertTriangle />} label="Blocked tasks" value={tasks.filter((t) => t.status === 'BLOCKED').length} emphasis={tasks.some((t) => t.status === 'BLOCKED')} shadowColor={metricShadowPlan[5]} />
       </section>
 
       <section className="forge-overview-grid grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
@@ -1186,14 +1197,19 @@ function Metric({
   label,
   value,
   emphasis,
+  shadowColor,
 }: {
   icon: React.ReactNode
   label: string
   value: number
   emphasis?: boolean
+  shadowColor?: string | null
 }) {
   return (
-    <div className="forge-metric">
+    <div
+      className={shadowColor ? 'forge-metric forge-metric--random-shadow' : 'forge-metric'}
+      style={shadowColor ? { '--metric-shadow': shadowColor } as React.CSSProperties : undefined}
+    >
       <div className="flex items-center justify-between">
         <div className="text-xs uppercase tracking-wider text-zinc-500">{label}</div>
         <span className={emphasis ? 'text-amber-300' : 'text-zinc-500'}>{icon}</span>
