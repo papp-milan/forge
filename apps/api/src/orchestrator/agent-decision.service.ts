@@ -2,12 +2,14 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service.js';
 import { TeamLeadActionExecutorService } from './team-lead-action-executor.service.js';
 import { TeamLeadDecision } from './team-lead-decision.types.js';
+import { AuditService } from '../audit/audit.service.js';
 
 @Injectable()
 export class AgentDecisionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly executor: TeamLeadActionExecutorService,
+    private readonly audit: AuditService,
   ) {}
 
   async create(projectId: string, decision: TeamLeadDecision) {
@@ -32,7 +34,7 @@ export class AgentDecisionService {
 
     const status = decision.requiresCeoApproval ? 'PENDING' : 'APPROVED';
 
-    return this.prisma.agentDecision.create({
+    const created = await this.prisma.agentDecision.create({
       data: {
         agent: 'ATHENA',
         type: decision.type,
@@ -47,6 +49,22 @@ export class AgentDecisionService {
       },
       include: { project: true },
     });
+
+    await this.audit.record({
+      actor: 'athena',
+      type: 'DECISION_CREATED',
+      projectId,
+      entityType: 'agent_decision',
+      entityId: created.id,
+      summary: created.title,
+      data: {
+        decisionType: created.type,
+        priority: created.priority,
+        requiresCeoApproval: created.requiresCeoApproval,
+      },
+    });
+
+    return created;
   }
 
   async list(status?: string) {
@@ -88,6 +106,16 @@ export class AgentDecisionService {
       },
     });
 
+    await this.audit.record({
+      actor: 'ceo',
+      type: 'DECISION_APPROVED',
+      projectId: decision.projectId,
+      entityType: 'agent_decision',
+      entityId: id,
+      summary: decision.title,
+      data: { comment: comment ?? null },
+    });
+
     return this.execute(id);
   }
 
@@ -100,7 +128,7 @@ export class AgentDecisionService {
       );
     }
 
-    return this.prisma.agentDecision.update({
+    const rejected = await this.prisma.agentDecision.update({
       where: { id },
       data: {
         status: 'REJECTED',
@@ -109,6 +137,18 @@ export class AgentDecisionService {
       },
       include: { project: true },
     });
+
+    await this.audit.record({
+      actor: 'ceo',
+      type: 'DECISION_REJECTED',
+      projectId: decision.projectId,
+      entityType: 'agent_decision',
+      entityId: id,
+      summary: decision.title,
+      data: { comment: comment ?? null },
+    });
+
+    return rejected;
   }
 
   async execute(id: string) {
@@ -119,6 +159,15 @@ export class AgentDecisionService {
         `Only approved decisions can be executed. Current status: ${decision.status}`,
       );
     }
+
+    await this.audit.record({
+      actor: 'system',
+      type: 'DECISION_EXECUTION_STARTED',
+      projectId: decision.projectId,
+      entityType: 'agent_decision',
+      entityId: id,
+      summary: decision.title,
+    });
 
     const typedDecision: TeamLeadDecision = {
       type: decision.type as TeamLeadDecision['type'],
@@ -154,6 +203,21 @@ export class AgentDecisionService {
         executedAt: executed ? new Date() : undefined,
       },
       include: { project: true },
+    });
+
+    await this.audit.record({
+      actor: 'system',
+      type:
+        status === 'EXECUTED'
+          ? 'DECISION_EXECUTED'
+          : status === 'BLOCKED'
+            ? 'DECISION_BLOCKED'
+            : 'DECISION_FAILED',
+      projectId: decision.projectId,
+      entityType: 'agent_decision',
+      entityId: id,
+      summary: decision.title,
+      data: { results },
     });
 
     return { decision: updated, results };
