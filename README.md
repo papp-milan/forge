@@ -37,6 +37,7 @@ Team Lead    UI/UX   Engineering
 - **Web:** React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui, Base UI, Lucide, Inter
 - **API:** NestJS 12, TypeScript, ESM, PostgreSQL, Prisma 7
 - **Automation:** GitHub App, GitHub webhooks, GitHub Issues/branches/PRs
+- **Employees:** Athena, Apollo, Hephaistos, Artemis, Nike, Atlas — each with a stable role color
 - **Agents:** Athena, Apollo, Hephaistos, Artemis
 - **Runtime:** Hermes Agent via structured `stream-json` execution
 - **Memory:** versionable files under `memory/`
@@ -254,6 +255,7 @@ API routes use the `/api` prefix.
 - audit logging
 - autonomous Team Lead loop
 - autonomous worker loop
+- idempotent system employee initialization
 - Apollo UI/UX worker
 - Hephaistos engineering worker
 - Artemis QA worker
