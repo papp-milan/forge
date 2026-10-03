@@ -395,3 +395,6 @@ function StatusDot({ status }: { status: string }) {
 function EmptyState({ message }: { message: string }) {
   return <div className="px-5 py-10 text-center text-sm text-zinc-600">{message}</div>
 }
+
+
+export default App
