@@ -107,6 +107,15 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [view, setView] = useState<'overview' | 'approvals' | 'employees' | 'development' | 'activity'>('overview')
+  const [viewDirection, setViewDirection] = useState<'forward' | 'backward'>('forward')
+
+  const viewOrder = ['overview', 'approvals', 'employees', 'development', 'activity'] as const
+  const navigate = (nextView: typeof view) => {
+    const currentIndex = viewOrder.indexOf(view)
+    const nextIndex = viewOrder.indexOf(nextView)
+    setViewDirection(nextIndex >= currentIndex ? 'forward' : 'backward')
+    setView(nextView)
+  }
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [selectedDecision, setSelectedDecision] = useState<Decision | null>(null)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
@@ -158,7 +167,7 @@ function App() {
         body: JSON.stringify({}),
       })
       await load()
-      setView('approvals')
+      navigate('approvals')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Athena run failed.')
     } finally {
@@ -252,11 +261,11 @@ function App() {
         </div>
 
         <nav className="flex-1 space-y-1 p-3">
-          <NavItem icon={<LayoutDashboard />} label="Overview" active={view === 'overview'} onClick={() => setView('overview')} />
-          <NavItem icon={<ShieldCheck />} label="Approvals" count={pending.length} active={view === 'approvals'} onClick={() => setView('approvals')} />
-          <NavItem icon={<Users />} label="Employees" active={view === 'employees'} onClick={() => setView('employees')} />
-          <NavItem icon={<GitPullRequest />} label="Development" active={view === 'development'} onClick={() => setView('development')} />
-          <NavItem icon={<Activity />} label="Activity" active={view === 'activity'} onClick={() => setView('activity')} />
+          <NavItem icon={<LayoutDashboard />} label="Overview" active={view === 'overview'} onClick={() => navigate('overview')} />
+          <NavItem icon={<ShieldCheck />} label="Approvals" count={pending.length} active={view === 'approvals'} onClick={() => navigate('approvals')} />
+          <NavItem icon={<Users />} label="Employees" active={view === 'employees'} onClick={() => navigate('employees')} />
+          <NavItem icon={<GitPullRequest />} label="Development" active={view === 'development'} onClick={() => navigate('development')} />
+          <NavItem icon={<Activity />} label="Activity" active={view === 'activity'} onClick={() => navigate('activity')} />
         </nav>
 
         <div className="border-t border-white/8 p-4">
@@ -270,8 +279,8 @@ function App() {
       <main className="lg:pl-64">
         <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-white/8 bg-[#09090b]/90 px-5 backdrop-blur-xl lg:px-8">
           <div>
-            <div className="text-xs text-zinc-500">Olympus / HQ</div>
-            <h1 className="text-lg font-semibold">Company overview</h1>
+            <div className="text-xs text-zinc-500">Olympus / HQ / {view.toUpperCase()}</div>
+            <h1 className="text-lg font-semibold">{view === 'overview' ? 'Company overview' : view === 'approvals' ? 'CEO approvals' : view === 'employees' ? 'Olympus roster' : view === 'development' ? 'Development floor' : 'Activity log'}</h1>
           </div>
 
           <button
@@ -284,6 +293,7 @@ function App() {
         </header>
 
         <div className="mx-auto max-w-7xl space-y-6 p-5 lg:p-8">
+          <div key={view} className={`forge-tab-stage forge-tab-stage-${viewDirection}`}>
           {error && (
             <div className="flex items-start gap-3 rounded-xl border border-red-400/20 bg-red-400/5 p-4 text-sm text-red-200">
               <AlertTriangle className="mt-0.5 size-4 shrink-0" />
@@ -304,7 +314,7 @@ function App() {
               onRunAthena={(id) => void runAthena(id)}
               onOpen={(nextView, projectId) => {
                 if (projectId) setSelectedProjectId(projectId)
-                setView(nextView)
+                navigate(nextView)
               }}
               onDecisionOpen={setSelectedDecision}
             />
@@ -335,6 +345,7 @@ function App() {
           )}
 
           {view === 'activity' && <ActivityView events={auditEvents} />}
+          </div>
         </div>
       </main>
 
@@ -518,13 +529,118 @@ function Approvals({ pending, busyId, onApprove, onReject, onOpen }: { pending: 
 
 function Employees({ employees, tasks }: { employees: Employee[]; tasks: Task[] }) {
   return (
-    <Panel title="Employees" subtitle="Forge workforce and current assignment state.">
-      {employees.length === 0 && <EmptyState message="No employees registered yet." />}
-      {employees.map((employee) => {
-        const assigned = tasks.filter((task) => task.assignee?.id === employee.id)
-        return <div key={employee.id} className="flex items-center gap-4 border-b border-white/6 px-5 py-4"><span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: employee.color }} /><div className="flex-1"><div className="text-sm font-medium">{employee.name}</div><div className="mt-1 text-xs text-zinc-500">{employee.role} · {employee.status}</div></div><span className="text-xs text-zinc-500">{assigned.length} tasks</span></div>
-      })}
-    </Panel>
+    <section className="space-y-5">
+      <div className="forge-roster-heading">
+        <div>
+          <div className="forge-kicker">OLYMPUS / LIVE ROSTER</div>
+          <h2 className="mt-2 text-3xl font-black uppercase tracking-[-0.04em]">The crew is online.</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
+            Every agent has a visible state. No work means sleep. A queued task wakes the agent up.
+          </p>
+        </div>
+        <div className="forge-roster-counter">{employees.filter((employee) => employee.status === 'ACTIVE').length.toString().padStart(2, '0')} ACTIVE</div>
+      </div>
+
+      {employees.length === 0 && <Panel title="Employees" subtitle="Forge workforce and current assignment state."><EmptyState message="No employees registered yet." /></Panel>}
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {employees.map((employee) => {
+          const assigned = tasks.filter((task) => task.assignee?.id === employee.id)
+          const openTasks = assigned.filter((task) => task.status !== 'DONE')
+          const blocked = openTasks.some((task) => task.status === 'BLOCKED')
+          const state = employee.status !== 'ACTIVE' ? 'OFFLINE' : blocked ? 'BLOCKED' : openTasks.length > 0 ? 'WORKING' : 'SLEEPING'
+
+          return (
+            <article key={employee.id} className="forge-agent-card" style={{ '--agent-color': employee.color } as React.CSSProperties}>
+              <div className="forge-agent-card__stripe" />
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="forge-kicker">{employee.role.replace('_', ' ')} / AGENT</div>
+                  <h3 className="mt-1 text-2xl font-black uppercase tracking-[-0.04em]">{employee.name}</h3>
+                </div>
+                <span className={`forge-agent-state forge-agent-state--${state.toLowerCase()}`}>
+                  <span className="forge-agent-state__dot" />
+                  {state}
+                </span>
+              </div>
+
+              <AgentAscii role={employee.role} state={state} color={employee.color} />
+
+              <div className="mt-4 flex items-end justify-between border-t border-white/10 pt-3">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-600">Queue</div>
+                  <div className="mt-1 font-mono text-sm">{openTasks.length.toString().padStart(2, '0')} OPEN / {assigned.length.toString().padStart(2, '0')} TOTAL</div>
+                </div>
+                <div className="text-right text-xs text-zinc-500">
+                  {state === 'SLEEPING' ? 'dreaming in the forge' : state === 'WORKING' ? 'building the future' : state === 'BLOCKED' ? 'needs intervention' : 'offline'}
+                </div>
+              </div>
+            </article>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+type AgentAsciiState = 'SLEEPING' | 'WORKING' | 'BLOCKED' | 'OFFLINE'
+
+const AGENT_ASCII: Record<string, Record<AgentAsciiState, string[]>> = {
+  TEAM_LEAD: {
+    SLEEPING: ['  .------.  \\n (  -  - )  Zz', '  .------.  \\n (  -  - ) zZ ', '  .------.  \\n (  -  - )  zz'],
+    WORKING: ['  .------.  \\n (  o  o )  !', '  .------.  \\n (  O  O )  !', '  .------.  \\n (  o  o )  !!'],
+    BLOCKED: ['  .------.  \\n (  x  x )  ?', '  .------.  \\n (  X  X )  !', '  .------.  \\n (  x  x )  ?'],
+    OFFLINE: ['  .------.  \\n (  -  - )  ', '  .------.  \\n (  .  . )  ', '  .------.  \
+ (  -  - )  '],
+  },
+  UI_UX: {
+    SLEEPING: ['   /\\_/\\   \\n  ( -.- ) zZ', '   /\\_/\\   \\n  ( -.- )  Zz', '   /\\_/\\   \\n  ( -.- ) zz '],
+    WORKING: ['   /\\_/\\   \\n  ( o.o )  /', '   /\\_/\\   \\n  ( O.O ) --', '   /\\_/\\   \\n  ( o.o )  \\'],
+    BLOCKED: ['   /\\_/\\   \\n  ( x.x )  ?', '   /\\_/\\   \\n  ( X.X )  !', '   /\\_/\\   \\n  ( x.x )  ?'],
+    OFFLINE: ['   /\\_/\\   \\n  ( -.- )  ', '   /\\_/\\   \\n  ( . . )  ', '   /\\_/\\   \\n  ( -.- )  '],
+  },
+  ENGINEER: {
+    SLEEPING: ['   ______    \\n _/|____|\\_  \\n(__________) zZ', '   ______    \\n _/|____|\\_  \\n(__________) Zz', '   ______    \\n _/|____|\\_  \\n(__________) zz'],
+    WORKING: ['   ______    \\n _/|_##_|\\_  \\n(__________) /', '   ______    \\n _/|_@@_|\\_  \\n(__________) --', '   ______    \\n _/|_##_|\\_  \\n(__________) \\\\'],
+    BLOCKED: ['   ______    \\n _/|_XX_|\\_  \\n(__________) ?', '   ______    \\n _/|_!!_|\\_  \\n(__________) !', '   ______    \\n _/|_XX_|\\_  \\n(__________) ?'],
+    OFFLINE: ['   ______    \\n _/|____|\\_  \\n(__________)  ', '   ______    \\n _/|....|\\_  \\n(__________)  ', '   ______    \\n _/|____|\\_  \\n(__________)  '],
+  },
+  QA: {
+    SLEEPING: ['   .-----.   \\n  /| - - |\\  Zz', '   .-----.   \\n  /| - - |\\  zZ', '   .-----.   \\n  /| - - |\\  zz'],
+    WORKING: ['   .-----.   \\n  /| o o |\\  OK?', '   .-----.   \\n  /| O O |\\  CHECK', '   .-----.   \\n  /| o o |\\  OK!'],
+    BLOCKED: ['   .-----.   \\n  /| x x |\\  !', '   .-----.   \\n  /| X X |\\  !!!', '   .-----.   \
+  /| x x |\\  !'],
+    OFFLINE: ['   .-----.   \
+  /| - - |\\  ', '   .-----.   \
+  /| . . |\\  ', '   .-----.   \
+  /| - - |\\  '],
+  },
+  DEVOPS: {
+    SLEEPING: ['  [======]   \\n  [  -.- ] Zz', '  [======]   \\n  [  -.- ] zZ', '  [======]   \\n  [  -.- ] zz'],
+    WORKING: ['  [======]   \\n  [  o.o ]  >', '  [======]   \\n  [  O.O ] >>', '  [======]   \
+  [  o.o ]  >'],
+    BLOCKED: ['  [======]   \\n  [  x.x ]  !', '  [======]   \\n  [  X.X ] !!!', '  [======]   \
+  [  x.x ]  !'],
+    OFFLINE: ['  [======]   \\n  [  -.- ]  ', '  [======]   \\n  [  . . ]  ', '  [======]   \
+  [  -.- ]  '],
+  },
+}
+
+function AgentAscii({ role, state, color }: { role: string; state: AgentAsciiState; color: string }) {
+  const frames = AGENT_ASCII[role]?.[state] ?? AGENT_ASCII.DEVOPS[state]
+  const [frame, setFrame] = useState(0)
+
+  useEffect(() => {
+    if (state === 'OFFLINE') return
+    const timer = window.setInterval(() => setFrame((current) => (current + 1) % frames.length), state === 'SLEEPING' ? 900 : 420)
+    return () => window.clearInterval(timer)
+  }, [frames, state])
+
+  return (
+    <div className="forge-ascii-agent" style={{ color }}>
+      <pre aria-label={`${role} agent ${state.toLowerCase()}`}>{frames[frame]}</pre>
+      <span className="forge-ascii-agent__scan" />
+    </div>
   )
 }
 
