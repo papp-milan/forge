@@ -37,3 +37,15 @@ Project → Team Lead decision → approval → feature → tasks → implementa
 - Nike: Release
 - Atlas: DevOps / infrastructure
 - Hermes: orchestration / agent runtime
+
+
+## Governance roles
+
+- Architecture Board: multi-agent technical review body that continuously evaluates architecture, infrastructure evolution, technical debt, scalability, technology choices, and alternatives.
+- Architecture Board members should have deliberately different perspectives and must be able to challenge one another before producing a recommendation.
+- Data Protection Officer (DPO): independent privacy review role covering personal data, data flows, retention, access, external processors, transfers, and GDPR-related risks. Privacy reviews default to human review when legal interpretation is material.
+- Security Board: reviews security architecture, authentication, authorization, secrets, attack surface, and infrastructure security.
+- Infrastructure Architect: focuses on deployment, databases, networking, CI/CD, observability, and operational resilience.
+- FinOps / Cost Advisor: evaluates infrastructure and agent-runtime cost against operational value.
+
+Governance reviews are durable artifacts with opinions, evidence, findings, recommendations, and dissent. Multiple AI instances can later participate in structured debate rounds without changing the core governance model.
