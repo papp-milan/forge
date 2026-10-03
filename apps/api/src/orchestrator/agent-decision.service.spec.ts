@@ -55,4 +55,19 @@ describe('AgentDecisionService', () => {
     expect(executions).toBe(1);
     expect(results.filter((result) => result.status === 'rejected')).toHaveLength(1);
   });
+  it('recovers decisions stuck in EXECUTING beyond the stale timeout', async () => {
+    const updates: string[] = [];
+    const prisma = {
+      agentDecision: {
+        findMany: async () => [{ id: 'd-stale', projectId: 'p1', title: 'Stale decision' }],
+        updateMany: async ({ data }: any) => { updates.push(data.status); return { count: 1 }; },
+      },
+    };
+    const audit = { record: async () => undefined };
+    const service = new AgentDecisionService(prisma as any, {} as any, audit as any);
+    const stale = await service.recoverStaleExecuting(60_000);
+    expect(stale).toHaveLength(1);
+    expect(updates).toEqual(['FAILED']);
+  });
+
 });
