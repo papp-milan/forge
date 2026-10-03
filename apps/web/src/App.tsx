@@ -222,6 +222,7 @@ function App() {
                 if (projectId) setSelectedProjectId(projectId)
                 setView(nextView)
               }}
+              onDecisionOpen={setSelectedDecision}
             />
           )}
 
@@ -231,6 +232,7 @@ function App() {
               busyId={busyId}
               onApprove={(id) => void resolve(id, 'approve')}
               onReject={(id) => void resolve(id, 'reject')}
+              onOpen={setSelectedDecision}
             />
           )}
 
@@ -317,6 +319,7 @@ function Overview({
   onReject: (id: string) => void
   onRunAthena: (id: string) => void
   onOpen: (view: 'approvals' | 'employees' | 'development' | 'activity', projectId?: string) => void
+  onDecisionOpen: (decision: Decision) => void
 }) {
   const active = decisions.filter((d) => ['APPROVED', 'IN_PROGRESS'].includes(d.status))
   return (
@@ -342,7 +345,7 @@ function Overview({
           <div className="divide-y divide-white/6">
             {pending.length === 0 && <EmptyState message="No decisions are waiting for approval." />}
             {pending.slice(0, 3).map((decision) => (
-              <DecisionRow key={decision.id} decision={decision} busy={busyId === decision.id} onApprove={() => onApprove(decision.id)} onReject={() => onReject(decision.id)} />
+              <DecisionRow key={decision.id} decision={decision} busy={busyId === decision.id} onApprove={() => onApprove(decision.id)} onReject={() => onReject(decision.id)} onOpen={() => onDecisionOpen(decision)} />
             ))}
           </div>
         </div>
@@ -386,7 +389,7 @@ function Overview({
   )
 }
 
-function Approvals({ pending, busyId, onApprove, onReject }: { pending: Decision[]; busyId: string | null; onApprove: (id: string) => void; onReject: (id: string) => void }) {
+function Approvals({ pending, busyId, onApprove, onReject, onOpen }: { pending: Decision[]; busyId: string | null; onApprove: (id: string) => void; onReject: (id: string) => void; onOpen: (decision: Decision) => void }) {
   return (
     <Panel title="CEO approvals" subtitle="Review decisions proposed by Forge agents.">
       {pending.length === 0 ? <EmptyState message="Approval queue is clear." /> : pending.map((decision) => (
@@ -489,9 +492,21 @@ function DecisionRow({
   busy: boolean
   onApprove: () => void
   onReject: () => void
+  onOpen?: () => void
 }) {
   return (
-    <div className="px-5 py-5">
+    <div
+      className={onOpen ? 'cursor-pointer px-5 py-5 transition hover:bg-white/[0.02]' : 'px-5 py-5'}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (onOpen && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault()
+          onOpen()
+        }
+      }}
+      role={onOpen ? 'button' : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+    >
       <div className="flex gap-4">
         <div className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-400/10 text-amber-300">
           <ShieldCheck className="size-4" />
@@ -511,7 +526,10 @@ function DecisionRow({
 
           <div className="mt-4 flex gap-2">
             <button
-              onClick={onApprove}
+              onClick={(event) => {
+                event.stopPropagation()
+                onApprove()
+              }}
               disabled={busy}
               className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -519,7 +537,10 @@ function DecisionRow({
               Approve
             </button>
             <button
-              onClick={onReject}
+              onClick={(event) => {
+                event.stopPropagation()
+                onReject()
+              }}
               disabled={busy}
               className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-50"
             >
