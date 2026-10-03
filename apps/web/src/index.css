@@ -1768,3 +1768,132 @@ main {
     flex-basis: 335px;
   }
 }
+
+
+/* =========================================================
+   Agent pulse repair — complete frames + editorial mini-panels
+   ========================================================= */
+.forge-agent-pulse {
+  border-color: rgba(255,255,255,.18);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.025), transparent 26%),
+    #08080a;
+}
+
+.forge-agent-pulse__grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(255,255,255,.018) 24px),
+    #08080a;
+}
+
+.forge-agent-pulse__agent {
+  min-width: 0;
+  min-height: 185px;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--agent-color) 48%, #ffffff 8%);
+  border-right: 2px solid color-mix(in srgb, var(--agent-color) 48%, #ffffff 8%);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--agent-color) 10%, #111114), #0b0b0d 72%);
+  box-shadow: 6px 6px 0 var(--agent-color);
+  position: relative;
+  isolation: isolate;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.forge-agent-pulse__agent::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  background: var(--agent-color);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--agent-color) 65%, transparent);
+}
+
+.forge-agent-pulse__agent::after {
+  content: "LIVE // NODE";
+  position: absolute;
+  top: 9px;
+  left: 10px;
+  z-index: 2;
+  color: color-mix(in srgb, var(--agent-color) 78%, white);
+  font: 900 7px/1 ui-monospace, monospace;
+  letter-spacing: .14em;
+  opacity: .8;
+}
+
+.forge-agent-pulse__agent:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--agent-color);
+}
+
+.forge-agent-pulse__agent .forge-ascii-agent {
+  min-height: 145px;
+  height: 145px;
+  margin: 0;
+  padding: 1.5rem .35rem .2rem;
+}
+
+.forge-agent-pulse__agent .forge-ascii-agent::before {
+  inset: 18% 8% 8%;
+  border-color: color-mix(in srgb, var(--agent-color) 32%, transparent);
+}
+
+.forge-agent-pulse__agent .forge-ascii-agent pre {
+  max-width: 100%;
+  font-size: clamp(.62rem, .72vw, .78rem);
+  line-height: 1.02;
+  letter-spacing: -.045em;
+  transform: none;
+  text-shadow: 0 0 9px currentColor;
+}
+
+.forge-agent-pulse__meta {
+  position: relative;
+  z-index: 2;
+  min-height: 48px;
+  padding: .65rem .7rem .6rem;
+  border-top: 2px solid color-mix(in srgb, var(--agent-color) 25%, rgba(255,255,255,.08));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--agent-color) 10%, #111114), #0a0a0c);
+}
+
+.forge-agent-pulse__meta strong {
+  font-size: .68rem;
+  letter-spacing: .08em;
+}
+
+.forge-agent-pulse__meta span {
+  font-size: 7px;
+}
+
+.forge-metrics-grid {
+  gap: 1rem !important;
+}
+
+@media (max-width: 1200px) {
+  .forge-agent-pulse__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .forge-agent-pulse__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .85rem;
+    padding: .85rem;
+  }
+
+  .forge-agent-pulse__agent {
+    min-height: 175px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-agent-pulse__agent:hover {
+    transform: none;
+  }
+}
