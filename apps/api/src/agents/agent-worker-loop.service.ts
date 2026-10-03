@@ -245,12 +245,9 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
           continue;
         }
 
-        if (task.assignee?.role === 'UI_UX') {
-          await this.apollo.runTask(task.id);
-        } else {
-          const result = task.assignee?.role === 'UI_UX'
-            ? await this.apollo.runTask(task.id)
-            : await this.hephaistos.runTask(task.id);
+        const result = task.assignee?.role === 'UI_UX'
+          ? await this.apollo.runTask(task.id)
+          : await this.hephaistos.runTask(task.id);
           if (result.status === 'BLOCKED') {
             await this.agentRuns.fail(run.id, result.result ?? result);
           } else {
@@ -313,7 +310,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
         const result = await this.artemis.reviewTask(task.id);
         if (result.status === 'PASSED') await this.agentRuns.complete(run.id, result);
-        else await this.agentRuns.block(run.id, 'QA review did not pass');
+        else await this.agentRuns.fail(run.id, result);
       } catch (error) {
         await this.agentRuns.fail(run.id, error);
         await this.audit.record({
