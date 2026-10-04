@@ -877,17 +877,54 @@ function ProjectStat({ label, value }: { label: string; value: number }) {
 }
 
 export function ActivityView({ events }: { events: AuditEvent[] }) {
+  const [liveEvents, setLiveEvents] = useState<AgentActivityEvent[]>([])
+  const [connected, setConnected] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    const stream = new EventSource('/api/agents/activity/stream')
+    stream.onopen = () => active && setConnected(true)
+    stream.onmessage = (message) => {
+      try {
+        const next = JSON.parse(message.data) as AgentActivityEvent[]
+        if (active) setLiveEvents(next)
+      } catch {
+        // Ignore malformed stream frames.
+      }
+    }
+    stream.onerror = () => active && setConnected(false)
+    return () => {
+      active = false
+      stream.close()
+    }
+  }, [])
+
+  const displayEvents = liveEvents.length > 0 ? liveEvents : events.map((event) => ({
+    id: 'audit:' + event.id,
+    timestamp: event.timestamp,
+    agent: event.actor,
+    source: 'AUDIT',
+    kind: event.type,
+    status: undefined,
+    summary: event.summary,
+    projectId: event.projectId,
+    taskId: event.entityType === 'task' ? event.entityId : undefined,
+    metadata: event.data,
+  }))
+
   return (
-    <Panel title="Activity" subtitle="Immutable company audit trail from agent and CEO actions.">
-      {events.length === 0 ? <EmptyState message="No audit events recorded yet." /> : events.map((event) => (
+    <Panel title="Activity" subtitle={`Global agent activity and CEO audit trail · ${connected ? 'LIVE' : 'RECONNECTING'}`}>
+      {displayEvents.length === 0 ? <EmptyState message="No activity recorded yet." /> : displayEvents.map((event) => (
         <div key={event.id} className="flex items-start gap-4 border-b border-white/6 px-5 py-4">
-          <StatusDot status={event.type.includes('FAILED') || event.type.includes('BLOCKED') ? 'BLOCKED' : event.type.includes('EXECUTED') ? 'EXECUTED' : event.type.includes('APPROVED') ? 'APPROVED' : 'PENDING'} />
+          <StatusDot status={event.status === 'FAILED' || event.status === 'BLOCKED' || event.kind.includes('FAILED') ? 'BLOCKED' : event.status === 'COMPLETED' || event.kind.includes('COMPLETED') ? 'EXECUTED' : 'PENDING'} />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <div className="text-sm">{event.summary}</div>
-              <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{event.type}</span>
+              <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{event.source}</span>
+              <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{event.kind}</span>
+              {event.status && <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{event.status}</span>}
             </div>
-            <div className="mt-1 text-xs text-zinc-500">{event.actor} {event.projectId ? `· ${event.projectId}` : ''}</div>
+            <div className="mt-1 text-xs text-zinc-500">{event.agent} {event.projectId ? `· ${event.projectId}` : ''}</div>
           </div>
           <span className="shrink-0 text-xs text-zinc-600">{new Date(event.timestamp).toLocaleString()}</span>
         </div>
