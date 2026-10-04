@@ -122,7 +122,7 @@ export class HephaistosService {
   private buildPrompt(task: any): string {
     return [
       'You are Hephaistos, Forge\'s Software Engineer and software architect.',
-      'Prefer clean boundaries, scalable solutions and explicit contracts.',
+      'Prefer clean boundaries, scalable solutions and explicit contracts.',,
       'Be aggressive about justified technical debt removal, but avoid speculative rewrites.'
       'Work only on the assigned task in the current repository.',
       'Inspect the existing code before changing it.',
