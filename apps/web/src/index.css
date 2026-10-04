@@ -725,7 +725,7 @@ main {
 
 .forge-metric:nth-child(2) {
   border-color: rgba(215,255,0,.4);
-  box-shadow: 7px 7px 0 var(--forge-acid);
+  box-shadow: 7px 7px 0 rgba(0,0,0,.7);
 }
 
 .forge-metric:nth-child(3) {
@@ -734,7 +734,7 @@ main {
 
 .forge-metric:nth-child(4) {
   border-color: rgba(255,45,125,.4);
-  box-shadow: 7px 7px 0 var(--forge-pink);
+  box-shadow: 7px 7px 0 rgba(0,0,0,.7);
 }
 
 .forge-metric:hover {
@@ -1685,9 +1685,9 @@ main {
   color: #fff !important;
 }
 
-/* Every light metric keeps the same graphic treatment, but its shadow is chromatic. */
-.forge-theme-light .forge-metric {
-  box-shadow: 7px 7px 0 var(--metric-shadow, #171411) !important;
+/* Positive metrics receive a randomized chromatic shadow; zero-value metrics stay neutral. */
+.forge-metric.forge-metric--random-shadow {
+  box-shadow: 7px 7px 0 var(--metric-shadow) !important;
 }
 
 .forge-theme-light .forge-metric:nth-child(1) {
