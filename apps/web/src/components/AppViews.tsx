@@ -876,6 +876,16 @@ function ProjectStat({ label, value }: { label: string; value: number }) {
   )
 }
 
+function PitchSuccessBanner({ title }: { title: string }) {
+  return (
+    <div className="forge-success-banner mt-4" role="status">
+      <span className="forge-success-banner__mark" aria-hidden="true"><Check className="size-3.5" strokeWidth={3} /></span>
+      <span className="forge-success-banner__label">Pitch created</span>
+      <span className="forge-success-banner__title">{title}</span>
+    </div>
+  )
+}
+
 export function IdeasView({
   ideas,
   projects,
@@ -934,7 +944,7 @@ export function IdeasView({
                 {idea.status !== 'ARCHIVED' && <button disabled={busy} onClick={() => onArchive(idea.id)} className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 disabled:opacity-50">Archive</button>}
               </div>
             </div>
-            {idea.pitch && <div className="forge-idea-pitch-success mt-4 rounded-lg border p-3 text-xs font-medium">Pitch created · {idea.pitch.title}</div>}
+            {idea.pitch && <PitchSuccessBanner title={idea.pitch.title} />}
           </div>
         ))}
       </Panel>
