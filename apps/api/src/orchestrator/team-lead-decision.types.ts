@@ -56,4 +56,5 @@ export interface TeamLeadPitchTask {
   description?: string;
   acceptanceCriteria?: string;
   role: EmployeeRole;
+  risk?: 'SMALL' | 'LARGE';
 }
