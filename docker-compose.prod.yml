@@ -36,6 +36,10 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
+      AGENT_RUNTIME: ${AGENT_RUNTIME:-deterministic}
+      HERMES_HOME: /opt/data
+      HERMES_WORKDIR: /workspace
+      HERMES_TIMEOUT_MS: ${HERMES_TIMEOUT_MS:-600000}
       DATABASE_URL: postgresql://forge:${POSTGRES_PASSWORD}@postgres:5432/forge?schema=public
       FORGE_CORS_ORIGINS: https://forge.pappmilan.com
       GITHUB_PRIVATE_KEY_PATH: /run/secrets/github-app.pem
@@ -44,6 +48,7 @@ services:
     volumes:
       - forge-memory:/app/memory
       - forge-workspaces:/workspace
+      - forge-hermes:/opt/data
       - ./secrets/github-app.pem:/run/secrets/github-app.pem:ro
     depends_on:
       postgres:
@@ -74,7 +79,7 @@ services:
         set -eu
         while true; do
           stamp="$$(date -u +%Y%m%dT%H%M%SZ)"
-          pg_dump -h postgres -U forge -d forge -Fc > "/backups/forge-$${stamp}.dump"
+          pg_dump -h postgres -U forge -d forge -Fc > "/backups/forge-${stamp}.dump"
           find /backups -type f -name 'forge-*.dump' -mtime +14 -delete
           sleep 86400
         done
@@ -98,7 +103,7 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "5m"
+        max-size: "10m"
         max-file: "2"
     ports:
       - "80:80"
@@ -117,6 +122,7 @@ volumes:
   forge-postgres-data:
   forge-memory:
   forge-workspaces:
+  forge-hermes:
   caddy-data:
   caddy-config:
   forge-postgres-backups:
