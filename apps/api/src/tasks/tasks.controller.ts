@@ -46,6 +46,16 @@ export class TasksController {
     return this.tasksService.approveCeo(id, body.comment);
   }
 
+  @Post(':id/retry-stuck')
+  retryStuck(@Param('id') id: string) {
+    return this.tasksService.retryStuck(id);
+  }
+
+  @Post(':id/send-to-athena')
+  sendToAthena(@Param('id') id: string, @Body() body: { comment?: string }) {
+    return this.tasksService.sendToAthena(id, body.comment);
+  }
+
   @Post(':id/start')
   start(@Param('id') id: string) {
     return this.tasksService.start(id);
