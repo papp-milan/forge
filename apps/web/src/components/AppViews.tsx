@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Activity, AlertTriangle, Check, CircleDot, ExternalLink, Cpu, GitPullRequest, ShieldCheck, X, Zap } from 'lucide-react'
-import type { AgentActivityEvent, AuditEvent, Decision, Employee, Feature, Pitch, Project, Task } from '../types/forge'
+import type { AgentActivityEvent, AuditEvent, Decision, Employee, Feature, Idea, Pitch, Project, Task } from '../types/forge'
 import { api } from '../api/client'
 
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
@@ -875,6 +875,75 @@ function ProjectStat({ label, value }: { label: string; value: number }) {
     </div>
   )
 }
+
+export function IdeasView({
+  ideas,
+  projects,
+  busy,
+  onCreate,
+  onPitch,
+  onArchive,
+}: {
+  ideas: Idea[]
+  projects: Project[]
+  busy: boolean
+  onCreate: (title: string, description: string, projectId: string) => void
+  onPitch: (id: string) => void
+  onArchive: (id: string) => void
+}) {
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [projectId, setProjectId] = useState(projects[0]?.id ?? '')
+
+  useEffect(() => {
+    if (!projectId && projects[0]) setProjectId(projects[0].id)
+  }, [projectId, projects])
+
+  const submit = () => {
+    if (!title.trim() || !description.trim() || !projectId) return
+    onCreate(title.trim(), description.trim(), projectId)
+    setTitle('')
+    setDescription('')
+  }
+
+  return (
+    <div className="space-y-5">
+      <Panel title="Ideas" subtitle="Capture product ideas, then let Athena turn them into structured pitches.">
+        <div className="grid gap-3 p-5 md:grid-cols-[1fr_1fr_180px_auto]">
+          <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Idea title" className="forge-input" />
+          <input value={description} onChange={(event) => setDescription(event.target.value)} placeholder="What should Forge explore?" className="forge-input" />
+          <select value={projectId} onChange={(event) => setProjectId(event.target.value)} className="forge-input">
+            {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
+          </select>
+          <button disabled={busy} onClick={submit} className="cursor-pointer rounded-lg bg-white px-4 py-2 text-sm font-medium text-black disabled:opacity-50">Capture</button>
+        </div>
+      </Panel>
+
+      <Panel title="Idea backlog" subtitle={`${ideas.length} captured ideas · persisted in Forge`}>
+        {ideas.length === 0 ? <EmptyState message="No ideas captured yet." /> : ideas.map((idea) => (
+          <div key={idea.id} className="border-b border-white/6 px-5 py-5 last:border-0">
+            <div className="flex flex-wrap items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-sm font-medium">{idea.title}</h3>
+                  <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{idea.status}</span>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{idea.description}</p>
+                <div className="mt-2 text-xs text-zinc-600">{idea.project?.name ?? idea.projectId}</div>
+              </div>
+              <div className="flex gap-2">
+                {!idea.pitchId && idea.status !== 'ARCHIVED' && <button disabled={busy} onClick={() => onPitch(idea.id)} className="cursor-pointer rounded-lg bg-white px-3 py-2 text-xs font-medium text-black disabled:opacity-50">Ask Athena</button>}
+                {idea.status !== 'ARCHIVED' && <button disabled={busy} onClick={() => onArchive(idea.id)} className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 disabled:opacity-50">Archive</button>}
+              </div>
+            </div>
+            {idea.pitch && <div className="mt-4 rounded-lg border border-emerald-400/10 bg-emerald-400/5 p-3 text-xs text-emerald-200">Pitch created · {idea.pitch.title}</div>}
+          </div>
+        ))}
+      </Panel>
+    </div>
+  )
+}
+
 
 export function ActivityView({ events }: { events: AuditEvent[] }) {
   const [liveEvents, setLiveEvents] = useState<AgentActivityEvent[]>([])
