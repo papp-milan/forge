@@ -24,6 +24,10 @@ export class TeamLeadTaskSuggestionDto {
 
   @IsEnum(EmployeeRole)
   role: EmployeeRole;
+
+  @IsOptional()
+  @IsEnum(['SMALL', 'LARGE'] as const)
+  risk?: 'SMALL' | 'LARGE';
 }
 
 export class TeamLeadProposalDto {
