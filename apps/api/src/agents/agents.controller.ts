@@ -84,6 +84,9 @@ export class AgentsController {
     return this.workerLoop.runOnce();
   }
 
+  @Get('tasks/:taskId/artifacts')
+  taskArtifacts(@Param('taskId') taskId: string) { return this.sessions.artifactsForTask(taskId); }
+
   @Get('tasks/:taskId/runs')
   taskRuns(@Param('taskId') taskId: string) {
     return this.agentRuns.recentForTask(taskId);
