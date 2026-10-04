@@ -226,12 +226,12 @@ export class TeamLeadAgentService {
               'The proposed feature may not provide sufficient value and therefore requires CEO approval.',
             tasks: [
               {
-                title: 'Analyze the next product opportunity',
+                title: 'Implement the approved product improvement',
                 description:
-                  'Analyze the project, existing functionality and user needs to identify a concrete feature opportunity.',
+                  'Implement the approved feature in the existing project, following the proposed solution and validating the acceptance criteria.',
                 acceptanceCriteria:
-                  'A concrete feature proposal with clear value, scope and acceptance criteria is prepared.',
-                role: 'TEAM_LEAD',
+                  'The proposed improvement is implemented on the task branch and the relevant checks pass.',
+                role: 'ENGINEER',
               },
             ],
           },

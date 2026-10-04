@@ -19,7 +19,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
   private timer?: NodeJS.Timeout;
   private running = false;
 
-  private readonly enabled = process.env['FORGE_AUTONOMOUS'] === 'true';
+  private readonly enabled = process.env['FORGE_AUTONOMOUS'] !== 'false';
   private readonly intervalMs = Math.max(
     Number(process.env['FORGE_AUTONOMOUS_INTERVAL_MS'] ?? 300_000),
     30_000,
