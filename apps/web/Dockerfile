@@ -7,7 +7,6 @@ RUN npm install -g pnpm@12.8.1
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json apps/web/package.json
-COPY apps/api/package.json apps/api/package.json
 COPY apps/web ./apps/web
 
 RUN pnpm install --frozen-lockfile
