@@ -474,3 +474,18 @@ function App() {
 
 
 export default App
+
+
+function WorkerStatusBadge({status, now}: {status: WorkerStatus | null; now: number}) {
+  if (!status) return <div className="forge-worker-status forge-worker-status--offline"><span className="size-2 rounded-full bg-red-400" /> Worker unavailable</div>
+
+  const label = !status.enabled ? 'OFFLINE' : status.running ? (status.currentAgent ?? 'RUNNING').toUpperCase() : 'IDLE'
+  const seconds = status.nextCycleAt ? Math.max(0, Math.ceil((Date.parse(status.nextCycleAt) - now) / 1000)) : null
+  const detail = !status.enabled ? 'autonomous disabled' : status.running ? status.phase.toLowerCase().replace('_', ' ') : seconds === null ? 'waiting' : `next cycle ${seconds}s`
+
+  return <div title={status.lastError ?? `Runtime: ${status.runtime} · Phase: ${status.phase}`} className={`forge-worker-status ${status.running ? 'forge-worker-status--running' : status.enabled ? 'forge-worker-status--idle' : 'forge-worker-status--offline'}`}>
+    <span className="size-2 rounded-full" />
+    <span className="font-semibold">{label}</span>
+    <span className="forge-worker-status__detail">{status.runtime} · {detail}</span>
+  </div>
+}
