@@ -1,17 +1,134 @@
 import { useEffect, useState } from 'react'
-import { Activity, AlertTriangle, Check, CircleDot, ExternalLink, Cpu, GitPullRequest, ShieldCheck, X, Zap } from 'lucide-react'
+import { Activity, AlertTriangle, Bot, Check, CircleDot, Code2, Cpu, Database, ExternalLink, GitBranch, GitPullRequest, Info, Layers3, ShieldCheck, Workflow, X, Zap } from 'lucide-react'
 import type { AgentActivityEvent, AuditEvent, Decision, Employee, Feature, Idea, Pitch, Project, Task } from '../types/forge'
 import { api } from '../api/client'
 
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
 
-function createMetricShadowPlan(): Array<string | null> {
-  const positions = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5)
-  const colors = [...METRIC_SHADOW_COLORS].sort(() => Math.random() - 0.5)
-  const count = 2 + Math.floor(Math.random() * 4)
-  const plan: Array<string | null> = Array(6).fill(null)
-  positions.slice(0, count).forEach((position, index) => { plan[position] = colors[index] })
-  return plan
+function createMetricShadowPlan(): string[] {
+  return [...METRIC_SHADOW_COLORS].sort(() => Math.random() - 0.5)
+}
+
+
+export function AboutForge() {
+  const agents = [
+    ['Athena', 'Team Lead', 'Plans work, evaluates opportunities and creates structured proposals.'],
+    ['Apollo', 'UI/UX', 'Shapes product interfaces and executes frontend design tasks.'],
+    ['Hephaistos', 'Engineering', 'Implements software changes and delivers pull requests.'],
+    ['Artemis', 'QA', 'Reviews completed work, validates quality and sends failures back for retry.'],
+    ['Atlas', 'DevOps', 'Owns infrastructure and deployment responsibilities as the DevOps role.'],
+    ['Nike', 'Release', 'Owns release responsibilities as Forge expands its autonomous delivery loop.'],
+  ]
+
+  const stack = [
+    ['Web', 'React 19 · TypeScript · Vite · Tailwind CSS v4 · shadcn/ui · Lucide', Code2],
+    ['API', 'NestJS 12 · TypeScript · PostgreSQL · Prisma 7', Layers3],
+    ['AI runtime', 'Hermes Agent · structured stream-json execution', Bot],
+    ['Automation', 'GitHub App · Issues · branches · pull requests · webhooks · Actions', GitBranch],
+    ['Infrastructure', 'Docker Compose · Caddy · GitHub Actions · persistent volumes', Database],
+    ['Memory & audit', 'Versionable Markdown memory · Obsidian-compatible tree · JSONL audit history', Workflow],
+  ] as const
+
+  return (
+    <div className="space-y-6">
+      <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] p-6 lg:p-8">
+        <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-violet-500/10 blur-3xl" />
+        <div className="relative max-w-4xl">
+          <div className="forge-kicker" style={{ '--agent-color': '#a78bfa' } as React.CSSProperties}>OLYMPUS / ABOUT FORGE</div>
+          <div className="mt-3 flex items-start gap-4">
+            <div className="mt-1 flex size-12 shrink-0 items-center justify-center rounded-xl border border-violet-400/20 bg-violet-400/10 text-violet-300">
+              <Info className="size-6" />
+            </div>
+            <div>
+              <h2 className="text-3xl font-black uppercase tracking-[-0.04em] lg:text-4xl">Forge is an AI software company.</h2>
+              <p className="mt-4 text-base leading-7 text-zinc-400">
+                Forge is a control plane for an autonomous software development team. A human stays in control of product direction and consequential approvals while specialized agents plan, build, review and prepare software for release.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-3">
+        <article className="rounded-2xl border border-white/8 bg-white/[0.025] p-5">
+          <div className="forge-kicker" style={{ '--agent-color': '#ef4444' } as React.CSSProperties}>PURPOSE</div>
+          <h3 className="mt-2 text-lg font-bold">Human direction, agent execution.</h3>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">Forge turns product intent into an auditable workflow instead of hiding decisions inside a single AI session.</p>
+        </article>
+        <article className="rounded-2xl border border-white/8 bg-white/[0.025] p-5">
+          <div className="forge-kicker" style={{ '--agent-color': '#22c55e' } as React.CSSProperties}>CAPABILITY</div>
+          <h3 className="mt-2 text-lg font-bold">Plan → code → QA → release.</h3>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">Agents can create tasks, work in GitHub branches, open PRs, run QA, retry failures and advance approved work through the lifecycle.</p>
+        </article>
+        <article className="rounded-2xl border border-white/8 bg-white/[0.025] p-5">
+          <div className="forge-kicker" style={{ '--agent-color': '#3b82f6' } as React.CSSProperties}>CONTROL</div>
+          <h3 className="mt-2 text-lg font-bold">Auditable by design.</h3>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">Decisions, worker activity, QA results, releases and memory changes are persisted so autonomous work remains inspectable.</p>
+        </article>
+      </section>
+
+      <section className="rounded-2xl border border-white/8 bg-white/[0.025]">
+        <div className="border-b border-white/8 px-5 py-4">
+          <div className="forge-kicker" style={{ '--agent-color': '#a78bfa' } as React.CSSProperties}>THE WORKFLOW</div>
+          <h3 className="mt-1 text-xl font-bold">From product idea to production.</h3>
+        </div>
+        <div className="grid gap-px bg-white/6 md:grid-cols-5">
+          {[
+            ['01', 'Idea', 'Human direction enters Forge.'],
+            ['02', 'Athena', 'Team Lead turns intent into structured work.'],
+            ['03', 'Engineering', 'Apollo / Hephaistos implement through Hermes.'],
+            ['04', 'Artemis', 'QA validates the result and can trigger retries.'],
+            ['05', 'Release', 'Approval gates and release automation move work toward production.'],
+          ].map(([step, title, description]) => (
+            <div key={step} className="bg-[#09090c] p-5">
+              <div className="font-mono text-[10px] text-zinc-600">{step}</div>
+              <div className="mt-2 font-semibold">{title}</div>
+              <p className="mt-1 text-xs leading-5 text-zinc-500">{description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-4">
+          <div className="forge-kicker" style={{ '--agent-color': '#d7ff00' } as React.CSSProperties}>WORKFORCE</div>
+          <h3 className="mt-1 text-xl font-bold">Specialized agents, clear responsibilities.</h3>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {agents.map(([name, role, description]) => (
+            <div key={name} className="rounded-xl border border-white/8 bg-white/[0.025] p-4">
+              <div className="flex items-center gap-2">
+                <span className="size-2 rounded-full" style={{ backgroundColor: name === 'Athena' ? '#ef4444' : name === 'Apollo' ? '#a855f7' : name === 'Hephaistos' ? '#92400e' : name === 'Artemis' ? '#22c55e' : name === 'Atlas' ? '#3b82f6' : '#eab308' }} />
+                <span className="font-semibold">{name}</span>
+                <span className="text-[10px] uppercase tracking-wider text-zinc-600">{role}</span>
+              </div>
+              <p className="mt-2 text-xs leading-5 text-zinc-500">{description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-white/8 bg-white/[0.025]">
+        <div className="border-b border-white/8 px-5 py-4">
+          <div className="forge-kicker" style={{ '--agent-color': '#22d3ee' } as React.CSSProperties}>TECHNOLOGY</div>
+          <h3 className="mt-1 text-xl font-bold">Built as a real software control plane.</h3>
+        </div>
+        <div className="divide-y divide-white/6">
+          {stack.map(([label, value, Icon]) => (
+            <div key={label} className="flex items-start gap-4 px-5 py-4">
+              <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/8 bg-white/[0.025] text-zinc-400">
+                <Icon className="size-4" />
+              </div>
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-zinc-500">{label}</div>
+                <div className="mt-1 text-sm text-zinc-300">{value}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  )
 }
 
 export function NavItem({
@@ -47,6 +164,7 @@ export function Overview({
   decisions,
   tasks,
   employees,
+  workerStatus,
   busyId,
   onApprove,
   onReject,
@@ -60,6 +178,7 @@ export function Overview({
   decisions: Decision[]
   tasks: Task[]
   employees: Employee[]
+  workerStatus: { running: boolean; phase: string; currentAgent: string | null; currentTaskId: string | null } | null
   busyId: string | null
   onApprove: (id: string) => void
   onReject: (id: string) => void
@@ -84,7 +203,15 @@ export function Overview({
           {employees.slice(0, 6).map((employee) => {
             const openTasks = tasks.filter((task) => task.assignee?.id === employee.id && task.status !== 'DONE')
             const blocked = openTasks.some((task) => task.status === 'BLOCKED')
-            const state: AgentAsciiState = employee.status !== 'ACTIVE' ? 'OFFLINE' : blocked ? 'BLOCKED' : openTasks.length ? 'WORKING' : 'SLEEPING'
+            const agentKey = employee.name.toLowerCase()
+            const isCurrentWorker = workerStatus?.running === true && workerStatus.currentAgent === agentKey
+            const state: AgentAsciiState = employee.status !== 'ACTIVE'
+              ? 'OFFLINE'
+              : isCurrentWorker
+                ? 'WORKING'
+                : blocked
+                  ? 'BLOCKED'
+                  : 'SLEEPING'
             return (
               <div
   key={employee.id}
@@ -946,6 +1073,8 @@ export function IdeasView({
 export function ActivityView({ events }: { events: AuditEvent[] }) {
   const [liveEvents, setLiveEvents] = useState<AgentActivityEvent[]>([])
   const [connected, setConnected] = useState(false)
+  const [mode, setMode] = useState<'timeline' | 'json'>('timeline')
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -979,9 +1108,29 @@ export function ActivityView({ events }: { events: AuditEvent[] }) {
     metadata: event.data,
   }))
 
+  const json = JSON.stringify(displayEvents, null, 2)
+  const copyJson = async () => {
+    try {
+      await navigator.clipboard.writeText(json)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1600)
+    } catch {
+      setCopied(false)
+    }
+  }
+
   return (
     <Panel title="Activity" subtitle={`Global agent activity and CEO audit trail · ${connected ? 'LIVE' : 'RECONNECTING'}`}>
-      {displayEvents.length === 0 ? <EmptyState message="No activity recorded yet." /> : displayEvents.map((event) => (
+      <div className="forge-activity-toolbar">
+        <div className="forge-activity-view-toggle" role="tablist" aria-label="Activity view">
+          <button type="button" className={mode === 'timeline' ? 'forge-activity-view-toggle__active' : ''} onClick={() => setMode('timeline')}>Timeline</button>
+          <button type="button" className={mode === 'json' ? 'forge-activity-view-toggle__active' : ''} onClick={() => setMode('json')}>JSON</button>
+        </div>
+        {mode === 'json' && <button type="button" className="forge-activity-copy" onClick={() => void copyJson()} disabled={displayEvents.length === 0}>{copied ? 'Copied ✓' : 'Copy JSON'}</button>}
+      </div>
+      {displayEvents.length === 0 ? <EmptyState message="No activity recorded yet." /> : mode === 'json' ? (
+        <pre className="forge-activity-json">{json}</pre>
+      ) : displayEvents.map((event) => (
         <div key={event.id} className="flex items-start gap-4 border-b border-white/6 px-5 py-4">
           <StatusDot status={event.status === 'FAILED' || event.status === 'BLOCKED' || event.kind.includes('FAILED') ? 'BLOCKED' : event.status === 'COMPLETED' || event.kind.includes('COMPLETED') ? 'EXECUTED' : 'PENDING'} />
           <div className="min-w-0 flex-1">
@@ -1120,8 +1269,8 @@ function Metric({
 }) {
   return (
     <div
-      className={shadowColor ? 'forge-metric forge-metric--random-shadow' : 'forge-metric'}
-      style={shadowColor ? { '--metric-shadow': shadowColor } as React.CSSProperties : undefined}
+      className={value > 0 && shadowColor ? 'forge-metric forge-metric--random-shadow' : 'forge-metric'}
+      style={value > 0 && shadowColor ? { '--metric-shadow': shadowColor } as React.CSSProperties : undefined}
     >
       <div className="flex items-center justify-between">
         <div className="text-xs uppercase tracking-wider text-zinc-500">{label}</div>

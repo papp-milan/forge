@@ -725,7 +725,7 @@ main {
 
 .forge-metric:nth-child(2) {
   border-color: rgba(215,255,0,.4);
-  box-shadow: 7px 7px 0 var(--forge-acid);
+  box-shadow: 7px 7px 0 rgba(0,0,0,.7);
 }
 
 .forge-metric:nth-child(3) {
@@ -734,7 +734,7 @@ main {
 
 .forge-metric:nth-child(4) {
   border-color: rgba(255,45,125,.4);
-  box-shadow: 7px 7px 0 var(--forge-pink);
+  box-shadow: 7px 7px 0 rgba(0,0,0,.7);
 }
 
 .forge-metric:hover {
@@ -1685,9 +1685,9 @@ main {
   color: #fff !important;
 }
 
-/* Every light metric keeps the same graphic treatment, but its shadow is chromatic. */
-.forge-theme-light .forge-metric {
-  box-shadow: 7px 7px 0 var(--metric-shadow, #171411) !important;
+/* Positive metrics receive a randomized chromatic shadow; zero-value metrics stay neutral. */
+.forge-metric.forge-metric--random-shadow {
+  box-shadow: 7px 7px 0 var(--metric-shadow) !important;
 }
 
 .forge-theme-light .forge-metric:nth-child(1) {
@@ -2474,3 +2474,99 @@ main > div::before {
 .forge-worker-status--offline{color:#fca5a5}
 .forge-worker-status--offline>span:first-child{background:#f87171}
 .forge-worker-status__detail{color:#71717a;letter-spacing:.04em}
+
+
+/* =========================================================
+   Live agent state + activity JSON
+   ========================================================= */
+.forge-activity-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .8rem 1rem;
+  border-bottom: 2px solid rgba(255,255,255,.1);
+}
+
+.forge-activity-view-toggle {
+  display: inline-flex;
+  gap: .35rem;
+}
+
+.forge-activity-view-toggle button,
+.forge-activity-copy {
+  border: 2px solid rgba(255,255,255,.13);
+  background: rgba(255,255,255,.025);
+  color: #aaa;
+  padding: .45rem .7rem;
+  font: 800 .65rem/1 ui-monospace,monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.forge-activity-view-toggle button:hover,
+.forge-activity-copy:hover:not(:disabled) {
+  border-color: var(--forge-acid);
+  color: var(--forge-acid);
+}
+
+.forge-activity-view-toggle__active {
+  background: var(--forge-acid) !important;
+  border-color: #050505 !important;
+  color: #050505 !important;
+  box-shadow: 3px 3px 0 #050505;
+}
+
+.forge-activity-copy:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+.forge-activity-json {
+  max-height: 65vh;
+  margin: 1rem;
+  overflow: auto;
+  border: 2px solid rgba(255,255,255,.1);
+  background: #050507;
+  color: #d7ff00;
+  padding: 1rem;
+  font: 500 .72rem/1.55 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  white-space: pre;
+}
+
+.forge-agent-pulse__agent[data-agent-state="WORKING"] {
+  box-shadow: 7px 7px 0 var(--agent-color) !important;
+}
+
+.forge-agent-pulse__agent[data-agent-state="WORKING"]:hover {
+  box-shadow: 10px 10px 0 var(--agent-color) !important;
+}
+
+/* Persona palette: state shadows use the agent's assigned identity color. */
+.forge-agent-card,
+.forge-agent-pulse__agent {
+  --agent-color: #fff;
+}
+
+.forge-theme-light .forge-activity-toolbar {
+  border-bottom-color: rgba(23,20,17,.14);
+}
+
+.forge-theme-light .forge-activity-view-toggle button,
+.forge-theme-light .forge-activity-copy {
+  background: #fffaf0;
+  color: #5c5147;
+  border-color: rgba(23,20,17,.16);
+}
+
+.forge-theme-light .forge-activity-view-toggle__active {
+  background: #e3262e !important;
+  border-color: #171411 !important;
+  color: #fff !important;
+}
+
+.forge-theme-light .forge-activity-json {
+  background: #f0e6d7 !important;
+  color: #3b332d !important;
+  border-color: rgba(23,20,17,.14) !important;
+}
