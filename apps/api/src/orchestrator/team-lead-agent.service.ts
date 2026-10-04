@@ -30,6 +30,56 @@ export class TeamLeadAgentService {
     return { context, decision, validation };
   }
 
+  async pitchIdea(idea: { title: string; description: string; projectId: string }): Promise<{
+    title: string;
+    description: string;
+    rationale: string;
+    problem: string;
+    solution: string;
+    impact: string;
+    risks: string;
+    tasks: Array<{ title: string; description: string; acceptanceCriteria: string; role: 'UI_UX' | 'ENGINEER' | 'QA' | 'DEVOPS'; risk: 'SMALL' | 'LARGE' }>;
+  }> {
+    if (process.env['TEAM_LEAD_AGENT'] === 'hermes') {
+      const result = await this.hermes.run({
+        maxTurns: 12,
+        prompt: [
+          'You are Athena, Forge\'s Team Lead.',
+          'Turn the supplied product idea into a concrete, implementation-ready feature pitch.',
+          'Return exactly one JSON object and no markdown.',
+          'Required fields: title, description, rationale, problem, solution, impact, risks, tasks.',
+          'tasks must be an array of 1-6 tasks with title, description, acceptanceCriteria, role and risk.',
+          'Allowed roles: UI_UX, ENGINEER, QA, DEVOPS. Allowed risks: SMALL, LARGE.',
+          'Do not invent facts about the repository; base the pitch on the idea.',
+          '',
+          JSON.stringify(idea, null, 2),
+        ].join('\\n'),
+      });
+      if (result.exitCode !== 0 || !result.text) throw new Error('Athena failed to generate a pitch.');
+      const first = result.text.indexOf('{');
+      const last = result.text.lastIndexOf('}');
+      if (first === -1 || last <= first) throw new Error('Athena returned invalid pitch JSON.');
+      return JSON.parse(result.text.slice(first, last + 1)) as any;
+    }
+
+    return {
+      title: idea.title,
+      description: idea.description,
+      rationale: 'Athena converted the captured idea into a structured feature proposal.',
+      problem: idea.description,
+      solution: idea.description,
+      impact: 'Provides a concrete, reviewable product change derived from the captured idea.',
+      risks: 'The proposal may require scope adjustment after CEO review.',
+      tasks: [{
+        title: 'Implement the approved feature',
+        description: idea.description,
+        acceptanceCriteria: 'The approved feature is implemented and relevant checks pass.',
+        role: 'ENGINEER',
+        risk: 'SMALL',
+      }],
+    };
+  }
+
   async run(projectId: string) {
     const analysis = await this.analyzeProject(projectId);
 

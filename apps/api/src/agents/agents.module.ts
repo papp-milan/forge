@@ -18,11 +18,12 @@ import { AgentCommunicationService } from './agent-communication.service.js';
 import { RetryPolicyService } from './retry-policy.service.js';
 import { AtlasService } from './atlas.service.js';
 import { AgentActivityService } from './agent-activity.service.js';
+import { GlobalActivityService } from './global-activity.service.js';
 
 @Module({
   imports: [PrismaModule, GithubModule, RuntimeModule, AuditModule, GovernanceModule, FeaturesModule, WorkforceModule],
   controllers: [AgentsController],
-  providers: [ArtemisService, HephaistosService, ApolloService, AtlasService, WorkspaceService, AgentRunService, AgentWorkerLoopService, AgentSessionService, AgentCommunicationService, RetryPolicyService, AgentActivityService],
+  providers: [ArtemisService, HephaistosService, ApolloService, AtlasService, WorkspaceService, AgentRunService, AgentWorkerLoopService, AgentSessionService, AgentCommunicationService, RetryPolicyService, AgentActivityService, GlobalActivityService],
   exports: [ArtemisService, HephaistosService, ApolloService, AtlasService, AgentRunService, AgentSessionService, AgentCommunicationService, RetryPolicyService],
 })
 export class AgentsModule {}

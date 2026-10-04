@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Activity, AlertTriangle, Check, CircleDot, ExternalLink, Cpu, GitPullRequest, ShieldCheck, X, Zap } from 'lucide-react'
-import type { AgentActivityEvent, AuditEvent, Decision, Employee, Feature, Pitch, Project, Task } from '../types/forge'
+import type { AgentActivityEvent, AuditEvent, Decision, Employee, Feature, Idea, Pitch, Project, Task } from '../types/forge'
 import { api } from '../api/client'
 
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
@@ -876,18 +876,122 @@ function ProjectStat({ label, value }: { label: string; value: number }) {
   )
 }
 
-export function ActivityView({ events }: { events: AuditEvent[] }) {
+export function IdeasView({
+  ideas,
+  projects,
+  busy,
+  onCreate,
+  onPitch,
+  onArchive,
+}: {
+  ideas: Idea[]
+  projects: Project[]
+  busy: boolean
+  onCreate: (title: string, description: string, projectId: string) => void
+  onPitch: (id: string) => void
+  onArchive: (id: string) => void
+}) {
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [projectId, setProjectId] = useState(projects[0]?.id ?? '')
+
+  const selectedProjectId = projectId || projects[0]?.id || ''
+
+  const submit = () => {
+    if (!title.trim() || !description.trim() || !selectedProjectId) return
+    onCreate(title.trim(), description.trim(), selectedProjectId)
+    setTitle('')
+    setDescription('')
+  }
+
   return (
-    <Panel title="Activity" subtitle="Immutable company audit trail from agent and CEO actions.">
-      {events.length === 0 ? <EmptyState message="No audit events recorded yet." /> : events.map((event) => (
+    <div className="space-y-5">
+      <Panel title="Ideas" subtitle="Capture product ideas, then let Athena turn them into structured pitches.">
+        <div className="grid gap-3 p-5 md:grid-cols-[1fr_1fr_180px_auto]">
+          <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Idea title" className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-white/20" />
+          <input value={description} onChange={(event) => setDescription(event.target.value)} placeholder="What should Forge explore?" className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-white/20" />
+          <select value={selectedProjectId} onChange={(event) => setProjectId(event.target.value)} className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-white/20">
+            {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
+          </select>
+          <button disabled={busy} onClick={submit} className="cursor-pointer rounded-lg bg-white px-4 py-2 text-sm font-medium text-black disabled:opacity-50">Capture</button>
+        </div>
+      </Panel>
+
+      <Panel title="Idea backlog" subtitle={`${ideas.length} captured ideas · persisted in Forge`}>
+        {ideas.length === 0 ? <EmptyState message="No ideas captured yet." /> : ideas.map((idea) => (
+          <div key={idea.id} className="border-b border-white/6 px-5 py-5 last:border-0">
+            <div className="flex flex-wrap items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-sm font-medium">{idea.title}</h3>
+                  <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{idea.status}</span>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{idea.description}</p>
+                <div className="mt-2 text-xs text-zinc-600">{idea.project?.name ?? idea.projectId}</div>
+              </div>
+              <div className="flex gap-2">
+                {!idea.pitchId && idea.status !== 'ARCHIVED' && <button disabled={busy} onClick={() => onPitch(idea.id)} className="cursor-pointer rounded-lg bg-white px-3 py-2 text-xs font-medium text-black disabled:opacity-50">Ask Athena</button>}
+                {idea.status !== 'ARCHIVED' && <button disabled={busy} onClick={() => onArchive(idea.id)} className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 disabled:opacity-50">Archive</button>}
+              </div>
+            </div>
+            {idea.pitch && <div className="mt-4 rounded-lg border border-emerald-400/10 bg-emerald-400/5 p-3 text-xs text-emerald-200">Pitch created · {idea.pitch.title}</div>}
+          </div>
+        ))}
+      </Panel>
+    </div>
+  )
+}
+
+
+export function ActivityView({ events }: { events: AuditEvent[] }) {
+  const [liveEvents, setLiveEvents] = useState<AgentActivityEvent[]>([])
+  const [connected, setConnected] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    const stream = new EventSource('/api/agents/activity/stream')
+    stream.onopen = () => active && setConnected(true)
+    stream.onmessage = (message) => {
+      try {
+        const next = JSON.parse(message.data) as AgentActivityEvent[]
+        if (active) setLiveEvents(next)
+      } catch {
+        // Ignore malformed stream frames.
+      }
+    }
+    stream.onerror = () => active && setConnected(false)
+    return () => {
+      active = false
+      stream.close()
+    }
+  }, [])
+
+  const displayEvents = liveEvents.length > 0 ? liveEvents : events.map((event) => ({
+    id: 'audit:' + event.id,
+    timestamp: event.timestamp,
+    agent: event.actor,
+    source: 'AUDIT',
+    kind: event.type,
+    status: undefined,
+    summary: event.summary,
+    projectId: event.projectId,
+    taskId: event.entityType === 'task' ? event.entityId : undefined,
+    metadata: event.data,
+  }))
+
+  return (
+    <Panel title="Activity" subtitle={`Global agent activity and CEO audit trail · ${connected ? 'LIVE' : 'RECONNECTING'}`}>
+      {displayEvents.length === 0 ? <EmptyState message="No activity recorded yet." /> : displayEvents.map((event) => (
         <div key={event.id} className="flex items-start gap-4 border-b border-white/6 px-5 py-4">
-          <StatusDot status={event.type.includes('FAILED') || event.type.includes('BLOCKED') ? 'BLOCKED' : event.type.includes('EXECUTED') ? 'EXECUTED' : event.type.includes('APPROVED') ? 'APPROVED' : 'PENDING'} />
+          <StatusDot status={event.status === 'FAILED' || event.status === 'BLOCKED' || event.kind.includes('FAILED') ? 'BLOCKED' : event.status === 'COMPLETED' || event.kind.includes('COMPLETED') ? 'EXECUTED' : 'PENDING'} />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <div className="text-sm">{event.summary}</div>
-              <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{event.type}</span>
+              <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{event.source}</span>
+              <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{event.kind}</span>
+              {event.status && <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{event.status}</span>}
             </div>
-            <div className="mt-1 text-xs text-zinc-500">{event.actor} {event.projectId ? `· ${event.projectId}` : ''}</div>
+            <div className="mt-1 text-xs text-zinc-500">{event.agent} {event.projectId ? `· ${event.projectId}` : ''}</div>
           </div>
           <span className="shrink-0 text-xs text-zinc-600">{new Date(event.timestamp).toLocaleString()}</span>
         </div>
