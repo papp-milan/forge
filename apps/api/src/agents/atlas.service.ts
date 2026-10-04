@@ -109,6 +109,12 @@ export class AtlasService {
           pullRequestNumber = pullRequest.number;
           pullRequestUrl = pullRequest.url;
         }
+          await this.communications.send({
+            fromAgent: 'atlas', toAgent: 'athena', kind: 'STATUS', priority: 'HIGH',
+            subject: 'Infrastructure change ready: '+ task.title,
+            content: { taskId: task.id, branch: workspace.branch, pullRequestNumber, acceptanceCriteria: task.acceptanceCriteria },
+            projectId: task.feature.projectId, featureId: task.featureId, taskId: task.id,
+          });
 
         const updated = await this.prisma.task.update({
           where: { id: task.id },
