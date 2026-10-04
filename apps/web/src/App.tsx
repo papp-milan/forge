@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 import { Activity, AlertTriangle, GitPullRequest, LayoutDashboard, Moon, Plus, RefreshCw, ShieldCheck, Sun, Users, X } from 'lucide-react'
 import type { Decision, Feature, Task } from './types/forge'
 import { useForgeData } from './hooks/useForgeData'
@@ -33,7 +34,7 @@ function App() {
     window.localStorage.setItem('forge-theme', theme)
   }, [theme])
 
-  const createProject = async (event: React.FormEvent<HTMLFormElement>) => {
+  const createProject = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!projectName.trim()) return
 
