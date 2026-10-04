@@ -13,7 +13,7 @@ COPY apps/api ./apps/api
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter api build
 
-FROM nousresearch/hermes-agent:latest AS hermes
+FROM nousresearch/hermes-agent:v2026.9.24 AS hermes
 FROM hermes AS runtime
 WORKDIR /app
 USER root
