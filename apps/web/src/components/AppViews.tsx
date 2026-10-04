@@ -5,13 +5,8 @@ import { api } from '../api/client'
 
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
 
-function createMetricShadowPlan(): Array<string | null> {
-  const positions = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5)
-  const colors = [...METRIC_SHADOW_COLORS].sort(() => Math.random() - 0.5)
-  const count = 2 + Math.floor(Math.random() * 4)
-  const plan: Array<string | null> = Array(6).fill(null)
-  positions.slice(0, count).forEach((position, index) => { plan[position] = colors[index] })
-  return plan
+function createMetricShadowPlan(): string[] {
+  return [...METRIC_SHADOW_COLORS].sort(() => Math.random() - 0.5)
 }
 
 export function NavItem({
@@ -1120,8 +1115,8 @@ function Metric({
 }) {
   return (
     <div
-      className={shadowColor ? 'forge-metric forge-metric--random-shadow' : 'forge-metric'}
-      style={shadowColor ? { '--metric-shadow': shadowColor } as React.CSSProperties : undefined}
+      className={value > 0 && shadowColor ? 'forge-metric forge-metric--random-shadow' : 'forge-metric'}
+      style={value > 0 && shadowColor ? { '--metric-shadow': shadowColor } as React.CSSProperties : undefined}
     >
       <div className="flex items-center justify-between">
         <div className="text-xs uppercase tracking-wider text-zinc-500">{label}</div>
