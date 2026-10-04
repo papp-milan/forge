@@ -5,6 +5,7 @@ import { UpdateTaskDto } from './dto/update-task.dto.js';
 import { GithubService } from '../github/github.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { AgentCommunicationService } from '../agents/agent-communication.service.js';
+import { TeamLeadAgentService } from '../orchestrator/team-lead-agent.service.js';
 
 @Injectable()
 export class TasksService {
@@ -13,6 +14,7 @@ export class TasksService {
     private readonly githubService: GithubService,
     private readonly audit: AuditService,
     private readonly communications: AgentCommunicationService,
+    private readonly teamLead: TeamLeadAgentService,
   ) {}
 
   findAll() {
@@ -76,6 +78,87 @@ export class TasksService {
       });
     }
     return approved;
+  }
+
+  async retryStuck(id: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+      include: { feature: true, assignee: true },
+    });
+    if (!task) throw new BadRequestException('Task not found');
+    if (task.status !== 'BLOCKED') {
+      throw new BadRequestException('Only blocked tasks can be manually retried.');
+    }
+    if (!task.assignee || task.assignee.status !== 'ACTIVE') {
+      throw new BadRequestException('Task must have an active assignee before it can be retried.');
+    }
+
+    const nextStatus = task.branchName ? 'IN_PROGRESS' : 'TODO';
+    const retried = await this.prisma.task.update({
+      where: { id },
+      data: { status: nextStatus },
+      include: { assignee: true, feature: true },
+    });
+
+    await this.audit.record({
+      actor: 'ceo',
+      type: 'WORKER_STARTED',
+      projectId: task.feature.projectId,
+      entityType: 'task',
+      entityId: task.id,
+      summary: 'CEO manually retried stuck task: ' + task.title,
+      data: { previousStatus: 'BLOCKED', nextStatus },
+    });
+
+    return retried;
+  }
+
+  async sendToAthena(id: string, comment?: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+      include: { feature: { include: { project: true } }, assignee: true },
+    });
+    if (!task) throw new BadRequestException('Task not found');
+    if (task.status !== 'BLOCKED') {
+      throw new BadRequestException('Only blocked tasks can be sent to Athena for reevaluation.');
+    }
+
+    await this.communications.send({
+      fromAgent: 'ceo',
+      toAgent: 'athena',
+      kind: 'ESCALATION',
+      priority: 'HIGH',
+      subject: 'CEO requests reevaluation of stuck task: ' + task.title,
+      content: {
+        taskId: task.id,
+        taskTitle: task.title,
+        currentStatus: task.status,
+        assignee: task.assignee?.name ?? null,
+        comment: comment ?? null,
+        requestedAction: 'REEVALUATE_STUCK_TASK',
+      },
+      projectId: task.feature.projectId,
+      featureId: task.featureId,
+      taskId: task.id,
+    });
+
+    await this.audit.record({
+      actor: 'ceo',
+      type: 'DECISION_CREATED',
+      projectId: task.feature.projectId,
+      entityType: 'task',
+      entityId: task.id,
+      summary: 'CEO sent stuck task to Athena for reevaluation: ' + task.title,
+      data: { comment: comment ?? null },
+    });
+
+    const reevaluation = await this.teamLead.run(task.feature.projectId);
+
+    return {
+      task,
+      status: 'SENT_TO_ATHENA',
+      reevaluation,
+    };
   }
 
   async start(id: string) {
