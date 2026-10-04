@@ -22,6 +22,7 @@ ENV PORT=3000
 ENV HERMES_HOME=/opt/data
 ENV HERMES_WORKDIR=/workspace
 ENV HERMES_TIMEOUT_MS=600000
+ENV HERMES_WRITE_SAFE_ROOT=/workspace:/opt/data
 ENV PATH="/opt/hermes/bin:/opt/hermes/.venv/bin:/opt/data/.local/bin:${PATH}"
 RUN apt-get update \
     && apt-get install -y --no-install-recommends openssl \
