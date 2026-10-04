@@ -169,7 +169,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     for (const task of tasks) {
       if (task.risk === 'LARGE' && !task.ceoApprovalAt) {
         await this.communications.notifyOnce({
-          fromAgent: task.assignee?.name ?? 'ATHENA',
+          fromAgent: 'system',
           toAgent: 'ATHENA',
           kind: 'ESCALATION',
           priority: 'HIGH',
