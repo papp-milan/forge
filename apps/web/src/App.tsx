@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Activity, AlertTriangle, GitPullRequest, LayoutDashboard, Moon, Plus, RefreshCw, ShieldCheck, Sun, Users, X } from 'lucide-react'
-import type { Decision, Feature, Pitch, Task } from './types/forge'
+import type { Decision, Feature, Task } from './types/forge'
 import { useForgeData } from './hooks/useForgeData'
 import { api } from './api/client'
 import { Approvals, ActivityView, DecisionDetails, Development, Employees, FeatureDetails, NavItem, Overview, TaskDetails } from './components/AppViews'
