@@ -20,4 +20,8 @@ export class CreateTaskDto {
   @IsOptional()
   @IsString()
   assigneeId?: string;
+
+  @IsOptional()
+  @IsString()
+  risk?: 'SMALL' | 'LARGE';
 }
