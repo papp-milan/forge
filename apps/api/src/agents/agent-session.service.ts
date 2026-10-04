@@ -36,7 +36,7 @@ export class AgentSessionService {
     return this.prisma.agentToolCall.update({ where: { id }, data: { status, output: output === undefined ? undefined : JSON.parse(JSON.stringify(output)), error, completedAt: new Date() } });
   }
 
-  artifact(input: { sessionId: string; name: string; type: string; uri?: string; checksum?: string; metadata?: unknown }) {
+  artifact(input: { sessionId: string; name: string; type: string; uri?: string; checksum?: string; metadata?: unknown; projectId?: string; taskId?: string }) {
     return this.prisma.agentArtifact.create({ data: { ...input, metadata: input.metadata === undefined ? undefined : JSON.parse(JSON.stringify(input.metadata)) } });
   }
 
