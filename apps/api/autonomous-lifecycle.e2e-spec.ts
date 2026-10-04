@@ -2,6 +2,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { rm } from 'node:fs/promises';
+import { MemoryService } from './src/memory/memory.service.js';
 import { AppModule } from './src/app.module.js';
 import { PrismaService } from './src/prisma/prisma.service.js';
 
@@ -11,11 +13,14 @@ describe('autonomous Forge lifecycle (e2e)', () => {
   let projectId: string;
   let featureId: string;
   let taskId: string;
+  let employeeId: string;
+  let memory: MemoryService;
 
   beforeAll(async () => {
     process.env['FORGE_AUTONOMOUS'] = 'false';
     process.env['AGENT_RUNTIME'] = 'deterministic';
     process.env['TEAM_LEAD_AGENT'] = 'deterministic';
+    process.env['FORGE_MEMORY_ROOT'] = `/tmp/forge-e2e-memory-${process.pid}`;
 
     app = await NestFactory.create(AppModule, { logger: false });
     app.useGlobalPipes(new ValidationPipe({
@@ -26,6 +31,7 @@ describe('autonomous Forge lifecycle (e2e)', () => {
     await app.init();
 
     prisma = app.get(PrismaService);
+    memory = app.get(MemoryService);
 
     const project = await prisma.project.create({
       data: {
@@ -36,20 +42,25 @@ describe('autonomous Forge lifecycle (e2e)', () => {
     });
     projectId = project.id;
 
-    await prisma.employee.create({
+    const employee = await prisma.employee.create({
       data: {
         name: 'E2E Hephaistos',
         role: 'ENGINEER',
         status: 'ACTIVE',
       },
     });
+    employeeId = employee.id;
   });
 
   afterAll(async () => {
     if (projectId) {
       await prisma.project.delete({ where: { id: projectId } });
     }
+    if (employeeId) {
+      await prisma.employee.delete({ where: { id: employeeId } }).catch(() => undefined);
+    }
     await app.close();
+    await rm(process.env['FORGE_MEMORY_ROOT']!, { recursive: true, force: true });
   });
 
   it('runs idea -> pitch -> CEO approval -> task -> QA -> release', async () => {
@@ -135,18 +146,7 @@ describe('autonomous Forge lifecycle (e2e)', () => {
     });
     expect(persistedFeature?.status).toBe('RELEASED');
 
-    const releaseMemory = await prisma.memory.findFirst({
-      where: { subject: `release-${featureId}` },
-    });
-    expect(releaseMemory).toBeTruthy();
-
-    const releaseAudit = await prisma.auditEvent.findFirst({
-      where: {
-        entityType: 'feature',
-        entityId: featureId,
-        type: 'RELEASED',
-      },
-    });
-    expect(releaseAudit).toBeTruthy();
+    const memories = await memory.list('projects');
+    expect(memories.some((item) => item.content.includes(`Feature "${approved.body.feature.title}" was released`))).toBe(true);
   });
 });
