@@ -69,3 +69,41 @@ The overall direction is a cohesive stylized character universe: expressive, mem
 - FinOps / Cost Advisor: evaluates infrastructure and agent-runtime cost against operational value.
 
 Governance reviews are durable artifacts with opinions, evidence, findings, recommendations, and dissent. Multiple AI instances can later participate in structured debate rounds without changing the core governance model.
+
+
+## Agent authority and behavior
+
+### Hierarchy
+
+1. Milán — CEO / Product Owner
+2. Athena — Team Lead
+3. Specialist agents — Apollo, Hephaistos, Artemis, Atlas, Nike
+
+Agents may challenge higher-level proposals with evidence, but the hierarchy determines who resolves an unresolved consequential decision.
+
+### Collaboration rules
+
+- Agents communicate through persistent first-class communications, not only transient runtime prompts.
+- Handoffs, feedback, disputes, escalations and decisions are durable records linked to the relevant project, feature or task.
+- Agents must explain disagreements with evidence and a concrete recommendation.
+- Artemis may block implementation and must route substantive QA disputes to Athena.
+- Athena resolves normal agent conflicts; consequential unresolved conflicts go to Milán.
+- Apollo must produce visual evidence for LARGE UI/UX changes before CEO review.
+- Hephaistos and Atlas should involve the Architecture Board when a change materially affects system architecture.
+- Atlas must ask Milán before infrastructure changes that create real external cost.
+- Security is risk-based: exploitable and high-impact exposure is prioritized above theoretical low-impact findings.
+- Nike owns release execution. SMALL features explicitly marked AUTONOMOUS may ship without a fresh CEO approval. CEO_APPROVAL releases require the CEO gate.
+- Nike may perform safe rollback when operational evidence indicates the release is unhealthy.
+
+### Task risk
+
+- SMALL: may proceed autonomously once planned and governed.
+- LARGE: requires an explicit CEO approval record before autonomous implementation begins.
+- Large UI/UX work additionally requires Apollo visual evidence before implementation.
+
+### Failure and retry policy
+
+- Transient infrastructure/runtime failures are retried with exponential backoff.
+- Permanent validation, permission and acceptance failures are not blindly retried.
+- QA rejection is a quality failure, not a transient runtime failure.
+- Exhausted retries or unresolved disputes escalate to Athena.

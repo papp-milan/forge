@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsEnum,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -24,6 +25,10 @@ export class TeamLeadTaskSuggestionDto {
 
   @IsEnum(EmployeeRole)
   role: EmployeeRole;
+
+  @IsOptional()
+  @IsIn(['SMALL', 'LARGE'])
+  risk?: 'SMALL' | 'LARGE';
 }
 
 export class TeamLeadProposalDto {

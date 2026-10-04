@@ -49,7 +49,7 @@ export class TeamLeadContextService {
       throw new NotFoundException('Project not found');
     }
 
-    const [projectMemory, companyMemory, decisions, learnings, github] =
+    const [projectMemory, companyMemory, decisions, learnings, github, communications] =
       await Promise.all([
         this.memory.list(`projects/${projectId}`),
 
@@ -62,6 +62,12 @@ export class TeamLeadContextService {
         project.repository
           ? this.loadGithubContext(project.repository)
           : Promise.resolve(null),
+
+        this.prisma.agentCommunication.findMany({
+          where: { projectId, toAgent: 'ATHENA', status: { in: ['UNREAD', 'READ', 'ACKNOWLEDGED'] } },
+          orderBy: { createdAt: 'asc' },
+          take: 50,
+        }),
       ]);
 
     const tasks = project.features.flatMap((feature) => feature.tasks);
@@ -154,6 +160,8 @@ export class TeamLeadContextService {
           }
         : null,
 
+      communications,
+
       memory: {
         company: companyMemory,
 
@@ -181,6 +189,8 @@ export class TeamLeadContextService {
       acceptanceCriteria: task.acceptanceCriteria,
 
       status: task.status,
+      risk: task.risk,
+      ceoApprovalAt: task.ceoApprovalAt,
 
       assignee: task.assignee
         ? {

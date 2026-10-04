@@ -2,9 +2,11 @@ import { Module } from '@nestjs/common';
 import { TasksController } from './tasks.controller.js';
 import { TasksService } from './tasks.service.js';
 import { GithubModule } from '../github/github.module.js';
+import { AuditModule } from '../audit/audit.module.js';
+import { AgentsModule } from '../agents/agents.module.js';
 
 @Module({
-  imports: [GithubModule],
+  imports: [GithubModule, AuditModule, AgentsModule],
   controllers: [TasksController],
   providers: [TasksService],
 })

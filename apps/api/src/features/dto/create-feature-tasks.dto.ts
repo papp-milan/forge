@@ -23,6 +23,10 @@ export class CreateFeatureTaskDto {
   @IsOptional()
   @IsString()
   assigneeId?: string;
+
+  @IsOptional()
+  @IsString()
+  risk?: 'SMALL' | 'LARGE';
 }
 
 export class CreateFeatureTasksDto {

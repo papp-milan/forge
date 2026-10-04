@@ -4,6 +4,7 @@ import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 import { WorkspaceService } from './workspace.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { GithubService } from '../github/github.service.js';
+import { AgentCommunicationService } from './agent-communication.service.js';
 
 @Injectable()
 export class AtlasService {
@@ -13,6 +14,7 @@ export class AtlasService {
     private readonly workspaces: WorkspaceService,
     private readonly audit: AuditService,
     private readonly github: GithubService,
+    private readonly communications: AgentCommunicationService,
   ) {}
 
   async runTask(taskId: string) {
@@ -79,7 +81,13 @@ export class AtlasService {
       }
 
       if (this.runtime.mode() === 'deterministic') {
-        const updated = await this.prisma.task.update({
+        await this.communications.send({
+            fromAgent: 'atlas', toAgent: 'athena', kind: 'STATUS', priority: 'MEDIUM',
+            subject: 'Infrastructure task completed: ' + task.title,
+            content: { taskId: task.id, branch: workspace.branch, note: 'Infrastructure change is ready for review.' },
+            projectId: task.feature.projectId, featureId: task.featureId, taskId: task.id,
+          });
+          const updated = await this.prisma.task.update({
           where: { id: task.id },
           data: { status: 'IN_REVIEW' },
           include: { assignee: true, feature: true },
@@ -101,6 +109,12 @@ export class AtlasService {
           pullRequestNumber = pullRequest.number;
           pullRequestUrl = pullRequest.url;
         }
+          await this.communications.send({
+            fromAgent: 'atlas', toAgent: 'athena', kind: 'STATUS', priority: 'HIGH',
+            subject: 'Infrastructure change ready: '+ task.title,
+            content: { taskId: task.id, branch: workspace.branch, pullRequestNumber, acceptanceCriteria: task.acceptanceCriteria },
+            projectId: task.feature.projectId, featureId: task.featureId, taskId: task.id,
+          });
 
         const updated = await this.prisma.task.update({
           where: { id: task.id },

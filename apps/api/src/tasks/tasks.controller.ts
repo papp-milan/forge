@@ -41,6 +41,11 @@ export class TasksController {
     return this.tasksService.remove(id);
   }
 
+  @Post(':id/approve-ceo')
+  approveCeo(@Param('id') id: string, @Body() body: { comment?: string }) {
+    return this.tasksService.approveCeo(id, body.comment);
+  }
+
   @Post(':id/start')
   start(@Param('id') id: string) {
     return this.tasksService.start(id);

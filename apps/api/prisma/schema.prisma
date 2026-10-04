@@ -43,6 +43,32 @@ enum PitchReviewAction {
   CHANGES_REQUESTED
 }
 
+enum TaskRisk {
+  SMALL
+  LARGE
+}
+
+enum ReleasePolicy {
+  CEO_APPROVAL
+  AUTONOMOUS
+}
+
+enum AgentCommunicationStatus {
+  UNREAD
+  READ
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum AgentCommunicationKind {
+  HANDOFF
+  FEEDBACK
+  DISPUTE
+  ESCALATION
+  DECISION
+  STATUS
+}
+
 enum TaskStatus {
   TODO
   IN_PROGRESS
@@ -105,6 +131,8 @@ model Project {
   pitches       Pitch[]
   agentDecisions AgentDecision[]
   agentRuns      AgentRun[]
+  agentCommunications AgentCommunication[]
+  agentArtifacts AgentArtifact[]
   agentSessions  AgentSession[]
   governanceReviews GovernanceReview[]
 }
@@ -127,7 +155,8 @@ model Feature {
   id          String        @id @default(cuid())
   title       String
   description String
-  status      FeatureStatus @default(PROPOSED)
+  status        FeatureStatus @default(PROPOSED)
+  releasePolicy ReleasePolicy @default(CEO_APPROVAL)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -137,6 +166,7 @@ model Feature {
 
   pitches Pitch[]
   tasks   Task[]
+  agentCommunications AgentCommunication[]
 }
 
 model Pitch {
@@ -180,6 +210,7 @@ model PitchTaskSuggestion {
   description        String?
   acceptanceCriteria String?
   role               EmployeeRole
+  risk               TaskRisk @default(SMALL)
 
   createdAt DateTime @default(now())
 
@@ -194,6 +225,9 @@ model Task {
   title              String
   description        String?
   acceptanceCriteria String?
+  risk               TaskRisk @default(SMALL)
+  ceoApprovalAt      DateTime?
+  ceoApprovalComment String?
   status             TaskStatus @default(TODO)
 
   githubIssueNumber Int?
@@ -212,6 +246,8 @@ model Task {
   assignee   Employee? @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
   agentSessions AgentSession[]
   agentRuns   AgentRun[]
+  agentCommunications AgentCommunication[]
+  artifacts AgentArtifact[]
 }
 
 model GithubWebhookEvent {
@@ -286,9 +322,12 @@ model AgentRun {
   output      Json?
   error       String?
   startedAt   DateTime       @default(now())
-  completedAt DateTime?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  completedAt   DateTime?
+  nextAttemptAt DateTime?
+  retryable     Boolean        @default(true)
+  failureClass  String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   projectId   String?
   project     Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   taskId      String?
@@ -412,6 +451,10 @@ model AgentArtifact {
   uri         String?
   checksum    String?
   metadata    Json?
+  projectId   String?
+  project     Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taskId      String?
+  task        Task?        @relation(fields: [taskId], references: [id], onDelete: Cascade)
   sessionId   String
   session     AgentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   createdAt   DateTime     @default(now())
@@ -431,4 +474,47 @@ model AgentUsage {
   session        AgentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+}
+
+
+model AgentCommunication {
+  id             String                     @id @default(cuid())
+  fromAgent      String
+  toAgent        String
+  kind           AgentCommunicationKind
+  status         AgentCommunicationStatus   @default(UNREAD)
+  priority       String                     @default("MEDIUM")
+  subject        String
+  content        Json
+  correlationId  String?
+  projectId      String?
+  project        Project?                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  featureId      String?
+  feature        Feature?                   @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  taskId         String?
+  task           Task?                      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  createdAt      DateTime                   @default(now())
+  deliveredAt    DateTime?
+  acknowledgedAt DateTime?
+
+  @@index([toAgent, status, createdAt])
+  @@index([fromAgent, createdAt])
+  @@index([projectId, createdAt])
+  @@index([taskId, createdAt])
+  @@index([correlationId])
+}
+
+model GithubOperation {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  operation   String
+  status      String   @default("RUNNING")
+  response    Json?
+  error       String?
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([operation, status, createdAt])
 }

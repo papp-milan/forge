@@ -19,9 +19,10 @@ import { AgentDecisionService } from './agent-decision.service.js';
 import { AgentDecisionController } from './agent-decision.controller.js';
 import { OrchestratorLoopService } from './orchestrator-loop.service.js';
 import { ReconciliationModule } from '../reconciliation/reconciliation.module.js';
+import { WorkforceModule } from '../workforce/workforce.module.js';
 
 @Module({
-  imports: [PrismaModule, GithubModule, MemoryModule, AuditModule, RuntimeModule, FeaturesModule, ReconciliationModule],
+  imports: [PrismaModule, GithubModule, MemoryModule, AuditModule, RuntimeModule, FeaturesModule, ReconciliationModule, WorkforceModule],
   controllers: [
     OrchestratorController,
     TeamLeadController,

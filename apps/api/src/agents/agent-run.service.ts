@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { RetryPolicyService } from './retry-policy.service.js';
 
 @Injectable()
 export class AgentRunService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly retryPolicy: RetryPolicyService) {}
 
   async start(input: {
     agent: string;
@@ -34,13 +35,21 @@ export class AgentRunService {
     });
   }
 
-  async fail(id: string, error: unknown, output?: unknown) {
+  async fail(id: string, error: unknown, output?: unknown, options?: { retryable?: boolean; kind?: string }) {
+    const current = await this.prisma.agentRun.findUnique({ where: { id } });
+    if (!current) throw new Error('Agent run not found');
+    const decision = options?.retryable === false
+      ? { retryable: false, failureClass: 'PERMANENT', delayMs: 0, nextAttemptAt: null }
+      : this.retryPolicy.decide({ error, attempt: current.attempt, maxAttempts: current.maxAttempts, kind: options?.kind ?? current.kind });
     return this.prisma.agentRun.update({
       where: { id },
       data: {
         status: 'FAILED',
         error: error instanceof Error ? error.message : String(error),
         output: output as any,
+        retryable: decision.retryable,
+        failureClass: decision.failureClass,
+        nextAttemptAt: decision.nextAttemptAt,
         completedAt: new Date(),
       },
     });

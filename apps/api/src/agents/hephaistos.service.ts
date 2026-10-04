@@ -4,6 +4,7 @@ import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 import { WorkspaceService } from './workspace.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { GithubService } from '../github/github.service.js';
+import { AgentCommunicationService } from './agent-communication.service.js';
 
 @Injectable()
 export class HephaistosService {
@@ -13,6 +14,7 @@ export class HephaistosService {
     private readonly workspaces: WorkspaceService,
     private readonly audit: AuditService,
     private readonly github: GithubService,
+    private readonly communications: AgentCommunicationService,
   ) {}
 
   async runTask(taskId: string) {
@@ -45,6 +47,12 @@ export class HephaistosService {
       });
       if (success) {
         if (this.runtime.mode() === 'deterministic') {
+          await this.communications.send({
+            fromAgent: 'hephaistos', toAgent: 'artemis', kind: 'HANDOFF', priority: 'HIGH',
+            subject: 'Implementation ready for QA: ' + task.title,
+            content: { taskId: task.id, branch: workspace.branch, acceptanceCriteria: task.acceptanceCriteria },
+            projectId: task.feature.projectId, featureId: task.featureId, taskId: task.id,
+          });
           const updated = await this.prisma.task.update({
             where: { id: task.id },
             data: { status: 'IN_REVIEW' },
@@ -113,7 +121,9 @@ export class HephaistosService {
 
   private buildPrompt(task: any): string {
     return [
-      'You are Hephaistos, Forge\'s Software Engineer.',
+      'You are Hephaistos, Forge\'s Software Engineer and software architect.',
+      'Prefer clean boundaries, scalable solutions and explicit contracts.',
+      'Be aggressive about justified technical debt removal, but avoid speculative rewrites.',
       'Work only on the assigned task in the current repository.',
       'Inspect the existing code before changing it.',
       'Implement the smallest complete solution that satisfies the acceptance criteria.',
