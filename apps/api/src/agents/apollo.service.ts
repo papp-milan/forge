@@ -3,7 +3,9 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 import { WorkspaceService } from './workspace.service.js';
 import { AuditService } from '../audit/audit.service.js';
+import { AgentCommunicationService } from './agent-communication.service.js';
 import { GithubService } from '../github/github.service.js';
+import { AgentCommunicationService } from './agent-communication.service.js';
 
 @Injectable()
 export class ApolloService {
@@ -13,6 +15,7 @@ export class ApolloService {
     private readonly workspaces: WorkspaceService,
     private readonly audit: AuditService,
     private readonly github: GithubService,
+    private readonly communications: AgentCommunicationService,
   ) {}
 
   async runTask(taskId: string) {
@@ -94,7 +97,13 @@ export class ApolloService {
       }
 
       if (this.runtime.mode() === 'deterministic') {
-        const updated = await this.prisma.task.update({
+        await this.communications.send({
+            fromAgent: 'apollo', toAgent: 'artemis', kind: 'HANDOFF', priority: 'HIGH',
+            subject: 'Implementation ready for QA: ' + task.title,
+            content: { taskId: task.id, branch: workspace.branch, acceptanceCriteria: task.acceptanceCriteria },
+            projectId: task.feature.projectId, featureId: task.featureId, taskId: task.id,
+          });
+          const updated = await this.prisma.task.update({
           where: { id: task.id },
           data: { status: 'IN_REVIEW' },
           include: { assignee: true, feature: true },
