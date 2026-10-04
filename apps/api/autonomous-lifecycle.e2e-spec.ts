@@ -28,7 +28,7 @@ describe('autonomous Forge lifecycle (e2e)', () => {
     await writeFile(keyPath, privateKey.export({ type: 'pkcs8', format: 'pem' }));
     process.env['GITHUB_PRIVATE_KEY_PATH'] = keyPath;
 
-    app = await NestFactory.create(AppModule, { logger: false });
+    app = await NestFactory.create(AppModule, { logger: ['error', 'warn'] });
     app.useGlobalPipes(new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
