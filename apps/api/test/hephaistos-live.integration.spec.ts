@@ -48,16 +48,25 @@ describe('Hephaistos live coding integration', () => {
           .replace(/\.git$/, '')
           .replace(/\/$/, '');
 
-      const project = projects.find(
+      let project = projects.find(
         (candidate) =>
           candidate?.repository &&
           normalizeRepository(candidate.repository) === 'papp-milan/forge',
       );
 
+      if (!project && !projectId) {
+        project = await prisma.project.create({
+          data: {
+            name: 'Forge',
+            description: 'Temporary project record for the live Hephaistos integration test.',
+            repository: 'papp-milan/forge',
+          },
+        });
+      }
+
       if (!project?.repository) {
         throw new Error(
-          'The live Hephaistos test requires the Forge project repository papp-milan/forge. ' +
-          'Set FORGE_HERMES_TEST_PROJECT_ID to a project pointing to that repository.',
+          'The configured Forge test project must point to papp-milan/forge.',
         );
       }
 
