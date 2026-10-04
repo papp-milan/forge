@@ -37,6 +37,7 @@ export class TasksService {
         acceptanceCriteria: data.acceptanceCriteria,
         featureId: data.featureId,
         assigneeId: data.assigneeId,
+        risk: data.risk as any,
       },
     });
   }
@@ -52,6 +53,13 @@ export class TasksService {
     return this.prisma.task.delete({
       where: { id },
     });
+  }
+
+  async approveCeo(id: string, comment?: string) {
+    const task = await this.prisma.task.findUnique({ where: { id } });
+    if (!task) throw new BadRequestException('Task not found');
+    if (task.risk !== 'LARGE') throw new BadRequestException('Only LARGE tasks require CEO approval.');
+    return this.prisma.task.update({ where: { id }, data: { ceoApprovalAt: new Date(), ceoApprovalComment: comment } });
   }
 
   async start(id: string) {
