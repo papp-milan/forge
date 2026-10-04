@@ -97,5 +97,6 @@ export function useForgeData() {
   }, [load, loadDynamic, loadStatic])
 
   const pending = useMemo(() => decisions.filter((decision) => decision.status === 'PENDING'), [decisions])
-  return { projects, decisions, tasks, features, pitches, employees, auditEvents, loading, error, setError, load, pending }
+  const pendingPitches = useMemo(() => pitches.filter((pitch) => pitch.status === 'PENDING_APPROVAL'), [pitches])
+  return { projects, decisions, tasks, features, pitches, employees, auditEvents, loading, error, setError, load, pending, pendingPitches }
 }
