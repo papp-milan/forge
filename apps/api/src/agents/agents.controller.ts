@@ -50,7 +50,7 @@ export class AgentsController {
   }
 
   @Post('sessions/:sessionId/artifacts')
-  artifact(@Param('sessionId') sessionId: string, @Body() body: { name: string; type: string; uri?: string; checksum?: string; metadata?: unknown }) {
+  artifact(@Param('sessionId') sessionId: string, @Body() body: { name: string; type: string; uri?: string; checksum?: string; metadata?: unknown; projectId?: string; taskId?: string }) {
     return this.sessions.artifact({ sessionId, ...body });
   }
 
