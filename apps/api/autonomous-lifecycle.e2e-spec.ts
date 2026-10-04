@@ -2,7 +2,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { rm } from 'node:fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
+import { generateKeyPairSync } from 'node:crypto';
 import { MemoryService } from './src/memory/memory.service.js';
 import { AppModule } from './src/app.module.js';
 import { PrismaService } from './src/prisma/prisma.service.js';
@@ -21,6 +22,11 @@ describe('autonomous Forge lifecycle (e2e)', () => {
     process.env['AGENT_RUNTIME'] = 'deterministic';
     process.env['TEAM_LEAD_AGENT'] = 'deterministic';
     process.env['FORGE_MEMORY_ROOT'] = `/tmp/forge-e2e-memory-${process.pid}`;
+    process.env['GITHUB_APP_ID'] = '123456';
+    const keyPath = `/tmp/forge-e2e-github-${process.pid}.pem`;
+    const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+    await writeFile(keyPath, privateKey.export({ type: 'pkcs8', format: 'pem' }));
+    process.env['GITHUB_PRIVATE_KEY_PATH'] = keyPath;
 
     app = await NestFactory.create(AppModule, { logger: false });
     app.useGlobalPipes(new ValidationPipe({
@@ -61,6 +67,7 @@ describe('autonomous Forge lifecycle (e2e)', () => {
     }
     await app.close();
     await rm(process.env['FORGE_MEMORY_ROOT']!, { recursive: true, force: true });
+    await rm(process.env['GITHUB_PRIVATE_KEY_PATH']!, { force: true });
   });
 
   it('runs idea -> pitch -> CEO approval -> task -> QA -> release', async () => {
