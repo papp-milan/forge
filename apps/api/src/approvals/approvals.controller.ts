@@ -9,4 +9,9 @@ export class ApprovalsController {
   pending(@Query('projectId') projectId?: string) {
     return this.approvals.pending(projectId);
   }
+
+  @Get('pending-tasks')
+  pendingTasks(@Query('projectId') projectId?: string) {
+    return this.approvals.pendingTasks(projectId);
+  }
 }
