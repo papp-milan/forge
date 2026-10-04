@@ -148,6 +148,14 @@ jobs:
 
           ssh -i ~/.ssh/forge_deploy "${DEPLOY_USER}@${DEPLOY_HOST}" "cd '${DEPLOY_DIR}' && IMAGE_TAG='${DEPLOY_SHA}' docker compose --env-file .env.production -f docker-compose.prod.yml pull && IMAGE_TAG='${DEPLOY_SHA}' docker compose --env-file .env.production -f docker-compose.prod.yml up -d --remove-orphans && docker image prune -af --filter 'until=168h'"
 
+      - name: Capture production container diagnostics
+        if: failure()
+        env:
+          DEPLOY_HOST: ${{ secrets.PRODUCTION_HOST }}
+          DEPLOY_USER: ${{ secrets.PRODUCTION_USER }}
+        run: |
+          ssh -i ~/.ssh/forge_deploy "${DEPLOY_USER}@${DEPLOY_HOST}" "cd '${DEPLOY_DIR}' && docker compose --env-file .env.production -f docker-compose.prod.yml ps && docker compose --env-file .env.production -f docker-compose.prod.yml logs --tail=200 api caddy" >&2
+
       - name: Verify production health
         env:
           DEPLOY_HOST: ${{ secrets.PRODUCTION_HOST }}
