@@ -38,6 +38,7 @@ import { WorkforceModule } from '../workforce/workforce.module.js';
     TeamLeadActionExecutorService,
     TeamLeadDecisionValidatorService,
     AgentDecisionService,
+    TeamLeadAgentService,
     OrchestratorLoopService,
   ],
   exports: [
