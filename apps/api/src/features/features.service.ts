@@ -273,6 +273,18 @@ export class FeaturesService {
               );
             }
 
+            const reviewState = await this.github.getPullRequestReviewState(
+              owner,
+              repo,
+              task.pullRequestNumber,
+            );
+
+            if (!reviewState.ready) {
+              throw new BadRequestException(
+                `Pull request #${task.pullRequestNumber} is not ready: at least one approval is required and no active change request may remain.`,
+              );
+            }
+
             const merged = await this.github.mergePullRequest(
               owner,
               repo,
