@@ -413,7 +413,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
         const result = await this.artemis.reviewTask(task.id);
         if (result.status === 'PASSED') await this.agentRuns.complete(run.id, result);
-        else await this.agentRuns.fail(run.id, result, result, { retryable: true, failureClass: 'QA_REJECTION', kind: 'QA' });
+        else await this.agentRuns.fail(run.id, result, result, { retryable: true, kind: 'QA' });
       } catch (error) {
         await this.agentRuns.fail(run.id, error);
         await this.audit.record({
