@@ -17,7 +17,8 @@ RUN pnpm --filter web build
 FROM caddy:2.11-alpine AS runtime
 
 COPY --from=build /app/apps/web/dist /srv
+COPY apps/web/Caddyfile /etc/caddy/Caddyfile
 
 EXPOSE 80
 
-CMD ["caddy", "file-server", "--root", "/srv", "--listen", ":80"]
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
