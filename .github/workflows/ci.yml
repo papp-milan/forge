@@ -50,3 +50,5 @@ jobs:
         working-directory: .
       - run: pnpm lint
       - run: pnpm build
+
+# CI runs on every development push; release remains gated by green CI.
