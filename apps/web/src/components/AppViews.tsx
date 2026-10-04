@@ -895,13 +895,11 @@ export function IdeasView({
   const [description, setDescription] = useState('')
   const [projectId, setProjectId] = useState(projects[0]?.id ?? '')
 
-  useEffect(() => {
-    if (!projectId && projects[0]) setProjectId(projects[0].id)
-  }, [projectId, projects])
+  const selectedProjectId = projectId || projects[0]?.id || ''
 
   const submit = () => {
-    if (!title.trim() || !description.trim() || !projectId) return
-    onCreate(title.trim(), description.trim(), projectId)
+    if (!title.trim() || !description.trim() || !selectedProjectId) return
+    onCreate(title.trim(), description.trim(), selectedProjectId)
     setTitle('')
     setDescription('')
   }
@@ -912,7 +910,7 @@ export function IdeasView({
         <div className="grid gap-3 p-5 md:grid-cols-[1fr_1fr_180px_auto]">
           <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Idea title" className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-white/20" />
           <input value={description} onChange={(event) => setDescription(event.target.value)} placeholder="What should Forge explore?" className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-white/20" />
-          <select value={projectId} onChange={(event) => setProjectId(event.target.value)} className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-white/20">
+          <select value={selectedProjectId} onChange={(event) => setProjectId(event.target.value)} className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-white/20">
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
           </select>
           <button disabled={busy} onClick={submit} className="cursor-pointer rounded-lg bg-white px-4 py-2 text-sm font-medium text-black disabled:opacity-50">Capture</button>
