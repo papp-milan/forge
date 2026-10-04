@@ -5,6 +5,7 @@ import { AgentWorkerLoopService } from './agent-worker-loop.service.js';
 import { ApolloService } from './apollo.service.js';
 import { AgentRunService } from './agent-run.service.js';
 import { AgentSessionService } from './agent-session.service.js';
+import { AgentCommunicationService } from './agent-communication.service.js';
 
 @Controller('api/agents')
 export class AgentsController {
@@ -15,6 +16,7 @@ export class AgentsController {
     private readonly apollo: ApolloService,
     private readonly agentRuns: AgentRunService,
     private readonly sessions: AgentSessionService,
+    private readonly communications: AgentCommunicationService,
   ) {}
 
   @Get('worker/status')
@@ -61,6 +63,21 @@ export class AgentsController {
   finish(@Param('sessionId') sessionId: string, @Body() body: { status: 'COMPLETED' | 'FAILED' | 'BLOCKED' | 'CANCELLED' }) {
     return this.sessions.finish(sessionId, body.status);
   }
+
+  @Get('communications/inbox/:agent')
+  communicationInbox(@Param('agent') agent: string) { return this.communications.inbox(agent); }
+
+  @Get('communications/thread/:correlationId')
+  communicationThread(@Param('correlationId') correlationId: string) { return this.communications.thread(correlationId); }
+
+  @Post('communications')
+  sendCommunication(@Body() body: Parameters<AgentCommunicationService['send']>[0]) { return this.communications.send(body); }
+
+  @Post('communications/:id/acknowledge')
+  acknowledgeCommunication(@Param('id') id: string) { return this.communications.acknowledge(id); }
+
+  @Post('communications/:id/resolve')
+  resolveCommunication(@Param('id') id: string) { return this.communications.resolve(id); }
 
   @Post('worker/run-once')
   runWorkerOnce() {
