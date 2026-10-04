@@ -11,6 +11,11 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
 
+  // Forge runs behind Caddy in production. Trust exactly one proxy hop.
+  if (isProduction) {
+    app.getHttpAdapter().getInstance().set('trust proxy', 1);
+  }
+
   const corsOrigins = (process.env['FORGE_CORS_ORIGINS'] ?? '')
     .split(',')
     .map((origin) => origin.trim())
