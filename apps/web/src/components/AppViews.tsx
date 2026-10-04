@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Activity, AlertTriangle, Check, CircleDot, ExternalLink, Cpu, GitPullRequest, ShieldCheck, X, Zap } from 'lucide-react'
-import type { AuditEvent, Decision, Employee, Feature, Pitch, Project, Task } from '../types/forge'
+import type { AgentActivityEvent, AuditEvent, Decision, Employee, Feature, Pitch, Project, Task } from '../types/forge'
+import { api } from '../api/client'
 
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
 
