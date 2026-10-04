@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Sse } from '@nestjs/common';
+import { Observable, from, interval, map, startWith, switchMap, catchError, of } from 'rxjs';
 import { ArtemisService } from './artemis.service.js';
 import { HephaistosService } from './hephaistos.service.js';
 import { AgentWorkerLoopService } from './agent-worker-loop.service.js';
@@ -6,6 +7,7 @@ import { ApolloService } from './apollo.service.js';
 import { AgentRunService } from './agent-run.service.js';
 import { AgentSessionService } from './agent-session.service.js';
 import { AgentCommunicationService } from './agent-communication.service.js';
+import { AgentActivityService } from './agent-activity.service.js';
 
 @Controller('api/agents')
 export class AgentsController {
@@ -17,7 +19,24 @@ export class AgentsController {
     private readonly agentRuns: AgentRunService,
     private readonly sessions: AgentSessionService,
     private readonly communications: AgentCommunicationService,
+    private readonly activity: AgentActivityService,
   ) {}
+
+  @Get(':agent/activity')
+  activityFeed(@Param('agent') agent: string, @Query('projectId') projectId?: string, @Query('limit') limit?: string) {
+    const parsed = limit ? Number(limit) : 100;
+    return this.activity.list(agent, projectId, Number.isFinite(parsed) ? parsed : 100);
+  }
+
+  @Sse(':agent/activity/stream')
+  activityStream(@Param('agent') agent: string, @Query('projectId') projectId?: string): Observable<MessageEvent> {
+    return interval(2000).pipe(
+      startWith(0),
+      switchMap(() => from(this.activity.list(agent, projectId, 150))),
+      map((data) => ({ data }) as MessageEvent),
+      catchError(() => of({ data: [] } as MessageEvent)),
+    );
+  }
 
   @Get('worker/status')
   workerStatus() {

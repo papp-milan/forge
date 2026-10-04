@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Activity, AlertTriangle, Check, CircleDot, ExternalLink, Cpu, GitPullRequest, ShieldCheck, X, Zap } from 'lucide-react'
-import type { AuditEvent, Decision, Employee, Feature, Pitch, Project, Task } from '../types/forge'
+import type { AgentActivityEvent, AuditEvent, Decision, Employee, Feature, Pitch, Project, Task } from '../types/forge'
+import { api } from '../api/client'
 
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
 
@@ -896,31 +897,93 @@ export function ActivityView({ events }: { events: AuditEvent[] }) {
 }
 
 
-export function AgentEventLogDialog({ employee, events, onClose }: { employee: Employee; events: AuditEvent[]; onClose: () => void }) {
-  const agentEvents = events.filter((event) => event.actor.toLowerCase() === employee.name.toLowerCase())
+export function AgentEventLogDialog({ employee, onClose }: { employee: Employee; onClose: () => void }) {
+  const [events, setEvents] = useState<AgentActivityEvent[]>([])
+  const [connected, setConnected] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      try {
+        const response = await api<AgentActivityEvent[]>('/api/agents/' + encodeURIComponent(employee.name) + '/activity?limit=150')
+        if (active) setEvents(response)
+      } catch {
+        if (active) setEvents([])
+      }
+    }
+    void load()
+
+    const stream = new EventSource('/api/agents/' + encodeURIComponent(employee.name) + '/activity/stream')
+    stream.onopen = () => active && setConnected(true)
+    stream.onmessage = (message) => {
+      try {
+        const next = JSON.parse(message.data) as AgentActivityEvent[]
+        if (active) setEvents(next)
+      } catch {
+        // Ignore malformed stream frames.
+      }
+    }
+    stream.onerror = () => active && setConnected(false)
+
+    return () => {
+      active = false
+      stream.close()
+    }
+  }, [employee.name])
+
+  const activeNow = events.some((event) =>
+    event.status === 'RUNNING' || event.status === 'IN_PROGRESS' || event.kind === 'WORKER_STARTED',
+  )
+
+  const statusFor = (event: AgentActivityEvent) =>
+    event.status === 'FAILED' || event.status === 'BLOCKED' || event.kind.includes('FAILED') ? 'BLOCKED'
+      : event.status === 'COMPLETED' || event.status === 'DONE' || event.kind.includes('PASSED') || event.kind.includes('COMPLETED') ? 'EXECUTED'
+      : event.status === 'RUNNING' ? 'IN_PROGRESS'
+      : 'PENDING'
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm" onMouseDown={onClose}>
-      <section className="forge-modal max-h-[88vh] w-full max-w-3xl overflow-y-auto" onMouseDown={(event) => event.stopPropagation()}>
+      <section className="forge-modal max-h-[90vh] w-full max-w-4xl overflow-hidden" onMouseDown={(event) => event.stopPropagation()}>
         <div className="flex items-start justify-between border-b border-white/8 px-6 py-5">
           <div>
-            <div className="text-xs uppercase tracking-wider text-zinc-500">OLYMPUS / AGENT EVENT LOG</div>
-            <h2 className="mt-1 text-xl font-black uppercase tracking-[-0.03em]">{employee.name}</h2>
-            <p className="mt-1 text-sm text-zinc-500">{employee.role.replace('_', ' ')} · {agentEvents.length} recorded events</p>
+            <div className="text-xs uppercase tracking-wider text-zinc-500">OLYMPUS / LIVE AGENT ACTIVITY</div>
+            <div className="mt-1 flex items-center gap-3">
+              <h2 className="text-xl font-black uppercase tracking-[-0.03em]">{employee.name}</h2>
+              <span className={connected ? 'flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-emerald-300' : 'flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-zinc-600'}>
+                <span className={'size-1.5 rounded-full ' + (connected ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-600')} />
+                {connected ? 'Live' : 'Reconnecting'}
+              </span>
+              {activeNow && <span className="rounded-full border border-amber-400/20 bg-amber-400/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-amber-300">Working</span>}
+            </div>
+            <p className="mt-1 text-sm text-zinc-500">{employee.role.replace('_', ' ')} · {events.length} activity events</p>
           </div>
           <button onClick={onClose} aria-label="Close" className="cursor-pointer rounded-lg p-2 text-zinc-500 hover:bg-white/8"><X className="size-4" /></button>
         </div>
-        <div className="p-5">
-          {agentEvents.length === 0 ? <EmptyState message="No events recorded for this agent yet." /> : (
-            <div className="space-y-2">
-              {agentEvents.map((event) => (
-                <div key={event.id} className="rounded-xl border border-white/8 bg-white/[0.025] p-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <StatusDot status={event.type.includes('FAILED') || event.type.includes('BLOCKED') ? 'BLOCKED' : event.type.includes('COMPLETED') || event.type.includes('PASSED') ? 'EXECUTED' : 'PENDING'} />
-                    <span className="text-sm font-medium">{event.summary}</span>
-                    <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-500">{event.type}</span>
-                    <span className="ml-auto text-xs text-zinc-600">{new Date(event.timestamp).toLocaleString()}</span>
+
+        <div className="max-h-[calc(90vh-110px)] overflow-y-auto p-5">
+          {events.length === 0 ? <EmptyState message="No activity recorded for this agent yet." /> : (
+            <div className="relative space-y-2">
+              <div className="absolute bottom-3 left-[11px] top-3 w-px bg-white/8" />
+              {events.map((event) => (
+                <div key={event.id} className="relative flex gap-3 rounded-xl border border-white/8 bg-white/[0.025] p-4 pl-3">
+                  <div className="relative z-10 mt-1.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-[#111114]">
+                    <StatusDot status={statusFor(event)} />
                   </div>
-                  {event.data && <pre className="mt-3 max-h-56 overflow-auto rounded-lg bg-black/20 p-3 text-xs leading-5 text-zinc-500">{JSON.stringify(event.data, null, 2)}</pre>}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-medium">{event.summary}</span>
+                      <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-500">{event.source}</span>
+                      <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-500">{event.kind}</span>
+                      {event.status && <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-500">{event.status}</span>}
+                      <span className="ml-auto text-xs text-zinc-600">{new Date(event.timestamp).toLocaleString()}</span>
+                    </div>
+                    {(event.taskId || event.metadata != null) && (
+                      <div className="mt-2">
+                        {event.taskId && <div className="mb-2 text-[10px] uppercase tracking-wider text-zinc-600">TASK · {event.taskId}</div>}
+                        {event.metadata != null && <pre className="max-h-48 overflow-auto rounded-lg bg-black/20 p-3 text-xs leading-5 text-zinc-500">{JSON.stringify(event.metadata, null, 2)}</pre>}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
