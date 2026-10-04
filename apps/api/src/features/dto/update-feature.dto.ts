@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsIn } from 'class-validator';
 
 export class UpdateFeatureDto {
   @IsOptional()
@@ -10,4 +10,8 @@ export class UpdateFeatureDto {
   @IsString()
   @IsNotEmpty()
   description?: string;
+
+  @IsOptional()
+  @IsIn(['CEO_APPROVAL', 'AUTONOMOUS'])
+  releasePolicy?: 'CEO_APPROVAL' | 'AUTONOMOUS';
 }
