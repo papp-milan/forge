@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Activity, AlertTriangle, GitPullRequest, Lightbulb, LayoutDashboard, Moon, Plus, RefreshCw, ShieldCheck, Sun, Users, X } from 'lucide-react'
+import { Activity, AlertTriangle, GitPullRequest, Info, Lightbulb, LayoutDashboard, Moon, Plus, RefreshCw, ShieldCheck, Sun, Users, X } from 'lucide-react'
 import type { Decision, Employee, Feature, Task } from './types/forge'
 import { useForgeData } from './hooks/useForgeData'
 import { api } from './api/client'
-import { AgentEventLogDialog, Approvals, ActivityView, DecisionDetails, Development, Employees, FeatureDetails, IdeasView, NavItem, Overview, TaskDetails } from './components/AppViews'
+import { AboutForge, AgentEventLogDialog, Approvals, ActivityView, DecisionDetails, Development, Employees, FeatureDetails, IdeasView, NavItem, Overview, TaskDetails } from './components/AppViews'
 
 type WorkerStatus = { enabled: boolean; running: boolean; intervalMs: number; runtime: string; phase: string; currentAgent: string | null; currentTaskId: string | null; nextCycleAt: string | null; lastError: string | null }
 
-type View = 'overview' | 'approvals' | 'employees' | 'development' | 'ideas' | 'activity'
-const VIEW_ORDER: View[] = ['overview', 'approvals', 'employees', 'development', 'ideas', 'activity']
+type View = 'overview' | 'approvals' | 'employees' | 'development' | 'ideas' | 'activity' | 'about'
+const VIEW_ORDER: View[] = ['overview', 'approvals', 'employees', 'development', 'ideas', 'activity', 'about']
 const pathToView = (path: string): View => {
   const candidate = path.replace(/^\//, '').split('/')[0] as View
   return VIEW_ORDER.includes(candidate) ? candidate : 'overview'
@@ -282,6 +282,10 @@ function App() {
           <NavItem icon={<Activity />} label="Activity" active={view === 'activity'} onClick={() => navigate('activity')} />
         </nav>
 
+        <div className="mt-auto border-t border-white/8 p-3">
+          <NavItem icon={<Info />} label="About Forge" active={view === 'about'} onClick={() => navigate('about')} />
+        </div>
+
         <div className="border-t border-white/8 p-4">
           <div className="flex items-center gap-2 text-xs text-zinc-500">
             <span className={`size-2 rounded-full ${employees.length ? 'bg-emerald-400' : 'bg-red-400'}`} />
@@ -384,7 +388,7 @@ function App() {
             />
           )}
 
-          {view === 'activity' && <ActivityView events={auditEvents} />}
+          {view === 'activity' && <ActivityView events={auditEvents} />}\n          {view === 'about' && <AboutForge />}
           </div>
         </div>
       </main>
