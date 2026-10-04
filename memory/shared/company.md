@@ -4,7 +4,7 @@ type: fact
 confidence: high
 source: system
 created: 2026-10-03
-updated: 2026-10-03
+updated: 2026-10-04
 ---
 
 # Forge
@@ -28,6 +28,16 @@ The CEO approves consequential product decisions and releases. Agents may analyz
 
 Project → Team Lead decision → approval → feature → tasks → implementation → QA → ready for review → CEO release → deployment.
 
+## Branch and release policy
+
+- `develop` is the active development branch.
+- All normal engineering, feature work, fixes, refactors, experiments, and hardening work must be developed on `develop` or on short-lived branches based on `develop`.
+- `main` is the production branch and represents the current production state.
+- Do not develop directly on `main`.
+- Changes reach `main` only through a deliberate, reviewed merge from `develop` once the changes are production-ready.
+- Production deployment is tied to `main`; `develop` must never be treated as the production environment.
+- Agents must respect this separation when creating branches, pull requests, commits, deployments, and release plans.
+
 ## Agent roles
 
 - Athena: Team Lead / product planning
@@ -37,7 +47,6 @@ Project → Team Lead decision → approval → feature → tasks → implementa
 - Nike: Release
 - Atlas: DevOps / infrastructure
 - Hermes: orchestration / agent runtime
-
 
 ## Character design direction
 
@@ -49,7 +58,6 @@ Forge's character/agent visual design should be inspired by:
 - Cartoon-ish — intentionally stylized rather than photorealistic
 
 The overall direction is a cohesive stylized character universe: expressive, memorable, slightly edgy, and clearly game-inspired without directly copying any individual game's characters or assets.
-
 
 ## Governance roles
 
