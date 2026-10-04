@@ -388,7 +388,8 @@ function App() {
             />
           )}
 
-          {view === 'activity' && <ActivityView events={auditEvents} />}\n          {view === 'about' && <AboutForge />}
+          {view === 'activity' && <ActivityView events={auditEvents} />}
+          {view === 'about' && <AboutForge />}
           </div>
         </div>
       </main>
