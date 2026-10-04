@@ -977,7 +977,7 @@ export function AgentEventLogDialog({ employee, onClose }: { employee: Employee;
                       {event.status && <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-500">{event.status}</span>}
                       <span className="ml-auto text-xs text-zinc-600">{new Date(event.timestamp).toLocaleString()}</span>
                     </div>
-                    {(event.taskId || event.metadata) && (
+                    {(event.taskId || event.metadata != null) && (
                       <div className="mt-2">
                         {event.taskId && <div className="mb-2 text-[10px] uppercase tracking-wider text-zinc-600">TASK · {event.taskId}</div>}
                         {event.metadata != null && <pre className="max-h-48 overflow-auto rounded-lg bg-black/20 p-3 text-xs leading-5 text-zinc-500">{JSON.stringify(event.metadata, null, 2)}</pre>}
