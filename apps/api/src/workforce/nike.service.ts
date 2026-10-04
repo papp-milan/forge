@@ -11,6 +11,12 @@ export class NikeService {
     private readonly audit: AuditService,
   ) {}
 
+  async releaseApprovedFeature(featureId: string) {
+    const feature = await this.prisma.feature.findUnique({ where: { id: featureId } });
+    if (!feature) throw new Error('Feature not found');
+    return this.features.release(featureId, 'nike');
+  }
+
   async releaseAutonomousReady() {
     const features = await this.prisma.feature.findMany({
       where: { status: 'READY_FOR_REVIEW', releasePolicy: 'AUTONOMOUS' },
