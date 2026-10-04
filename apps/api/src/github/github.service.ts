@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { App } from '@octokit/app';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { createHash } from 'node:crypto';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class GithubService {
@@ -9,7 +11,7 @@ export class GithubService {
   private readonly cycleCache = new Map<string, unknown>();
   private cycleActive = false;
 
-  constructor() {
+  constructor(private readonly prisma: PrismaService) {
     const appId = process.env['GITHUB_APP_ID'];
     const privateKeyPath = process.env['GITHUB_PRIVATE_KEY_PATH'];
 
@@ -53,6 +55,49 @@ export class GithubService {
 
   private invalidateCycleCache() {
     this.cycleCache.clear();
+  }
+
+  private operationKey(operation: string, input: unknown) {
+    return createHash('sha256')
+      .update(operation + ':' + JSON.stringify(input))
+      .digest('hex');
+  }
+
+  private async idempotent<T>(operation: string, input: unknown, loader: () => Promise<T>): Promise<T> {
+    const key = this.operationKey(operation, input);
+    const existing = await this.prisma.githubOperation.findUnique({ where: { key } });
+
+    if (existing?.status === 'COMPLETED' && existing.response !== null) {
+      return existing.response as T;
+    }
+
+    if (existing?.status === 'RUNNING' && Date.now() - existing.startedAt.getTime() < 10 * 60_000) {
+      throw new ConflictException('GitHub operation is already in progress: ' + operation);
+    }
+
+    const record = existing
+      ? await this.prisma.githubOperation.update({
+          where: { key },
+          data: { status: 'RUNNING', error: null, startedAt: new Date(), completedAt: null },
+        })
+      : await this.prisma.githubOperation.create({
+          data: { key, operation, status: 'RUNNING' },
+        });
+
+    try {
+      const result = await loader();
+      await this.prisma.githubOperation.update({
+        where: { id: record.id },
+        data: { status: 'COMPLETED', response: JSON.parse(JSON.stringify(result)), completedAt: new Date() },
+      });
+      return result;
+    } catch (error) {
+      await this.prisma.githubOperation.update({
+        where: { id: record.id },
+        data: { status: 'FAILED', error: error instanceof Error ? error.message : String(error), completedAt: new Date() },
+      });
+      throw error;
+    }
   }
 
   private async getClient() {
@@ -168,57 +213,23 @@ export class GithubService {
   }
 
   async createIssue(owner: string, repo: string, title: string, body?: string) {
-    this.invalidateCycleCache();
-    const octokit = await this.getClient();
-
-    const { data } = await octokit.request(
-      'POST /repos/{owner}/{repo}/issues',
-      {
-        owner,
-        repo,
-        title,
-        body,
-      },
-    );
-
-    return {
-      number: data.number,
-      title: data.title,
-      url: data.html_url,
-    };
+    return this.idempotent('CREATE_ISSUE', { owner, repo, title, body }, async () => {
+      this.invalidateCycleCache();
+      const octokit = await this.getClient();
+      const { data } = await octokit.request('POST /repos/{owner}/{repo}/issues', { owner, repo, title, body });
+      return { number: data.number, title: data.title, url: data.html_url };
+    });
   }
 
   async createBranch(owner: string, repo: string, branchName: string) {
-    this.invalidateCycleCache();
-    const octokit = await this.getClient();
-
-    const { data: repository } = await octokit.request(
-      'GET /repos/{owner}/{repo}',
-      {
-        owner,
-        repo,
-      },
-    );
-
-    const { data: ref } = await octokit.request(
-      'GET /repos/{owner}/{repo}/git/ref/{ref}',
-      {
-        owner,
-        repo,
-        ref: `heads/${repository.default_branch}`,
-      },
-    );
-
-    await octokit.request('POST /repos/{owner}/{repo}/git/refs', {
-      owner,
-      repo,
-      ref: `refs/heads/${branchName}`,
-      sha: ref.object.sha,
+    return this.idempotent('CREATE_BRANCH', { owner, repo, branchName }, async () => {
+      this.invalidateCycleCache();
+      const octokit = await this.getClient();
+      const { data: repository } = await octokit.request('GET /repos/{owner}/{repo}', { owner, repo });
+      const { data: ref } = await octokit.request('GET /repos/{owner}/{repo}/git/ref/{ref}', { owner, repo, ref: `heads/${repository.default_branch}` });
+      await octokit.request('POST /repos/{owner}/{repo}/git/refs', { owner, repo, ref: `refs/heads/${branchName}`, sha: ref.object.sha });
+      return { branchName };
     });
-
-    return {
-      branchName,
-    };
   }
 
   async isPullRequestMerged(owner: string, repo: string, pullNumber: number) {
@@ -241,24 +252,12 @@ export class GithubService {
   }
 
   async mergePullRequest(owner: string, repo: string, pullNumber: number) {
-    this.invalidateCycleCache();
-    const octokit = await this.getClient();
-
-    const { data } = await octokit.request(
-      'PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge',
-      {
-        owner,
-        repo,
-        pull_number: pullNumber,
-        merge_method: 'squash',
-      },
-    );
-
-    return {
-      merged: data.merged,
-      sha: data.sha,
-      message: data.message,
-    };
+    return this.idempotent('MERGE_PULL_REQUEST', { owner, repo, pullNumber }, async () => {
+      this.invalidateCycleCache();
+      const octokit = await this.getClient();
+      const { data } = await octokit.request('PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge', { owner, repo, pull_number: pullNumber, merge_method: 'squash' });
+      return { merged: data.merged, sha: data.sha, message: data.message };
+    });
   }
 
 
@@ -283,22 +282,10 @@ export class GithubService {
     base: string,
     body?: string,
   ) {
-    const octokit = await this.getClient();
-
-    const { data } = await octokit.request('POST /repos/{owner}/{repo}/pulls', {
-      owner,
-      repo,
-      title,
-      head,
-      base,
-      body,
+    return this.idempotent('CREATE_PULL_REQUEST', { owner, repo, title, head, base, body }, async () => {
+      const octokit = await this.getClient();
+      const { data } = await octokit.request('POST /repos/{owner}/{repo}/pulls', { owner, repo, title, head, base, body });
+      return { number: data.number, title: data.title, url: data.html_url, state: data.state };
     });
-
-    return {
-      number: data.number,
-      title: data.title,
-      url: data.html_url,
-      state: data.state,
-    };
   }
 }
