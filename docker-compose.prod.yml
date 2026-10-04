@@ -2,8 +2,8 @@ services:
   postgres:
     image: postgres:18
     restart: unless-stopped
-    mem_limit: 384m
-    cpus: "0.50"
+    mem_limit: 256m
+    cpus: "0.40"
     logging:
       driver: json-file
       options:
@@ -24,8 +24,8 @@ services:
   api:
     image: ghcr.io/papp-milan/forge-api:${IMAGE_TAG:-latest}
     restart: unless-stopped
-    mem_limit: 768m
-    cpus: "0.75"
+    mem_limit: 640m
+    cpus: "0.65"
     logging:
       driver: json-file
       options:
@@ -48,6 +48,30 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  postgres-backup:
+    image: postgres:18
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: "0.10"
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    volumes:
+      - forge-postgres-backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        while true; do
+          stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+          pg_dump -h postgres -U forge -d forge -Fc > "/backups/forge-${stamp}.dump"
+          find /backups -type f -name 'forge-*.dump' -mtime +14 -delete
+          sleep 86400
+        done
 
   web:
     image: ghcr.io/papp-milan/forge-web:${IMAGE_TAG:-latest}
@@ -87,3 +111,4 @@ volumes:
   forge-workspaces:
   caddy-data:
   caddy-config:
+  forge-postgres-backups:
