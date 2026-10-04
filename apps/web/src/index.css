@@ -2438,3 +2438,17 @@ main > div::before {
     to { opacity: .16; }
   }
 }
+
+
+.forge-idea-pitch-success{
+  border-color:rgba(22,163,74,.42)!important;
+  background:rgba(22,163,74,.14)!important;
+  color:#166534!important;
+  box-shadow:inset 3px 0 0 #16a34a;
+}
+.forge-theme-dark .forge-idea-pitch-success{
+  border-color:rgba(74,222,128,.38)!important;
+  background:rgba(34,197,94,.13)!important;
+  color:#bbf7d0!important;
+  box-shadow:inset 3px 0 0 #4ade80;
+}

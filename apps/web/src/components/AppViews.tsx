@@ -934,7 +934,7 @@ export function IdeasView({
                 {idea.status !== 'ARCHIVED' && <button disabled={busy} onClick={() => onArchive(idea.id)} className="cursor-pointer rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 disabled:opacity-50">Archive</button>}
               </div>
             </div>
-            {idea.pitch && <div className="mt-4 rounded-lg border border-emerald-400/10 bg-emerald-400/5 p-3 text-xs text-emerald-200">Pitch created · {idea.pitch.title}</div>}
+            {idea.pitch && <div className="forge-idea-pitch-success mt-4 rounded-lg border p-3 text-xs font-medium">Pitch created · {idea.pitch.title}</div>}
           </div>
         ))}
       </Panel>
