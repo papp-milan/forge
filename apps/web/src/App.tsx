@@ -6,6 +6,8 @@ import { useForgeData } from './hooks/useForgeData'
 import { api } from './api/client'
 import { AgentEventLogDialog, Approvals, ActivityView, DecisionDetails, Development, Employees, FeatureDetails, IdeasView, NavItem, Overview, TaskDetails } from './components/AppViews'
 
+type WorkerStatus = { enabled: boolean; running: boolean; intervalMs: number; runtime: string; phase: string; currentAgent: string | null; currentTaskId: string | null; nextCycleAt: string | null; lastError: string | null }
+
 type View = 'overview' | 'approvals' | 'employees' | 'development' | 'ideas' | 'activity'
 const VIEW_ORDER: View[] = ['overview', 'approvals', 'employees', 'development', 'ideas', 'activity']
 const pathToView = (path: string): View => {
@@ -30,10 +32,33 @@ function App() {
   const [projectRepository, setProjectRepository] = useState('')
   const [creatingProject, setCreatingProject] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<Employee | null>(null)
+  const [workerStatus, setWorkerStatus] = useState<WorkerStatus | null>(null)
+  const [workerStatusTick, setWorkerStatusTick] = useState(Date.now())
 
   useEffect(() => {
     window.localStorage.setItem('forge-theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    let mounted = true
+    const refresh = async () => {
+      try {
+        const status = await api<WorkerStatus>('/api/agents/worker/status')
+        if (mounted) setWorkerStatus(status)
+      } catch {
+        if (mounted) setWorkerStatus(null)
+      }
+    }
+    void refresh()
+    const timer = window.setInterval(() => {
+      setWorkerStatusTick(Date.now())
+      void refresh()
+    }, 2000)
+    return () => {
+      mounted = false
+      window.clearInterval(timer)
+    }
+  }, [])
 
   const createProject = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -286,7 +311,7 @@ function App() {
             <h1 className="text-lg font-semibold">{view === 'overview' ? 'Company overview' : view === 'approvals' ? 'CEO approvals' : view === 'employees' ? 'Olympus roster' : view === 'development' ? 'Development floor' : 'Activity log'}</h1>
           </div>
 
-          <div className="forge-topbar-actions">
+          <div className="forge-topbar-actions"><WorkerStatusBadge status={workerStatus} now={workerStatusTick} />
             <button onClick={() => setShowProjectModal(true)} className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-zinc-200">
               <Plus className="size-4" />
               New project
