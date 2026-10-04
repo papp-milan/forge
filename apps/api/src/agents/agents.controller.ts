@@ -22,6 +22,22 @@ export class AgentsController {
     private readonly activity: AgentActivityService,
   ) {}
 
+  @Get('activity')
+  globalActivity(@Query('limit') limit?: string) {
+    const parsed = limit ? Number(limit) : 150;
+    return this.activity.listGlobal(Number.isFinite(parsed) ? parsed : 150);
+  }
+
+  @Sse('activity/stream')
+  globalActivityStream(): Observable<MessageEvent> {
+    return interval(2000).pipe(
+      startWith(0),
+      switchMap(() => from(this.activity.listGlobal(150))),
+      map((data) => ({ data }) as MessageEvent),
+      catchError(() => of({ data: [] } as MessageEvent)),
+    );
+  }
+
   @Get(':agent/activity')
   activityFeed(@Param('agent') agent: string, @Query('projectId') projectId?: string, @Query('limit') limit?: string) {
     const parsed = limit ? Number(limit) : 100;
