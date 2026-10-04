@@ -27,6 +27,12 @@ enum PitchStatus {
   CHANGES_REQUESTED
 }
 
+enum IdeaStatus {
+  CAPTURED
+  PITCHED
+  ARCHIVED
+}
+
 enum FeatureStatus {
   PROPOSED
   PLANNED
@@ -129,6 +135,7 @@ model Project {
 
   features      Feature[]
   pitches       Pitch[]
+  ideas         Idea[]
   agentDecisions AgentDecision[]
   agentRuns      AgentRun[]
   agentCommunications AgentCommunication[]
@@ -191,6 +198,24 @@ model Pitch {
 
   reviews        PitchReview[]
   taskSuggestions PitchTaskSuggestion[]
+  idea            Idea?
+}
+
+
+model Idea {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  source      String?
+  status      IdeaStatus @default(CAPTURED)
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  pitchId     String?    @unique
+  pitch       Pitch?     @relation(fields: [pitchId], references: [id], onDelete: SetNull)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([projectId, status, createdAt])
 }
 
 model PitchReview {
