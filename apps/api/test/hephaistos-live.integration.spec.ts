@@ -44,7 +44,7 @@ describe('Hephaistos live coding integration', () => {
       const normalizeRepository = (value: string) =>
         value
           .trim()
-          .replace(/^https?:\\/\\/(www\\.)?github\\.com\\//, '')
+          .replace(/^https?:\/\/(www\.)?github\.com\//, '')
           .replace(/\\.git$/, '')
           .replace(/\\/$/, '');
 
