@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: forge
+      POSTGRES_USER: forge
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - forge-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forge -d forge"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ghcr.io/papp-milan/forge-api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://forge:${POSTGRES_PASSWORD}@postgres:5432/forge?schema=public
+      FORGE_CORS_ORIGINS: https://forge.pappmilan.com
+      GITHUB_PRIVATE_KEY_PATH: /run/secrets/github-app.pem
+      FORGE_MEMORY_ROOT: /app/memory
+      FORGE_WORKSPACE_ROOT: /workspace
+    volumes:
+      - forge-memory:/app/memory
+      - forge-workspaces:/workspace
+      - ./secrets/github-app.pem:/run/secrets/github-app.pem:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    image: ghcr.io/papp-milan/forge-web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2.11-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - web
+      - api
+
+volumes:
+  forge-postgres-data:
+  forge-memory:
+  forge-workspaces:
+  caddy-data:
+  caddy-config:

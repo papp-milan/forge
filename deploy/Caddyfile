@@ -1,0 +1,6 @@
+forge.pappmilan.com {
+    encode gzip zstd
+
+    reverse_proxy /api/* api:3000
+    reverse_proxy web:80
+}

@@ -1,0 +1,160 @@
+name: Production Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Commit SHA or ref to deploy"
+        required: true
+        default: "main"
+
+concurrency:
+  group: production
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/papp-milan
+  DEPLOY_DIR: /opt/forge
+
+jobs:
+  build:
+    if: >
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+      deploy_sha: ${{ steps.meta.outputs.deploy_sha }}
+    steps:
+      - name: Resolve deployment SHA
+        id: meta
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            SHA="${{ inputs.ref }}"
+            git ls-remote https://github.com/${{ github.repository }}.git "$SHA" | awk '{print $1}' > /tmp/deploy_sha
+            DEPLOY_SHA="$(cat /tmp/deploy_sha)"
+          else
+            DEPLOY_SHA="${{ github.event.workflow_run.head_sha }}"
+          fi
+
+          if [[ -z "$DEPLOY_SHA" ]]; then
+            echo "Could not resolve deployment SHA" >&2
+            exit 1
+          fi
+
+          echo "deploy_sha=$DEPLOY_SHA" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$DEPLOY_SHA" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.meta.outputs.deploy_sha }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/forge-api:${{ steps.meta.outputs.image_tag }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ steps.meta.outputs.deploy_sha }}
+
+      - name: Build and push Web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/forge-web:${{ steps.meta.outputs.image_tag }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ steps.meta.outputs.deploy_sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://forge.pappmilan.com
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.build.outputs.deploy_sha }}
+
+      - name: Install SSH client
+        run: sudo apt-get update && sudo apt-get install -y openssh-client
+
+      - name: Configure SSH
+        env:
+          DEPLOY_HOST: ${{ secrets.PRODUCTION_HOST }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.PRODUCTION_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Install deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+        run: |
+          printf '%s\n' "${DEPLOY_KEY}" > ~/.ssh/forge_deploy
+          chmod 600 ~/.ssh/forge_deploy
+
+      - name: Prepare server
+        env:
+          DEPLOY_HOST: ${{ secrets.PRODUCTION_HOST }}
+          DEPLOY_USER: ${{ secrets.PRODUCTION_USER }}
+          DEPLOY_SHA: ${{ needs.build.outputs.deploy_sha }}
+        run: |
+          ssh -i ~/.ssh/forge_deploy "${DEPLOY_USER}@${DEPLOY_HOST}"             "mkdir -p '${DEPLOY_DIR}/secrets'"
+
+      - name: Sync production configuration
+        env:
+          DEPLOY_HOST: ${{ secrets.PRODUCTION_HOST }}
+          DEPLOY_USER: ${{ secrets.PRODUCTION_USER }}
+        run: |
+          scp -i ~/.ssh/forge_deploy docker-compose.prod.yml "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_DIR}/docker-compose.prod.yml"
+          scp -i ~/.ssh/forge_deploy deploy/Caddyfile "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_DIR}/deploy/Caddyfile"
+
+      - name: Pull and restart production
+        env:
+          DEPLOY_HOST: ${{ secrets.PRODUCTION_HOST }}
+          DEPLOY_USER: ${{ secrets.PRODUCTION_USER }}
+          DEPLOY_SHA: ${{ needs.build.outputs.deploy_sha }}
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "${GHCR_TOKEN}" | ssh -i ~/.ssh/forge_deploy "${DEPLOY_USER}@${DEPLOY_HOST}"             "docker login ghcr.io -u '${GHCR_USERNAME}' --password-stdin"
+
+          ssh -i ~/.ssh/forge_deploy "${DEPLOY_USER}@${DEPLOY_HOST}"             "cd '${DEPLOY_DIR}' && IMAGE_TAG='${DEPLOY_SHA}' docker compose -f docker-compose.prod.yml pull && IMAGE_TAG='${DEPLOY_SHA}' docker compose -f docker-compose.prod.yml up -d --remove-orphans && docker image prune -af --filter 'until=168h'"
+
+      - name: Verify production health
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error --max-time 10 https://forge.pappmilan.com/api/health; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Production health check failed" >&2
+          exit 1
