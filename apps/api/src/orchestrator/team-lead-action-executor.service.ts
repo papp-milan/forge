@@ -52,11 +52,7 @@ export class TeamLeadActionExecutorService {
         case 'CREATE_PITCH':
           return this.executeCreatePitch(projectId, action);
         case 'INVESTIGATE':
-          return {
-            status: 'BLOCKED',
-            actionType: action.type,
-            reason: 'Investigation execution is not implemented yet.',
-          };
+          return this.executeInvestigation(projectId, action);
         case 'UPDATE_MEMORY':
           return this.executeUpdateMemory(action);
         case 'ESCALATE':
@@ -71,6 +67,38 @@ export class TeamLeadActionExecutorService {
         reason: error instanceof Error ? error.message : 'Unknown action execution error.',
       };
     }
+  }
+
+  private async executeInvestigation(
+    projectId: string,
+    action: Extract<TeamLeadAction, { type: 'INVESTIGATE' }>,
+  ): Promise<ActionExecutionResult> {
+    const memory = await this.memory.remember({
+      scope: 'projects',
+      subject: 'investigation-' + projectId,
+      type: 'learning',
+      source: 'team_lead',
+      confidence: 'medium',
+      content: [
+        'Investigation requested by Athena.',
+        '',
+        'Question: ' + action.question,
+        'Scope: ' + action.scope,
+        '',
+        'Status: queued for evidence-gathering in the next autonomous cycle.',
+      ].join('\n'),
+    });
+
+    return {
+      status: 'EXECUTED',
+      actionType: action.type,
+      result: {
+        status: 'QUEUED',
+        question: action.question,
+        scope: action.scope,
+        memory: memory.path,
+      },
+    };
   }
 
   private async executeUpdateMemory(
