@@ -7,9 +7,10 @@ import { InfrastructureArchitectService } from './infrastructure-architect.servi
 import { NikeService } from './nike.service.js';
 import { GithubModule } from '../github/github.module.js';
 import { FeaturesModule } from '../features/features.module.js';
+import { AuditModule } from '../audit/audit.module.js';
 
 @Module({
-  imports: [PrismaModule, GithubModule, FeaturesModule],
+  imports: [PrismaModule, GithubModule, FeaturesModule, AuditModule],
   controllers: [WorkforceController],
   providers: [WorkforceService, ReleaseOrchestratorService, InfrastructureArchitectService, NikeService],
   exports: [WorkforceService, ReleaseOrchestratorService, InfrastructureArchitectService, NikeService],
