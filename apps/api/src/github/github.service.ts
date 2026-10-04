@@ -119,11 +119,21 @@ export class GithubService {
   }
 
   async getInstallationToken(): Promise<string> {
+    const installationId = process.env['GITHUB_INSTALLATION_ID'];
+    if (!installationId) {
+      throw new Error('GITHUB_INSTALLATION_ID is not configured');
+    }
+
     const octokit = await this.getClient();
-    const auth = await octokit.auth();
+    const auth = await octokit.auth({
+      type: 'installation',
+      installationId: Number(installationId),
+    });
+
     if (auth === null || typeof auth !== 'object' || !('token' in auth) || typeof auth.token !== 'string') {
       throw new Error('Unable to obtain GitHub installation token');
     }
+
     return auth.token;
   }
 
