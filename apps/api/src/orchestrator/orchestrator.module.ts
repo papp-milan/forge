@@ -47,6 +47,7 @@ import { WorkforceModule } from '../workforce/workforce.module.js';
     TeamLeadService,
     TeamLeadContextService,
     AgentDecisionService,
+    TeamLeadAgentService,
   ],
 })
 export class OrchestratorModule {}

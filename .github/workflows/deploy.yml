@@ -1,5 +1,4 @@
 name: Production Deploy
-# Deployment workflow is intentionally kept synchronized with the default branch.
 
 on:
   workflow_run:
