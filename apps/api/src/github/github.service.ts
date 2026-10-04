@@ -269,7 +269,7 @@ export class GithubService {
     const latestByReviewer = new Map<number, { login: string; state: string }>();
     for (const review of data) {
       if (!review.user?.id || !review.user.login) continue;
-      latestByReviewer.set(review.user.id, {
+      latestByReviewer.set(Number(review.user.id), {
         login: review.user.login,
         state: review.state,
       });
