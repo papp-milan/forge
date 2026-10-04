@@ -164,6 +164,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         },
       },
       include: {
+        assignee: true,
         feature: { include: { project: true } },
       },
       orderBy: { createdAt: 'asc' },
