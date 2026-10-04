@@ -134,6 +134,12 @@ export class ApolloService {
           pullRequestNumber = pullRequest.number;
           pullRequestUrl = pullRequest.url;
         }
+          await this.communications.send({
+            fromAgent: 'apollo', toAgent: 'artemis', kind: 'HANDOFF', priority: 'HIGH',
+            subject: 'Implementation ready for QA: '+ task.title,
+            content: { taskId: task.id, branch: workspace.branch, pullRequestNumber, acceptanceCriteria: task.acceptanceCriteria },
+            projectId: task.feature.projectId, featureId: task.featureId, taskId: task.id,
+          });
 
         const updated = await this.prisma.task.update({
           where: { id: task.id },
