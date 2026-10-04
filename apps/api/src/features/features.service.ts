@@ -42,6 +42,7 @@ export class FeaturesService {
         title: data.title,
         description: data.description,
         projectId: data.projectId,
+        releasePolicy: 'CEO_APPROVAL',
       },
     });
   }
