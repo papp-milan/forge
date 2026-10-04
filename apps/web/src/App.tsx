@@ -44,12 +44,11 @@ function App() {
     const refresh = async () => {
       try {
         const status = await api<WorkerStatus>('/api/agents/worker/status')
-        if (mounted) setWorkerStatus(status)
+        if (mounted) { setWorkerStatus(status); setWorkerStatusTick(Date.now()) }
       } catch {
         if (mounted) setWorkerStatus(null)
       }
     }
-    setWorkerStatusTick(Date.now())
     void refresh()
     const timer = window.setInterval(() => {
       setWorkerStatusTick(Date.now())
