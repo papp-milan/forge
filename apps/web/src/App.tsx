@@ -33,7 +33,6 @@ function App() {
   const [creatingProject, setCreatingProject] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<Employee | null>(null)
   const [workerStatus, setWorkerStatus] = useState<WorkerStatus | null>(null)
-  const [workerStatusTick, setWorkerStatusTick] = useState(0)
 
   useEffect(() => {
     window.localStorage.setItem('forge-theme', theme)
@@ -44,14 +43,13 @@ function App() {
     const refresh = async () => {
       try {
         const status = await api<WorkerStatus>('/api/agents/worker/status')
-        if (mounted) { setWorkerStatus(status); setWorkerStatusTick(Date.now()) }
+        if (mounted) setWorkerStatus(status)
       } catch {
         if (mounted) setWorkerStatus(null)
       }
     }
     void refresh()
     const timer = window.setInterval(() => {
-      setWorkerStatusTick(Date.now())
       void refresh()
     }, 2000)
     return () => {
@@ -311,7 +309,7 @@ function App() {
             <h1 className="text-lg font-semibold">{view === 'overview' ? 'Company overview' : view === 'approvals' ? 'CEO approvals' : view === 'employees' ? 'Olympus roster' : view === 'development' ? 'Development floor' : 'Activity log'}</h1>
           </div>
 
-          <div className="forge-topbar-actions"><WorkerStatusBadge status={workerStatus} now={workerStatusTick} />
+          <div className="forge-topbar-actions"><WorkerStatusBadge status={workerStatus} />
             <button onClick={() => setShowProjectModal(true)} className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-zinc-200">
               <Plus className="size-4" />
               New project
@@ -476,12 +474,12 @@ function App() {
 export default App
 
 
-function WorkerStatusBadge({status, now}: {status: WorkerStatus | null; now: number}) {
+function WorkerStatusBadge({status}: {status: WorkerStatus | null}) {
   if (!status) return <div className="forge-worker-status forge-worker-status--offline"><span className="size-2 rounded-full bg-red-400" /> Worker unavailable</div>
 
   const label = !status.enabled ? 'OFFLINE' : status.running ? (status.currentAgent ?? 'RUNNING').toUpperCase() : 'IDLE'
-  const seconds = status.nextCycleAt ? Math.max(0, Math.ceil((Date.parse(status.nextCycleAt) - now) / 1000)) : null
-  const detail = !status.enabled ? 'autonomous disabled' : status.running ? status.phase.toLowerCase().replace('_', ' ') : seconds === null ? 'waiting' : `next cycle ${seconds}s`
+  const nextCycle = status.nextCycleAt ? new Date(status.nextCycleAt).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'}) : null
+  const detail = !status.enabled ? 'autonomous disabled' : status.running ? status.phase.toLowerCase().replace('_', ' ') : nextCycle ? `next cycle ${nextCycle}` : 'waiting'
 
   return <div title={status.lastError ?? `Runtime: ${status.runtime} · Phase: ${status.phase}`} className={`forge-worker-status ${status.running ? 'forge-worker-status--running' : status.enabled ? 'forge-worker-status--idle' : 'forge-worker-status--offline'}`}>
     <span className="size-2 rounded-full" />
