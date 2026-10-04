@@ -142,7 +142,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     const tasks = await this.prisma.task.findMany({
       where: {
         status: { in: ['TODO', 'IN_PROGRESS'] },
-        assignee: { role: { in: ['ENGINEER', 'UI_UX'] }, status: 'ACTIVE' },
+        assignee: { role: { in: ['ENGINEER', 'UI_UX', 'DEVOPS'] }, status: 'ACTIVE' },
         feature: {
           status: { in: ['PLANNED', 'IN_PROGRESS'] },
           project: { repository: { not: null } },
@@ -245,7 +245,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     const tasks = await this.prisma.task.findMany({
       where: {
         status: { in: ['TODO', 'IN_PROGRESS'] },
-        assignee: { role: { in: ['ENGINEER', 'UI_UX'] }, status: 'ACTIVE' },
+        assignee: { role: { in: ['ENGINEER', 'UI_UX', 'DEVOPS'] }, status: 'ACTIVE' },
         branchName: { not: null },
         feature: { status: { in: ['PLANNED', 'IN_PROGRESS'] } },
       },
