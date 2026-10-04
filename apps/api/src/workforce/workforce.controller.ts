@@ -11,9 +11,6 @@ export class WorkforceController {
   @Get('nike/prepare/:featureId')
   nikePrepare(@Param('featureId') featureId: string) { return this.nike.prepareRelease(featureId); }
 
-  @Post('nike/release/:featureId')
-  nikeRelease(@Param('featureId') featureId: string) { return this.nike.releaseApprovedFeature(featureId); }
-
   @Post('nike/release-autonomous')
   nikeReleaseAutonomous() { return this.nike.releaseAutonomousReady(); }
 }
