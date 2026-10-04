@@ -14,7 +14,7 @@ const pathToView = (path: string): View => {
 }
 
 function App() {
-  const { projects, decisions, tasks, features, employees, auditEvents, loading, error, setError, load, pending } = useForgeData()
+  const { projects, decisions, tasks, features, pitches, employees, auditEvents, loading, error, setError, load, pending, pendingPitches } = useForgeData()
   const [busyId, setBusyId] = useState<string | null>(null)
   const viewOrder = VIEW_ORDER
   const [view, setView] = useState<View>(() => pathToView(window.location.pathname))
@@ -119,6 +119,19 @@ function App() {
       setBusyId(null)
     }
   }
+  const pitchAction = async (id: string, action: 'approve' | 'reject' | 'request-changes') => {
+    setBusyId(id)
+    setError(null)
+    try {
+      await api(`/api/pitches/${id}/${action}`, { method: 'POST', body: JSON.stringify({}) })
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Pitch action failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
   const featureAction = async (id: string, action: string) => {
     setBusyId(id)
     setError(null)
@@ -198,7 +211,7 @@ function App() {
 
         <nav className="forge-nav flex-1 space-y-2 p-3">
           <NavItem icon={<LayoutDashboard />} label="Overview" active={view === 'overview'} onClick={() => navigate('overview')} />
-          <NavItem icon={<ShieldCheck />} label="Approvals" count={pending.length} active={view === 'approvals'} onClick={() => navigate('approvals')} />
+          <NavItem icon={<ShieldCheck />} label="Approvals" count={pending.length + pendingPitches.length} active={view === 'approvals'} onClick={() => navigate('approvals')} />
           <NavItem icon={<Users />} label="Employees" active={view === 'employees'} onClick={() => navigate('employees')} />
           <NavItem icon={<GitPullRequest />} label="Development" active={view === 'development'} onClick={() => navigate('development')} />
           <NavItem icon={<Activity />} label="Activity" active={view === 'activity'} onClick={() => navigate('activity')} />
@@ -278,10 +291,13 @@ function App() {
           {view === 'approvals' && (
             <Approvals
               pending={pending}
+              pitches={pitches}
               busyId={busyId}
               onApprove={(id) => void resolve(id, 'approve')}
               onReject={(id) => void resolve(id, 'reject')}
               onOpen={setSelectedDecision}
+              onPitchApprove={(id) => void pitchAction(id, 'approve')}
+              onPitchReject={(id) => void pitchAction(id, 'reject')}
             />
           )}
 

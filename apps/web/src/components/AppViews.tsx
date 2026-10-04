@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Activity, AlertTriangle, Check, CircleDot, ExternalLink, Cpu, GitPullRequest, ShieldCheck, X, Zap } from 'lucide-react'
-import type { AuditEvent, Decision, Employee, Feature, Project, Task } from '../types/forge'
+import type { AuditEvent, Decision, Employee, Feature, Pitch, Project, Task } from '../types/forge'
 
 const METRIC_SHADOW_COLORS = ['#19e6ff', '#d7ff00', '#ff2f8a', '#ff8a00', '#8b5cf6', '#ef4444']
 
@@ -166,20 +166,146 @@ export function Overview({
   )
 }
 
-export function Approvals({ pending, busyId, onApprove, onReject, onOpen }: { pending: Decision[]; busyId: string | null; onApprove: (id: string) => void; onReject: (id: string) => void; onOpen: (decision: Decision) => void }) {
+export function Approvals({
+  pending,
+  pitches,
+  busyId,
+  onApprove,
+  onReject,
+  onOpen,
+  onPitchApprove,
+  onPitchReject,
+}: {
+  pending: Decision[]
+  pitches: Pitch[]
+  busyId: string | null
+  onApprove: (id: string) => void
+  onReject: (id: string) => void
+  onOpen: (decision: Decision) => void
+  onPitchApprove: (id: string) => void
+  onPitchReject: (id: string) => void
+}) {
+  const pendingPitches = pitches.filter((pitch) => pitch.status === 'PENDING_APPROVAL')
+
   return (
-    <Panel title="CEO approvals" subtitle="Review decisions proposed by Forge agents.">
-      {pending.length === 0 ? <EmptyState message="Approval queue is clear." /> : pending.map((decision) => (
-        <DecisionRow
-          key={decision.id}
-          decision={decision}
-          busy={busyId === decision.id}
-          onApprove={() => onApprove(decision.id)}
-          onReject={() => onReject(decision.id)}
-          onOpen={() => onOpen(decision)}
-        />
-      ))}
-    </Panel>
+    <div className="space-y-6">
+      <Panel title="CEO approvals" subtitle="Review decisions proposed by Forge agents.">
+        {pending.length === 0 ? <EmptyState message="Approval queue is clear." /> : pending.map((decision) => (
+          <DecisionRow
+            key={decision.id}
+            decision={decision}
+            busy={busyId === decision.id}
+            onApprove={() => onApprove(decision.id)}
+            onReject={() => onReject(decision.id)}
+            onOpen={() => onOpen(decision)}
+          />
+        ))}
+      </Panel>
+
+      <Panel title="Feature pitches" subtitle="Athena's approved investigations become concrete product proposals here.">
+        {pendingPitches.length === 0 ? <EmptyState message="No feature pitches are waiting for your decision." /> : pendingPitches.map((pitch) => (
+          <PitchApprovalCard
+            key={pitch.id}
+            pitch={pitch}
+            busy={busyId === pitch.id}
+            onApprove={() => onPitchApprove(pitch.id)}
+            onReject={() => onPitchReject(pitch.id)}
+          />
+        ))}
+      </Panel>
+    </div>
+  )
+}
+
+function PitchApprovalCard({
+  pitch,
+  busy,
+  onApprove,
+  onReject,
+}: {
+  pitch: Pitch
+  busy: boolean
+  onApprove: () => void
+  onReject: () => void
+}) {
+  return (
+    <article className="border-b border-white/6 px-5 py-6 last:border-0">
+      <div className="flex gap-4">
+        <div className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-lg bg-violet-400/10 text-violet-300">
+          <GitPullRequest className="size-4" />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="forge-kicker">ATHENA · FEATURE PITCH</div>
+            <span className="rounded-full border border-amber-400/20 px-2 py-0.5 text-[10px] uppercase tracking-wider text-amber-300">
+              CEO GATE
+            </span>
+          </div>
+          <h3 className="mt-1 text-lg font-semibold">{pitch.title}</h3>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-zinc-400">{pitch.description}</p>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {pitch.problem && (
+              <div className="rounded-xl border border-white/8 bg-white/[0.025] p-4">
+                <div className="text-[10px] uppercase tracking-wider text-zinc-600">Problem</div>
+                <p className="mt-2 text-sm leading-5 text-zinc-300">{pitch.problem}</p>
+              </div>
+            )}
+            {pitch.solution && (
+              <div className="rounded-xl border border-white/8 bg-white/[0.025] p-4">
+                <div className="text-[10px] uppercase tracking-wider text-zinc-600">Solution</div>
+                <p className="mt-2 text-sm leading-5 text-zinc-300">{pitch.solution}</p>
+              </div>
+            )}
+            {pitch.impact && (
+              <div className="rounded-xl border border-white/8 bg-white/[0.025] p-4">
+                <div className="text-[10px] uppercase tracking-wider text-zinc-600">Impact</div>
+                <p className="mt-2 text-sm leading-5 text-zinc-300">{pitch.impact}</p>
+              </div>
+            )}
+            {pitch.risks && (
+              <div className="rounded-xl border border-white/8 bg-white/[0.025] p-4">
+                <div className="text-[10px] uppercase tracking-wider text-zinc-600">Risks</div>
+                <p className="mt-2 text-sm leading-5 text-zinc-300">{pitch.risks}</p>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-5">
+            <div className="text-[10px] uppercase tracking-wider text-zinc-600">Proposed tasks · {pitch.taskSuggestions.length}</div>
+            <div className="mt-2 overflow-hidden rounded-xl border border-white/8">
+              {pitch.taskSuggestions.map((task) => (
+                <div key={task.id} className="flex items-start gap-3 border-b border-white/6 px-4 py-3 last:border-0">
+                  <span className="mt-1 size-2 shrink-0 rounded-full bg-zinc-500" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm text-zinc-200">{task.title}</div>
+                    <div className="mt-1 text-xs text-zinc-500">{task.role} · {task.risk}</div>
+                    {task.acceptanceCriteria && <div className="mt-1 text-xs leading-5 text-zinc-600">{task.acceptanceCriteria}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/8 pt-4">
+            <div className="text-xs text-zinc-600">
+              {pitch.project?.name ?? 'Project'} · Athena proposal · second CEO gate
+            </div>
+            <div className="flex gap-2">
+              <button onClick={onReject} disabled={busy} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-50">
+                <X className="size-4" />
+                Reject pitch
+              </button>
+              <button onClick={onApprove} disabled={busy} className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50">
+                <Check className="size-4" />
+                Approve pitch
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
   )
 }
 

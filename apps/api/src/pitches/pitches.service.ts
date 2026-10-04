@@ -3,15 +3,24 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreatePitchDto } from './dto/create-pitch.dto.js';
 import { UpdatePitchDto } from './dto/update-pitch.dto.js';
 import { PitchDecisionDto } from './dto/pitch-decision.dto.js';
+import { TeamLeadService } from '../orchestrator/team-lead.service.js';
 
 @Injectable()
 export class PitchesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly teamLead: TeamLeadService,
+  ) {}
 
   findAll() {
     return this.prisma.pitch.findMany({
       orderBy: {
         createdAt: 'desc',
+      },
+      include: {
+        project: true,
+        taskSuggestions: true,
+        reviews: true,
       },
     });
   }
@@ -20,6 +29,11 @@ export class PitchesService {
     return this.prisma.pitch.findUnique({
       where: {
         id,
+      },
+      include: {
+        project: true,
+        taskSuggestions: true,
+        reviews: true,
       },
     });
   }
@@ -53,47 +67,7 @@ export class PitchesService {
   }
 
   async approve(id: string, data: PitchDecisionDto) {
-    const pitch = await this.prisma.pitch.findUnique({
-      where: { id },
-    });
-
-    if (!pitch) {
-      throw new BadRequestException('Pitch not found');
-    }
-
-    if (pitch.status !== 'PENDING_APPROVAL') {
-      throw new BadRequestException(
-        `Pitch cannot be approved from status ${pitch.status}`,
-      );
-    }
-
-    const feature = await this.prisma.feature.create({
-      data: {
-        title: pitch.title,
-        description: pitch.description,
-        projectId: pitch.projectId,
-      },
-    });
-
-    await this.prisma.pitchReview.create({
-      data: {
-        action: 'APPROVED',
-        comment: data.comment,
-        pitchId: id,
-      },
-    });
-
-    return this.prisma.pitch.update({
-      where: { id },
-      data: {
-        status: 'APPROVED',
-        featureId: feature.id,
-      },
-      include: {
-        feature: true,
-        reviews: true,
-      },
-    });
+    return this.teamLead.approveProposal(id, data.comment);
   }
 
   async reject(id: string, data: PitchDecisionDto) {
