@@ -980,7 +980,7 @@ export function AgentEventLogDialog({ employee, onClose }: { employee: Employee;
                     {(event.taskId || event.metadata) && (
                       <div className="mt-2">
                         {event.taskId && <div className="mb-2 text-[10px] uppercase tracking-wider text-zinc-600">TASK · {event.taskId}</div>}
-                        {event.metadata && <pre className="max-h-48 overflow-auto rounded-lg bg-black/20 p-3 text-xs leading-5 text-zinc-500">{JSON.stringify(event.metadata, null, 2)}</pre>}
+                        {event.metadata != null && <pre className="max-h-48 overflow-auto rounded-lg bg-black/20 p-3 text-xs leading-5 text-zinc-500">{JSON.stringify(event.metadata, null, 2)}</pre>}
                       </div>
                     )}
                   </div>
