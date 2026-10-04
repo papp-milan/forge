@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Activity, AlertTriangle, GitPullRequest, LayoutDashboard, Moon, Plus, RefreshCw, ShieldCheck, Sun, Users, X } from 'lucide-react'
+import { Activity, AlertTriangle, GitPullRequest, Lightbulb, LayoutDashboard, Moon, Plus, RefreshCw, ShieldCheck, Sun, Users, X } from 'lucide-react'
 import type { Decision, Employee, Feature, Task } from './types/forge'
 import { useForgeData } from './hooks/useForgeData'
 import { api } from './api/client'
@@ -255,6 +255,7 @@ function App() {
           <NavItem icon={<ShieldCheck />} label="Approvals" count={pending.length + pendingPitches.length} active={view === 'approvals'} onClick={() => navigate('approvals')} />
           <NavItem icon={<Users />} label="Employees" active={view === 'employees'} onClick={() => navigate('employees')} />
           <NavItem icon={<GitPullRequest />} label="Development" active={view === 'development'} onClick={() => navigate('development')} />
+          <NavItem icon={<Lightbulb />} label="Ideas" active={view === 'ideas'} onClick={() => navigate('ideas')} />
           <NavItem icon={<Activity />} label="Activity" active={view === 'activity'} onClick={() => navigate('activity')} />
         </nav>
 
