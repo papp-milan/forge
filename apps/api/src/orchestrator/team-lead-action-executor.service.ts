@@ -9,6 +9,8 @@ import { TeamLeadDecisionValidatorService } from './team-lead-decision-validator
 import { MemoryService } from '../memory/memory.service.js';
 import { FeaturesService } from '../features/features.service.js';
 import { PermissionPolicyService } from './permission-policy.service.js';
+import { TeamLeadContextService } from './team-lead-context.service.js';
+import { HermesRuntimeService } from '../runtime/hermes-runtime.service.js';
 
 export type ActionExecutionStatus = 'EXECUTED' | 'SKIPPED' | 'BLOCKED' | 'FAILED';
 
@@ -27,6 +29,8 @@ export class TeamLeadActionExecutorService {
     private readonly memory: MemoryService,
     private readonly features: FeaturesService,
     private readonly permissions: PermissionPolicyService,
+    private readonly contextService: TeamLeadContextService,
+    private readonly hermes: HermesRuntimeService,
   ) {}
 
   async execute(projectId: string, decision: TeamLeadDecision): Promise<ActionExecutionResult[]> {
@@ -73,6 +77,26 @@ export class TeamLeadActionExecutorService {
     projectId: string,
     action: Extract<TeamLeadAction, { type: 'INVESTIGATE' }>,
   ): Promise<ActionExecutionResult> {
+    const context = await this.contextService.build(projectId);
+    const result = await this.hermes.run({
+      maxTurns: 12,
+      prompt: [
+        'You are Athena conducting a bounded product investigation for Forge.',
+        'Answer the investigation question using ONLY the supplied project context.',
+        'Do not invent facts or claim external research you did not perform.',
+        'Return concise JSON with: finding, evidence (string[]), recommendation, confidence.',
+        '',
+        'Question: ' + action.question,
+        'Scope: ' + action.scope,
+        '',
+        JSON.stringify(context, null, 2),
+      ].join('\n'),
+    });
+
+    if (result.exitCode !== 0 || !result.text) {
+      throw new Error('Investigation runtime failed.');
+    }
+
     const memory = await this.memory.remember({
       scope: 'projects',
       subject: 'investigation-' + projectId,
@@ -80,12 +104,11 @@ export class TeamLeadActionExecutorService {
       source: 'team_lead',
       confidence: 'medium',
       content: [
-        'Investigation requested by Athena.',
-        '',
+        'Athena investigation',
         'Question: ' + action.question,
         'Scope: ' + action.scope,
         '',
-        'Status: queued for evidence-gathering in the next autonomous cycle.',
+        result.text,
       ].join('\n'),
     });
 
@@ -93,10 +116,11 @@ export class TeamLeadActionExecutorService {
       status: 'EXECUTED',
       actionType: action.type,
       result: {
-        status: 'QUEUED',
+        status: 'COMPLETED',
         question: action.question,
         scope: action.scope,
         memory: memory.path,
+        sessionId: result.sessionId,
       },
     };
   }
