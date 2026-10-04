@@ -77,7 +77,7 @@ export class IdeasService {
         impact: proposal.impact,
         risks: proposal.risks,
         projectId: idea.projectId,
-        ideaId: idea.id,
+        idea: { connect: { id: idea.id } },
         taskSuggestions: {
           create: proposal.tasks.map((task) => ({
             title: task.title,
