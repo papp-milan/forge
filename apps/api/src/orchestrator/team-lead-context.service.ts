@@ -189,6 +189,8 @@ export class TeamLeadContextService {
       acceptanceCriteria: task.acceptanceCriteria,
 
       status: task.status,
+      risk: task.risk,
+      ceoApprovalAt: task.ceoApprovalAt,
 
       assignee: task.assignee
         ? {
