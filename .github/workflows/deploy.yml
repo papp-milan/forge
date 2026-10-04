@@ -146,7 +146,7 @@ jobs:
         run: |
           printf '%s' "${GHCR_TOKEN}" | ssh -i ~/.ssh/forge_deploy "${DEPLOY_USER}@${DEPLOY_HOST}"             "docker login ghcr.io -u '${GHCR_USERNAME}' --password-stdin"
 
-          ssh -i ~/.ssh/forge_deploy "${DEPLOY_USER}@${DEPLOY_HOST}"             "cd '${DEPLOY_DIR}' && IMAGE_TAG='${DEPLOY_SHA}' docker compose -f docker-compose.prod.yml pull && IMAGE_TAG='${DEPLOY_SHA}' docker compose -f docker-compose.prod.yml up -d --remove-orphans && docker image prune -af --filter 'until=168h'"
+          ssh -i ~/.ssh/forge_deploy "${DEPLOY_USER}@${DEPLOY_HOST}"             "cd '${DEPLOY_DIR}' && IMAGE_TAG='${DEPLOY_SHA}' docker compose --env-file .env.production -f docker-compose.prod.yml pull && IMAGE_TAG='${DEPLOY_SHA}' docker compose --env-file .env.production -f docker-compose.prod.yml up -d --remove-orphans && docker image prune -af --filter 'until=168h'"
 
       - name: Verify production health
         run: |
