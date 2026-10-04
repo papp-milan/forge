@@ -62,18 +62,21 @@ export class TeamLeadAgentService {
       return JSON.parse(result.text.slice(first, last + 1)) as any;
     }
 
+    const description = idea.description.trim();
+    const title = idea.title.trim();
+
     return {
-      title: idea.title,
-      description: idea.description,
-      rationale: 'Athena converted the captured idea into a structured feature proposal.',
-      problem: idea.description,
-      solution: idea.description,
-      impact: 'Provides a concrete, reviewable product change derived from the captured idea.',
-      risks: 'The proposal may require scope adjustment after CEO review.',
+      title,
+      description,
+      rationale: 'The captured request describes a concrete product change. Athena has converted it into a scoped proposal that can be reviewed before implementation.',
+      problem: `The current product does not yet provide the outcome described in the idea: ${description}`,
+      solution: `Implement "${title}" according to the requested outcome, using the captured requirements as the source of truth and keeping the change scoped to the proposed feature.`,
+      impact: `Users will receive the requested product improvement, while the implementation remains reviewable through Forge's task, QA, and release gates.`,
+      risks: 'The request may contain implicit UX or technical requirements that need clarification during implementation; scope changes should return to the CEO gate.',
       tasks: [{
-        title: 'Implement the approved feature',
-        description: idea.description,
-        acceptanceCriteria: 'The approved feature is implemented and relevant checks pass.',
+        title: `Implement ${title}`,
+        description: `Implement the requested change: ${description}`,
+        acceptanceCriteria: `The requested outcome for "${title}" is implemented, relevant checks pass, and the resulting change is ready for QA review.`,
         role: 'ENGINEER',
         risk: 'SMALL',
       }],
