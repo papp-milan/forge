@@ -10,6 +10,7 @@ import { AgentRunService } from './agent-run.service.js';
 import { LeaseService } from '../runtime/lease.service.js';
 import { GovernancePolicyService } from '../governance/governance-policy.service.js';
 import { FeaturesService } from '../features/features.service.js';
+import { AtlasService } from './atlas.service.js';
 
 @Injectable()
 export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
@@ -34,6 +35,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly lease: LeaseService,
     private readonly governance: GovernancePolicyService,
     private readonly features: FeaturesService,
+    private readonly atlas: AtlasService,
   ) {}
 
   onModuleInit() {
@@ -109,7 +111,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
   private async recoverRetryableTasks() {
     const tasks = await this.prisma.task.findMany({
-      where: { status: 'BLOCKED', assignee: { role: { in: ['ENGINEER', 'UI_UX'] }, status: 'ACTIVE' } },
+      where: { status: 'BLOCKED', assignee: { role: { in: ['ENGINEER', 'UI_UX', 'DEVOPS'] }, status: 'ACTIVE' } },
       orderBy: { updatedAt: 'asc' },
       take: 10,
       include: { feature: { select: { projectId: true } } },
@@ -265,7 +267,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     for (const task of tasks) {
       if ((governanceByProject.get(task.feature.projectId)?.get(task.feature.id)?.length ?? 0) > 0) continue;
       const run = await this.agentRuns.start({
-        agent: task.assignee?.role === 'UI_UX' ? 'apollo' : 'hephaistos',
+        agent: task.assignee?.role === 'UI_UX' ? 'apollo' : task.assignee?.role === 'DEVOPS' ? 'atlas' : 'hephaistos',
         kind: 'ENGINEERING',
         projectId: task.feature.projectId,
         taskId: task.id,
@@ -290,7 +292,9 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
         const result = task.assignee?.role === 'UI_UX'
           ? await this.apollo.runTask(task.id)
-          : await this.hephaistos.runTask(task.id);
+          : task.assignee?.role === 'DEVOPS'
+            ? await this.atlas.runTask(task.id)
+            : await this.hephaistos.runTask(task.id);
           if (result.status === 'BLOCKED') {
             await this.agentRuns.fail(run.id, result.result ?? result);
           } else {
