@@ -134,13 +134,21 @@ describe('autonomous Forge lifecycle (e2e)', () => {
     const done = await prisma.task.findUnique({ where: { id: taskId } });
     expect(done?.status).toBe('DONE');
 
-    await request(app.getHttpServer())
+    const qa = await request(app.getHttpServer())
       .post(`/api/features/${featureId}/submit-for-qa`)
       .expect(201);
 
+    expect(qa.body.status).toBe('QA');
+
     await request(app.getHttpServer())
+      .post(`/api/features/${featureId}/release`)
+      .expect(400);
+
+    const qaApproved = await request(app.getHttpServer())
       .post(`/api/features/${featureId}/approve-qa`)
       .expect(201);
+
+    expect(qaApproved.body.status).toBe('READY_FOR_REVIEW');
 
     const released = await request(app.getHttpServer())
       .post(`/api/features/${featureId}/release`)
