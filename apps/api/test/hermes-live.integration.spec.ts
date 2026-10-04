@@ -31,6 +31,7 @@ describe('Hermes live runtime integration', () => {
       expect(result.text).toContain('Forge');
       expect(result.text.length).toBeGreaterThan(40);
     },
+    180_000,
   );
 
   it.runIf(!enabled)(
