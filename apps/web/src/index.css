@@ -2452,3 +2452,25 @@ main > div::before {
   color:#bbf7d0!important;
   box-shadow:inset 3px 0 0 #4ade80;
 }
+
+
+.forge-worker-status{
+  display:flex;
+  align-items:center;
+  gap:.45rem;
+  min-height:32px;
+  padding:.4rem .65rem;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.forge-worker-status--running{border-color:rgba(74,222,128,.35);background:rgba(34,197,94,.08);color:#86efac}
+.forge-worker-status--running>span:first-child{background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.12)}
+.forge-worker-status--idle{color:#a1a1aa}
+.forge-worker-status--idle>span:first-child{background:#a1a1aa}
+.forge-worker-status--offline{color:#fca5a5}
+.forge-worker-status--offline>span:first-child{background:#f87171}
+.forge-worker-status__detail{color:#71717a;letter-spacing:.04em}

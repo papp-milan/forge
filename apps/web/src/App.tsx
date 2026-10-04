@@ -6,6 +6,8 @@ import { useForgeData } from './hooks/useForgeData'
 import { api } from './api/client'
 import { AgentEventLogDialog, Approvals, ActivityView, DecisionDetails, Development, Employees, FeatureDetails, IdeasView, NavItem, Overview, TaskDetails } from './components/AppViews'
 
+type WorkerStatus = { enabled: boolean; running: boolean; intervalMs: number; runtime: string; phase: string; currentAgent: string | null; currentTaskId: string | null; nextCycleAt: string | null; lastError: string | null }
+
 type View = 'overview' | 'approvals' | 'employees' | 'development' | 'ideas' | 'activity'
 const VIEW_ORDER: View[] = ['overview', 'approvals', 'employees', 'development', 'ideas', 'activity']
 const pathToView = (path: string): View => {
@@ -30,10 +32,31 @@ function App() {
   const [projectRepository, setProjectRepository] = useState('')
   const [creatingProject, setCreatingProject] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<Employee | null>(null)
+  const [workerStatus, setWorkerStatus] = useState<WorkerStatus | null>(null)
 
   useEffect(() => {
     window.localStorage.setItem('forge-theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    let mounted = true
+    const refresh = async () => {
+      try {
+        const status = await api<WorkerStatus>('/api/agents/worker/status')
+        if (mounted) setWorkerStatus(status)
+      } catch {
+        if (mounted) setWorkerStatus(null)
+      }
+    }
+    void refresh()
+    const timer = window.setInterval(() => {
+      void refresh()
+    }, 2000)
+    return () => {
+      mounted = false
+      window.clearInterval(timer)
+    }
+  }, [])
 
   const createProject = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -286,7 +309,7 @@ function App() {
             <h1 className="text-lg font-semibold">{view === 'overview' ? 'Company overview' : view === 'approvals' ? 'CEO approvals' : view === 'employees' ? 'Olympus roster' : view === 'development' ? 'Development floor' : 'Activity log'}</h1>
           </div>
 
-          <div className="forge-topbar-actions">
+          <div className="forge-topbar-actions"><WorkerStatusBadge status={workerStatus} />
             <button onClick={() => setShowProjectModal(true)} className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-zinc-200">
               <Plus className="size-4" />
               New project
@@ -449,3 +472,18 @@ function App() {
 
 
 export default App
+
+
+function WorkerStatusBadge({status}: {status: WorkerStatus | null}) {
+  if (!status) return <div className="forge-worker-status forge-worker-status--offline"><span className="size-2 rounded-full bg-red-400" /> Worker unavailable</div>
+
+  const label = !status.enabled ? 'OFFLINE' : status.running ? (status.currentAgent ?? 'RUNNING').toUpperCase() : 'IDLE'
+  const nextCycle = status.nextCycleAt ? new Date(status.nextCycleAt).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'}) : null
+  const detail = !status.enabled ? 'autonomous disabled' : status.running ? status.phase.toLowerCase().replace('_', ' ') : nextCycle ? `next cycle ${nextCycle}` : 'waiting'
+
+  return <div title={status.lastError ?? `Runtime: ${status.runtime} · Phase: ${status.phase}`} className={`forge-worker-status ${status.running ? 'forge-worker-status--running' : status.enabled ? 'forge-worker-status--idle' : 'forge-worker-status--offline'}`}>
+    <span className="size-2 rounded-full" />
+    <span className="font-semibold">{label}</span>
+    <span className="forge-worker-status__detail">{status.runtime} · {detail}</span>
+  </div>
+}
