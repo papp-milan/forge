@@ -341,6 +341,7 @@ function App() {
               decisions={decisions}
               tasks={tasks}
               employees={employees}
+              workerStatus={workerStatus}
               busyId={busyId}
               onApprove={(id) => void resolve(id, 'approve')}
               onReject={(id) => void resolve(id, 'reject')}
