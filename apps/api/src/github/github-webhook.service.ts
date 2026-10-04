@@ -142,17 +142,19 @@ export class GithubWebhookService {
 
     if (action === 'closed' && pullRequest.merged === true) {
       await this.prisma.task.update({
-        where: {
-          id: task.id,
-        },
-        data: {
-          status: 'DONE',
-        },
+        where: { id: task.id },
+        data: { status: 'DONE' },
       });
-
-      this.logger.log(
-        `Task ${task.id} completed because PR #${pullRequest.number} was merged`,
-      );
+    } else if (action === 'closed' && pullRequest.merged !== true) {
+      await this.prisma.task.update({
+        where: { id: task.id },
+        data: { status: 'BLOCKED' },
+      });
+    } else if (['opened', 'reopened', 'synchronize', 'ready_for_review'].includes(action ?? '')) {
+      await this.prisma.task.update({
+        where: { id: task.id },
+        data: { status: task.status === 'DONE' ? 'DONE' : 'IN_REVIEW' },
+      });
     }
 
     this.logger.log(`Processed PR event: ${action} for task ${task.id}`);
@@ -161,12 +163,32 @@ export class GithubWebhookService {
   private async handleWorkflowRun(action: string | null, payload: any) {
     const workflowRun = payload?.workflow_run;
 
-    if (!workflowRun) {
-      return;
+    if (!workflowRun) return;
+
+    const repository = payload?.repository?.full_name;
+    const branch = workflowRun?.head_branch;
+    if (typeof repository !== 'string' || typeof branch !== 'string') return;
+
+    const task = await this.prisma.task.findFirst({
+      where: { branchName: branch, feature: { project: { repository: { contains: repository } } } },
+    });
+    if (!task) return;
+
+    const conclusion = workflowRun?.conclusion;
+    if (action === 'completed' && conclusion === 'failure') {
+      await this.prisma.task.update({
+        where: { id: task.id },
+        data: { status: 'BLOCKED' },
+      });
+    } else if (action === 'completed' && conclusion === 'success' && task.pullRequestNumber) {
+      await this.prisma.task.update({
+        where: { id: task.id },
+        data: { status: task.status === 'DONE' ? 'DONE' : 'IN_REVIEW' },
+      });
     }
 
     this.logger.log(
-      `GitHub Actions workflow "${workflowRun.name}" → ${action}: ${workflowRun.conclusion ?? workflowRun.status}`,
+      `GitHub Actions workflow "${workflowRun.name}" → ${action}: ${conclusion ?? workflowRun.status} for task ${task.id}`,
     );
   }
 
