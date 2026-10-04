@@ -6,10 +6,11 @@ WORKDIR /app
 RUN npm install -g pnpm@12.8.1
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY apps/web ./apps/web
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 RUN pnpm --filter web build
 
 FROM caddy:2.11-alpine AS runtime
