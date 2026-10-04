@@ -44,6 +44,7 @@ export class GlobalActivityService {
       }),
       this.prisma.agentArtifact.findMany({
         where: projectId ? { projectId } : {},
+        include: { session: { select: { agent: true } } },
         orderBy: { createdAt: 'desc' },
         take,
       }),
