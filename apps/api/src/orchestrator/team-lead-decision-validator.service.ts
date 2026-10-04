@@ -32,6 +32,14 @@ export class TeamLeadDecisionValidatorService {
       violations.push(...this.validateAction(action));
     }
 
+    const approvalRequired = decision.actions.some((action) =>
+      this.safety.requiresCeoApproval(action),
+    );
+
+    if (approvalRequired && !decision.requiresCeoApproval) {
+      violations.push('This decision contains an action that requires CEO approval.');
+    }
+
     if (decision.type === 'RELEASE_FEATURE' && !decision.requiresCeoApproval) {
       violations.push('Feature releases always require CEO approval.');
     }
