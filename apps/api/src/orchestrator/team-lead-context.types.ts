@@ -31,6 +31,8 @@ export interface TeamLeadContext {
     recentCommits: unknown[];
   } | null;
 
+  communications: unknown[];
+
   memory: {
     company: unknown[];
     project: unknown[];

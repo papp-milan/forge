@@ -51,6 +51,7 @@ export class TeamLeadService {
             description: task.description,
             acceptanceCriteria: task.acceptanceCriteria,
             role: task.role,
+            risk: task.risk,
           })),
         },
       },
@@ -122,6 +123,7 @@ export class TeamLeadService {
               featureId: feature.id,
               status: employee ? 'TODO' : 'BLOCKED',
               assigneeId: employee?.id,
+              risk: suggestion.risk,
             },
             include: { assignee: true },
           }),
@@ -210,6 +212,7 @@ export class TeamLeadService {
         description: task.description,
         acceptanceCriteria: task.acceptanceCriteria,
         role: task.role,
+        risk: task.risk,
       })),
 
       reviewHistory: pitch.reviews.map((review) => ({

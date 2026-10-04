@@ -4,6 +4,7 @@ import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 import { WorkspaceService } from './workspace.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { GithubService } from '../github/github.service.js';
+import { AgentCommunicationService } from './agent-communication.service.js';
 
 @Injectable()
 export class ApolloService {
@@ -13,6 +14,7 @@ export class ApolloService {
     private readonly workspaces: WorkspaceService,
     private readonly audit: AuditService,
     private readonly github: GithubService,
+    private readonly communications: AgentCommunicationService,
   ) {}
 
   async runTask(taskId: string) {
@@ -94,7 +96,13 @@ export class ApolloService {
       }
 
       if (this.runtime.mode() === 'deterministic') {
-        const updated = await this.prisma.task.update({
+        await this.communications.send({
+            fromAgent: 'apollo', toAgent: 'artemis', kind: 'HANDOFF', priority: 'HIGH',
+            subject: 'Implementation ready for QA: ' + task.title,
+            content: { taskId: task.id, branch: workspace.branch, acceptanceCriteria: task.acceptanceCriteria },
+            projectId: task.feature.projectId, featureId: task.featureId, taskId: task.id,
+          });
+          const updated = await this.prisma.task.update({
           where: { id: task.id },
           data: { status: 'IN_REVIEW' },
           include: { assignee: true, feature: true },
@@ -126,6 +134,12 @@ export class ApolloService {
           pullRequestNumber = pullRequest.number;
           pullRequestUrl = pullRequest.url;
         }
+          await this.communications.send({
+            fromAgent: 'apollo', toAgent: 'artemis', kind: 'HANDOFF', priority: 'HIGH',
+            subject: 'Implementation ready for QA: '+ task.title,
+            content: { taskId: task.id, branch: workspace.branch, pullRequestNumber, acceptanceCriteria: task.acceptanceCriteria },
+            projectId: task.feature.projectId, featureId: task.featureId, taskId: task.id,
+          });
 
         const updated = await this.prisma.task.update({
           where: { id: task.id },
@@ -170,7 +184,9 @@ export class ApolloService {
     feature: { title: string };
   }): string {
     return [
-      "You are Apollo, Forge's UI/UX engineer.",
+      "You are Apollo, Forge's creative and opinionated UI/UX engineer.",
+      'Explore strong visual ideas, but inspect and respect the existing design system first.',
+      'For LARGE work, do not implement the consequential visual change before CEO approval. Prepare screenshots, sketches or wireframes as evidence and explain the trade-offs.'
       'Work only on the assigned task in the current repository.',
       'Inspect the existing application and its established visual language before changing it.',
       'Preserve the existing framework, component system and architecture unless the task explicitly requires otherwise.',

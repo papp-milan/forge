@@ -3,12 +3,16 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
 import { GithubService } from '../github/github.service.js';
+import { AuditService } from '../audit/audit.service.js';
+import { AgentCommunicationService } from '../agents/agent-communication.service.js';
 
 @Injectable()
 export class TasksService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly githubService: GithubService,
+    private readonly audit: AuditService,
+    private readonly communications: AgentCommunicationService,
   ) {}
 
   findAll() {
@@ -37,6 +41,7 @@ export class TasksService {
         acceptanceCriteria: data.acceptanceCriteria,
         featureId: data.featureId,
         assigneeId: data.assigneeId,
+        risk: data.risk as any,
       },
     });
   }
@@ -52,6 +57,25 @@ export class TasksService {
     return this.prisma.task.delete({
       where: { id },
     });
+  }
+
+  async approveCeo(id: string, comment?: string) {
+    const task = await this.prisma.task.findUnique({ where: { id } });
+    if (!task) throw new BadRequestException('Task not found');
+    if (task.risk !== 'LARGE') throw new BadRequestException('Only LARGE tasks require CEO approval.');
+    const approvedAt = new Date();
+    const approved = await this.prisma.task.update({ where: { id }, data: { ceoApprovalAt: approvedAt, ceoApprovalComment: comment } });
+    const context = await this.prisma.task.findUnique({ where: { id }, include: { feature: true, assignee: true } });
+    await this.audit.record({ actor: 'ceo', type: 'TASK_CEO_APPROVED', projectId: context?.feature.projectId, entityType: 'task', entityId: id, summary: task.title, data: { comment: comment ?? null } });
+    if (context?.assignee) {
+      await this.communications.send({
+        fromAgent: 'ceo', toAgent: context.assignee.name, kind: 'DECISION', priority: 'HIGH',
+        subject: 'CEO approved large task: ' + task.title,
+        content: { taskId: id, comment: comment ?? null, approvedAt: approvedAt.toISOString() },
+        projectId: context.feature.projectId, featureId: context.featureId, taskId: id,
+      });
+    }
+    return approved;
   }
 
   async start(id: string) {

@@ -42,6 +42,7 @@ export class FeaturesService {
         title: data.title,
         description: data.description,
         projectId: data.projectId,
+        releasePolicy: 'CEO_APPROVAL',
       },
     });
   }
@@ -168,7 +169,7 @@ export class FeaturesService {
     return this.transition(id, 'QA', 'READY_FOR_REVIEW');
   }
 
-  async release(id: string) {
+  async release(id: string, actor: 'ceo' | 'nike' = 'ceo') {
     const feature = await this.prisma.feature.findUnique({
       where: { id },
       include: {
@@ -220,7 +221,7 @@ export class FeaturesService {
     }
 
     await this.audit.record({
-      actor: 'ceo',
+      actor,
       type: 'RELEASE_STARTED',
       projectId: feature.projectId,
       entityType: 'feature',
@@ -309,7 +310,7 @@ export class FeaturesService {
       });
 
       await this.audit.record({
-        actor: 'ceo',
+        actor,
         type: 'RELEASED',
         projectId: feature.projectId,
         entityType: 'feature',
@@ -324,7 +325,7 @@ export class FeaturesService {
         data: { status: 'READY_FOR_REVIEW' },
       });
       await this.audit.record({
-        actor: 'ceo',
+        actor,
         type: 'RELEASE_FAILED',
         projectId: feature.projectId,
         entityType: 'feature',
@@ -397,6 +398,7 @@ export class FeaturesService {
             acceptanceCriteria: task.acceptanceCriteria,
             featureId,
             assigneeId: task.assigneeId,
+            risk: task.risk as any,
           },
           include: {
             assignee: true,

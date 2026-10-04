@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { FeaturesService } from '../features/features.service.js';
+import { NikeService } from './nike.service.js';
 
 @Injectable()
 export class ReleaseOrchestratorService {
-  constructor(private readonly features: FeaturesService) {}
+  constructor(private readonly nike: NikeService) {}
+
   async release(featureId: string) {
-    return this.features.release(featureId);
+    return this.nike.releaseApprovedFeature(featureId);
+  }
+
+  async releaseAutonomous() {
+    return this.nike.releaseAutonomousReady();
   }
 }
