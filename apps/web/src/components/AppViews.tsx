@@ -42,6 +42,7 @@ export function Overview({
   decisions,
   tasks,
   employees,
+  workerStatus,
   busyId,
   onApprove,
   onReject,
