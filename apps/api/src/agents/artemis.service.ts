@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { AgentRuntimeService } from '../runtime/agent-runtime.service.js';
 import { WorkspaceService } from './workspace.service.js';
 import { AuditService } from '../audit/audit.service.js';
+import { AgentCommunicationService } from './agent-communication.service.js';
 
 export interface QaResult { passed: boolean; summary: string; findings: string[]; }
 
@@ -13,6 +14,7 @@ export class ArtemisService {
     private readonly runtime: AgentRuntimeService,
     private readonly workspaces: WorkspaceService,
     private readonly audit: AuditService,
+    private readonly communications: AgentCommunicationService,
   ) {}
 
   async reviewTask(taskId: string) {
@@ -38,6 +40,12 @@ export class ArtemisService {
         return { status: 'PASSED', task: updated, qa, result };
       }
 
+      await this.communications.send({
+        fromAgent: 'artemis', toAgent: 'athena', kind: 'DISPUTE', priority: 'HIGH',
+        subject: 'QA rejection: ' + task.title,
+        content: { taskId: task.id, summary: qa.summary, findings: qa.findings, recommendation: 'Return the task to the implementation agent for remediation.' },
+        projectId: task.feature.projectId, featureId: task.feature.id, taskId: task.id,
+      });
       const blocked = await this.prisma.task.update({ where: { id: task.id }, data: { status: 'BLOCKED' }, include: { assignee: true, feature: true } });
       return { status: 'FAILED', task: blocked, qa, result };
     } finally {
