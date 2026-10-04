@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Activity, AlertTriangle, GitPullRequest, LayoutDashboard, Moon, RefreshCw, ShieldCheck, Sun, Users } from 'lucide-react'
+import { Activity, AlertTriangle, GitPullRequest, LayoutDashboard, Moon, Plus, RefreshCw, ShieldCheck, Sun, Users, X } from 'lucide-react'
 import type { Decision, Feature, Task } from './types/forge'
 import { useForgeData } from './hooks/useForgeData'
 import { api } from './api/client'
@@ -23,10 +23,42 @@ function App() {
     return (window.localStorage.getItem('forge-theme') as 'light' | 'dark' | null) ?? 'light'
   })
   const [themeTransition, setThemeTransition] = useState(false)
+  const [showProjectModal, setShowProjectModal] = useState(false)
+  const [projectName, setProjectName] = useState('')
+  const [projectDescription, setProjectDescription] = useState('')
+  const [projectRepository, setProjectRepository] = useState('')
+  const [creatingProject, setCreatingProject] = useState(false)
 
   useEffect(() => {
     window.localStorage.setItem('forge-theme', theme)
   }, [theme])
+
+  const createProject = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!projectName.trim()) return
+
+    setCreatingProject(true)
+    setError(null)
+    try {
+      await api('/api/projects', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: projectName.trim(),
+          description: projectDescription.trim() || undefined,
+          repository: projectRepository.trim() || undefined,
+        }),
+      })
+      await load()
+      setProjectName('')
+      setProjectDescription('')
+      setProjectRepository('')
+      setShowProjectModal(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Project creation failed.')
+    } finally {
+      setCreatingProject(false)
+    }
+  }
 
   const switchTheme = () => {
     if (themeTransition) return
@@ -199,6 +231,10 @@ function App() {
           </div>
 
           <div className="forge-topbar-actions">
+            <button onClick={() => setShowProjectModal(true)} className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-zinc-200">
+              <Plus className="size-4" />
+              New project
+            </button>
             <button onClick={switchTheme} className="forge-theme-toggle cursor-pointer" aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
               {theme === 'light' ? <Moon className="size-4" /> : <Sun className="size-4" />}
               {theme === 'light' ? 'Dark' : 'Light'}
@@ -266,6 +302,45 @@ function App() {
           </div>
         </div>
       </main>
+
+
+      {showProjectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm" onMouseDown={() => !creatingProject && setShowProjectModal(false)}>
+          <section className="forge-modal w-full max-w-lg" role="dialog" aria-modal="true" aria-labelledby="create-project-title" onMouseDown={(event) => event.stopPropagation()}>
+            <div className="flex items-start justify-between border-b border-white/8 px-6 py-5">
+              <div>
+                <div className="text-xs uppercase tracking-wider text-zinc-500">Olympus / PROJECT REGISTRATION</div>
+                <h2 id="create-project-title" className="mt-1 text-xl font-semibold">Create project</h2>
+                <p className="mt-1 text-sm text-zinc-500">Register a project before Athena can start planning work.</p>
+              </div>
+              <button type="button" onClick={() => setShowProjectModal(false)} disabled={creatingProject} aria-label="Close" className="cursor-pointer rounded-lg p-2 text-zinc-500 hover:bg-white/8 hover:text-white disabled:cursor-not-allowed disabled:opacity-50">
+                <X className="size-4" />
+              </button>
+            </div>
+            <form onSubmit={(event) => void createProject(event)} className="space-y-5 p-6">
+              <label className="block">
+                <span className="text-xs uppercase tracking-wider text-zinc-500">Name</span>
+                <input value={projectName} onChange={(event) => setProjectName(event.target.value)} autoFocus required maxLength={120} placeholder="Forge" className="mt-2 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-white/25" />
+              </label>
+              <label className="block">
+                <span className="text-xs uppercase tracking-wider text-zinc-500">Description</span>
+                <textarea value={projectDescription} onChange={(event) => setProjectDescription(event.target.value)} maxLength={2000} rows={3} placeholder="Autonomous AI software team" className="mt-2 w-full resize-none rounded-lg border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-white/25" />
+              </label>
+              <label className="block">
+                <span className="text-xs uppercase tracking-wider text-zinc-500">Repository URL</span>
+                <input value={projectRepository} onChange={(event) => setProjectRepository(event.target.value)} type="url" placeholder="https://github.com/owner/repository" className="mt-2 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-white/25" />
+                <span className="mt-1 block text-xs text-zinc-600">Optional, but required for autonomous GitHub delivery.</span>
+              </label>
+              <div className="flex justify-end gap-2 border-t border-white/8 pt-5">
+                <button type="button" onClick={() => setShowProjectModal(false)} disabled={creatingProject} className="cursor-pointer rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-300 hover:bg-white/8 disabled:opacity-50">Cancel</button>
+                <button type="submit" disabled={creatingProject || !projectName.trim()} className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50">
+                  {creatingProject ? 'Creating…' : 'Create project'}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
 
       {selectedFeature && (
         <FeatureDetails
