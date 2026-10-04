@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Activity, AlertTriangle, GitPullRequest, LayoutDashboard, Moon, Plus, RefreshCw, ShieldCheck, Sun, Users, X } from 'lucide-react'
-import type { Decision, Feature, Task } from './types/forge'
+import type { Decision, Feature, Pitch, Task } from './types/forge'
 import { useForgeData } from './hooks/useForgeData'
 import { api } from './api/client'
 import { Approvals, ActivityView, DecisionDetails, Development, Employees, FeatureDetails, NavItem, Overview, TaskDetails } from './components/AppViews'
@@ -14,7 +14,7 @@ const pathToView = (path: string): View => {
 }
 
 function App() {
-  const { projects, decisions, tasks, features, employees, auditEvents, loading, error, setError, load, pending } = useForgeData()
+  const { projects, decisions, tasks, features, pitches, employees, auditEvents, loading, error, setError, load, pending } = useForgeData()
   const [busyId, setBusyId] = useState<string | null>(null)
   const viewOrder = VIEW_ORDER
   const [view, setView] = useState<View>(() => pathToView(window.location.pathname))
@@ -119,6 +119,19 @@ function App() {
       setBusyId(null)
     }
   }
+  const pitchAction = async (id: string, action: 'approve' | 'reject' | 'request-changes') => {
+    setBusyId(id)
+    setError(null)
+    try {
+      await api(`/api/pitches/${id}/${action}`, { method: 'POST', body: JSON.stringify({}) })
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Pitch action failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
   const featureAction = async (id: string, action: string) => {
     setBusyId(id)
     setError(null)
@@ -278,10 +291,13 @@ function App() {
           {view === 'approvals' && (
             <Approvals
               pending={pending}
+              pitches={pitches}
               busyId={busyId}
               onApprove={(id) => void resolve(id, 'approve')}
               onReject={(id) => void resolve(id, 'reject')}
               onOpen={setSelectedDecision}
+              onPitchApprove={(id) => void pitchAction(id, 'approve')}
+              onPitchReject={(id) => void pitchAction(id, 'reject')}
             />
           )}
 
