@@ -52,6 +52,7 @@ export function Overview({
   onRunAthena,
   onOpen,
   onDecisionOpen,
+  onAgentOpen,
 }: {
   projects: Project[]
   pending: Decision[]
@@ -64,6 +65,7 @@ export function Overview({
   onRunAthena: (id: string) => void
   onOpen: (view: 'approvals' | 'employees' | 'development' | 'activity', projectId?: string) => void
   onDecisionOpen: (decision: Decision) => void
+  onAgentOpen: (employee: Employee) => void
 }) {
   const active = decisions.filter((d) => ['APPROVED', 'IN_PROGRESS'].includes(d.status))
   const [metricShadowPlan] = useState<Array<string | null>>(() => createMetricShadowPlan())
@@ -89,7 +91,7 @@ export function Overview({
   data-agent-state={state}
   style={{ '--agent-color': employee.color } as React.CSSProperties}
 >
-                <AgentAscii role={employee.role} name={employee.name} state={state} color={employee.color} />
+                <button type="button" onClick={() => onAgentOpen(employee)} className="block w-full cursor-pointer text-left" aria-label={`Open ${employee.name} event logs`}><AgentAscii role={employee.role} name={employee.name} state={state} color={employee.color} /></button>
                 <div className="forge-agent-pulse__meta">
                   <strong>{employee.name}</strong>
                   <span>{state} · {openTasks.length.toString().padStart(2, '0')} TASKS</span>
@@ -309,7 +311,7 @@ function PitchApprovalCard({
   )
 }
 
-export function Employees({ employees, tasks }: { employees: Employee[]; tasks: Task[] }) {
+export function Employees({ employees, tasks, onAgentOpen }: { employees: Employee[]; tasks: Task[]; onAgentOpen: (employee: Employee) => void }) {
   return (
     <section className="space-y-5">
       <div className="forge-roster-heading">
@@ -333,7 +335,7 @@ export function Employees({ employees, tasks }: { employees: Employee[]; tasks: 
           const state = employee.status !== 'ACTIVE' ? 'OFFLINE' : blocked ? 'BLOCKED' : openTasks.length > 0 ? 'WORKING' : 'SLEEPING'
 
           return (
-            <article key={employee.id} className="forge-agent-card" style={{ '--agent-color': employee.color } as React.CSSProperties}>
+            <article key={employee.id} onClick={() => onAgentOpen(employee)} className="forge-agent-card cursor-pointer" style={{ '--agent-color': employee.color } as React.CSSProperties}>
               <div className="forge-agent-card__stripe" />
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -893,6 +895,41 @@ export function ActivityView({ events }: { events: AuditEvent[] }) {
   )
 }
 
+
+export function AgentEventLogDialog({ employee, events, onClose }: { employee: Employee; events: AuditEvent[]; onClose: () => void }) {
+  const agentEvents = events.filter((event) => event.actor.toLowerCase() === employee.name.toLowerCase())
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm" onMouseDown={onClose}>
+      <section className="forge-modal max-h-[88vh] w-full max-w-3xl overflow-y-auto" onMouseDown={(event) => event.stopPropagation()}>
+        <div className="flex items-start justify-between border-b border-white/8 px-6 py-5">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-zinc-500">OLYMPUS / AGENT EVENT LOG</div>
+            <h2 className="mt-1 text-xl font-black uppercase tracking-[-0.03em]">{employee.name}</h2>
+            <p className="mt-1 text-sm text-zinc-500">{employee.role.replace('_', ' ')} · {agentEvents.length} recorded events</p>
+          </div>
+          <button onClick={onClose} aria-label="Close" className="cursor-pointer rounded-lg p-2 text-zinc-500 hover:bg-white/8"><X className="size-4" /></button>
+        </div>
+        <div className="p-5">
+          {agentEvents.length === 0 ? <EmptyState message="No events recorded for this agent yet." /> : (
+            <div className="space-y-2">
+              {agentEvents.map((event) => (
+                <div key={event.id} className="rounded-xl border border-white/8 bg-white/[0.025] p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <StatusDot status={event.type.includes('FAILED') || event.type.includes('BLOCKED') ? 'BLOCKED' : event.type.includes('COMPLETED') || event.type.includes('PASSED') ? 'EXECUTED' : 'PENDING'} />
+                    <span className="text-sm font-medium">{event.summary}</span>
+                    <span className="rounded-full border border-white/8 px-2 py-0.5 text-[10px] uppercase tracking-wider text-zinc-500">{event.type}</span>
+                    <span className="ml-auto text-xs text-zinc-600">{new Date(event.timestamp).toLocaleString()}</span>
+                  </div>
+                  {event.data && <pre className="mt-3 max-h-56 overflow-auto rounded-lg bg-black/20 p-3 text-xs leading-5 text-zinc-500">{JSON.stringify(event.data, null, 2)}</pre>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  )
+}
 
 function Panel({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return <section className="forge-panel"><div className="forge-panel__header"><div><div className="forge-kicker">FORGE / LIVE SYSTEM</div><h2 className="mt-1 text-lg font-black uppercase tracking-[-0.03em]">{title}</h2><p className="mt-1 text-sm text-zinc-500">{subtitle}</p></div><span className="forge-panel__mark">///</span></div>{children}</section>
