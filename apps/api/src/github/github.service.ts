@@ -75,7 +75,9 @@ export class GithubService {
       throw new ConflictException('GitHub operation is already in progress: ' + operation);
     }
 
-    const record = existing
+    let record;
+    try {
+      record = existing
       ? await this.prisma.githubOperation.update({
           where: { key },
           data: { status: 'RUNNING', error: null, startedAt: new Date(), completedAt: null },
@@ -83,6 +85,12 @@ export class GithubService {
       : await this.prisma.githubOperation.create({
           data: { key, operation, status: 'RUNNING' },
         });
+    } catch (error) {
+      if ((error as { code?: string }).code !== 'P2002') throw error;
+      const concurrent = await this.prisma.githubOperation.findUnique({ where: { key } });
+      if (concurrent?.status === 'COMPLETED' && concurrent.response !== null) return concurrent.response as T;
+      throw new ConflictException('GitHub operation is already in progress: ' + operation);
+    }
 
     try {
       const result = await loader();
