@@ -35,6 +35,13 @@ export class AgentCommunicationService {
     });
   }
 
+  async notifyOnce(input: AgentCommunicationInput) {
+    const existing = await this.prisma.agentCommunication.findFirst({
+      where: { fromAgent: input.fromAgent.toUpperCase(), toAgent: input.toAgent.toUpperCase(), kind: input.kind, taskId: input.taskId, status: { in: ['UNREAD', 'READ', 'ACKNOWLEDGED'] } },
+    });
+    return existing ?? this.send(input);
+  }
+
   async inbox(agent: string, status?: 'UNREAD' | 'READ' | 'ACKNOWLEDGED' | 'RESOLVED') {
     return this.prisma.agentCommunication.findMany({
       where: { toAgent: agent.toUpperCase(), ...(status ? { status } : {}) },
