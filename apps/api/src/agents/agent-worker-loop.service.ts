@@ -126,7 +126,16 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
     for (const task of tasks) {
       const latest = latestRuns.get(task.id);
-      if (!latest || latest.attempt >= latest.maxAttempts || latest.status !== 'FAILED' || !latest.retryable) continue;
+      if (!latest || latest.status !== 'FAILED') continue;
+      if (!latest.retryable || latest.attempt >= latest.maxAttempts) {
+        await this.communications.notifyOnce({
+          fromAgent: 'system', toAgent: 'athena', kind: 'ESCALATION', priority: 'HIGH',
+          subject: 'Agent task exhausted retries: ' + task.title,
+          content: { taskId: task.id, attempts: latest.attempt, maxAttempts: latest.maxAttempts, failureClass: latest.failureClass, error: latest.error },
+          projectId: task.feature.projectId, featureId: task.featureId, taskId: task.id,
+        });
+        continue;
+      }
       if (latest.nextAttemptAt && latest.nextAttemptAt > new Date()) continue;
 
       await this.prisma.task.update({
