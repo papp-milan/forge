@@ -475,15 +475,15 @@ export default App
 
 
 function WorkerStatusBadge({status}: {status: WorkerStatus | null}) {
-  if (!status) return <div className="forge-worker-status forge-worker-status--offline"><span className="size-2 rounded-full bg-red-400" /> Worker unavailable</div>
+  if (!status) return <div className="forge-worker-status forge-worker-status--offline"><span className="forge-worker-status__dot size-2 rounded-full" /> Worker unavailable</div>
 
   const label = !status.enabled ? 'OFFLINE' : status.running ? (status.currentAgent ?? 'RUNNING').toUpperCase() : 'IDLE'
   const nextCycle = status.nextCycleAt ? new Date(status.nextCycleAt).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'}) : null
   const detail = !status.enabled ? 'autonomous disabled' : status.running ? status.phase.toLowerCase().replace('_', ' ') : nextCycle ? `next cycle ${nextCycle}` : 'waiting'
 
   return <div title={status.lastError ?? `Runtime: ${status.runtime} · Phase: ${status.phase}`} className={`forge-worker-status ${status.running ? 'forge-worker-status--running' : status.enabled ? 'forge-worker-status--idle' : 'forge-worker-status--offline'}`}>
-    <span className="size-2 rounded-full" />
-    <span className="font-semibold">{label}</span>
+    <span className="forge-worker-status__dot size-2 rounded-full" />
+    <span className="forge-worker-status__label font-semibold">{label}</span>
     <span className="forge-worker-status__detail">{status.runtime} · {detail}</span>
   </div>
 }
