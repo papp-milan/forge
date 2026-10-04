@@ -1,0 +1,11 @@
+_config_version: 46
+
+model:
+  default: "stealth/space-bunny-alpha"
+  provider: "nous"
+
+terminal:
+  backend: "local"
+  cwd: "/workspace"
+
+non_interactive_local_changes: "stash"
