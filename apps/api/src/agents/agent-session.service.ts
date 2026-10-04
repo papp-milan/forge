@@ -40,6 +40,10 @@ export class AgentSessionService {
     return this.prisma.agentArtifact.create({ data: { ...input, metadata: input.metadata === undefined ? undefined : JSON.parse(JSON.stringify(input.metadata)) } });
   }
 
+  artifactsForTask(taskId: string) {
+    return this.prisma.agentArtifact.findMany({ where: { taskId }, orderBy: { createdAt: 'asc' } });
+  }
+
   usage(sessionId: string, input: { provider: string; model?: string; inputTokens?: number; outputTokens?: number; cachedTokens?: number; costUsd?: number }) {
     return this.prisma.agentUsage.upsert({ where: { sessionId }, create: { sessionId, ...input }, update: { ...input } });
   }
