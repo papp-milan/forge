@@ -82,7 +82,6 @@ describe('Hephaistos live coding integration', () => {
             'Run the relevant web lint/build or test checks and fix any issues caused by the change.',
             'Commit the implementation and push the assigned branch.',
           ].join('\n'),
-          risk: 'SMALL',
           featureId: feature.id,
           assigneeId: engineer.id,
         },
