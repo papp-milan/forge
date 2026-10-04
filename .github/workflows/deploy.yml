@@ -5,11 +5,6 @@ on:
     workflows: ["CI"]
     types: [completed]
   workflow_dispatch:
-    inputs:
-      ref:
-        description: "Commit SHA or ref to deploy"
-        required: true
-        default: "main"
 
 concurrency:
   group: production
@@ -39,11 +34,15 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            SHA="${{ inputs.ref }}"
-            git ls-remote https://github.com/${{ github.repository }}.git "$SHA" | awk '{print $1}' > /tmp/deploy_sha
-            DEPLOY_SHA="$(cat /tmp/deploy_sha)"
+            DEPLOY_SHA="$(git ls-remote https://github.com/${{ github.repository }}.git refs/heads/main | awk '{print $1}')"
           else
             DEPLOY_SHA="${{ github.event.workflow_run.head_sha }}"
+          fi
+
+          MAIN_SHA="$(git ls-remote https://github.com/${{ github.repository }}.git refs/heads/main | awk '{print $1}')"
+          if [[ "$DEPLOY_SHA" != "$MAIN_SHA" ]]; then
+            echo "Refusing production deployment: deployment SHA is not the current main SHA." >&2
+            exit 1
           fi
 
           if [[ -z "$DEPLOY_SHA" ]]; then
@@ -151,7 +150,7 @@ jobs:
       - name: Verify production health
         run: |
           for attempt in {1..30}; do
-            if curl --fail --silent --show-error --max-time 10 https://forge.pappmilan.com/api/health; then
+            if curl --fail --silent --show-error --max-time 10 https://forge.pappmilan.com/api/health/ready; then
               exit 0
             fi
             sleep 5
