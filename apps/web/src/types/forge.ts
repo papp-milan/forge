@@ -8,3 +8,5 @@ export type Decision = { id: string; agent: string; type: string; priority: stri
 
 export type PitchTaskSuggestion = { id: string; title: string; description?: string | null; acceptanceCriteria?: string | null; role: string; risk: string }
 export type Pitch = { id: string; title: string; description: string; rationale?: string | null; problem?: string | null; solution?: string | null; impact?: string | null; risks?: string | null; status: string; projectId: string; project?: Project; taskSuggestions: PitchTaskSuggestion[]; reviews?: Array<{ action: string; comment?: string | null; createdAt: string }> }
+
+export type Idea = { id: string; title: string; description: string; source?: string | null; status: string; projectId: string; pitchId?: string | null; project?: Project; pitch?: Pitch | null }

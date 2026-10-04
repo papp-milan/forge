@@ -19,11 +19,12 @@ import { ApprovalsModule } from './approvals/approvals.module.js';
 import { ObservabilityModule } from './observability/observability.module.js';
 import { ReconciliationModule } from './reconciliation/reconciliation.module.js';
 import { SecurityModule } from './security/security.module.js';
+import { IdeasModule } from './ideas/ideas.module.js';
 import { APP_GUARD } from '@nestjs/core';
 import { RateLimitGuard } from './security/rate-limit.guard.js';
 
 @Module({
-  imports: [PrismaModule, ProjectsModule, EmployeesModule, FeaturesModule, PitchesModule, TasksModule, GithubModule, OrchestratorModule, MemoryModule, AuditModule, RuntimeModule, AgentsModule, WorkforceModule, GovernanceModule, ApprovalsModule, ObservabilityModule, ReconciliationModule, SecurityModule],
+  imports: [PrismaModule, ProjectsModule, EmployeesModule, FeaturesModule, PitchesModule, TasksModule, GithubModule, OrchestratorModule, MemoryModule, AuditModule, RuntimeModule, AgentsModule, WorkforceModule, GovernanceModule, ApprovalsModule, ObservabilityModule, ReconciliationModule, SecurityModule, IdeasModule],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: RateLimitGuard }],
 })
