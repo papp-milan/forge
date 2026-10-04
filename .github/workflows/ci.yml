@@ -1,9 +1,5 @@
 name: CI
 
-permissions:
-  contents: read
-  pull-requests: write
-
 on:
   push:
     branches: [main, develop, 'forge/**']
@@ -28,21 +24,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
         working-directory: .
       - run: pnpm prisma generate
-      - id: api-build
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          pnpm build 2>&1 | tee /tmp/forge-api-build.log
-          exit ${PIPESTATUS[0]}
-      - name: Report API build failure
-        if: steps.api-build.outcome == 'failure' && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/forge-api-build.log
-      - name: Fail API job after reporting
-        if: steps.api-build.outcome == 'failure'
-        run: exit 1
+      - run: pnpm build
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm test:cov
