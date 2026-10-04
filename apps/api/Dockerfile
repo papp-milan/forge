@@ -3,11 +3,17 @@
 FROM node:24-bookworm-slim AS build
 WORKDIR /app
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends openssl \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN npm install -g pnpm@12.8.1
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
+COPY apps/api/prisma ./apps/api/prisma
+COPY apps/api/prisma.config.ts ./apps/api/prisma.config.ts
 COPY apps/api ./apps/api
 
 RUN pnpm install --frozen-lockfile
@@ -20,7 +26,7 @@ ENV NODE_ENV=production
 ENV PORT=3000
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates git openssh-client \
+    && apt-get install -y --no-install-recommends ca-certificates git openssh-client openssl \
     && rm -rf /var/lib/apt/lists/* \
     && npm install -g pnpm@12.8.1
 
