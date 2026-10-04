@@ -278,7 +278,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
         if (this.runtime.mode() === 'deterministic') {
           await this.prisma.task.update({ where: { id: task.id }, data: { status: 'IN_REVIEW' } });
           await this.audit.record({
-            actor: task.assignee?.role === 'UI_UX' ? 'apollo' : 'hephaistos',
+            actor: task.assignee?.role === 'UI_UX' ? 'apollo' : task.assignee?.role === 'DEVOPS' ? 'atlas' : 'hephaistos',
             type: 'WORKER_COMPLETED',
             projectId: task.feature.projectId,
             entityType: 'task',
@@ -309,7 +309,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
           projectId: task.feature.projectId,
           entityType: 'task',
           entityId: task.id,
-          summary: `${task.assignee?.role === 'UI_UX' ? 'Apollo' : 'Hephaistos'} failed to run "${task.title}"`,
+          summary: `${task.assignee?.role === 'UI_UX' ? 'Apollo' : task.assignee?.role === 'DEVOPS' ? 'Atlas' : 'Hephaistos'} failed to run "${task.title}"`,
           data: {
             error: error instanceof Error ? error.message : String(error),
           },
