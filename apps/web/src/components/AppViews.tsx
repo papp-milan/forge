@@ -55,6 +55,7 @@ export function Overview({
   decisions: Decision[]
   tasks: Task[]
   employees: Employee[]
+  workerStatus: { running: boolean; phase: string; currentAgent: string | null; currentTaskId: string | null } | null
   busyId: string | null
   onApprove: (id: string) => void
   onReject: (id: string) => void
@@ -79,7 +80,15 @@ export function Overview({
           {employees.slice(0, 6).map((employee) => {
             const openTasks = tasks.filter((task) => task.assignee?.id === employee.id && task.status !== 'DONE')
             const blocked = openTasks.some((task) => task.status === 'BLOCKED')
-            const state: AgentAsciiState = employee.status !== 'ACTIVE' ? 'OFFLINE' : blocked ? 'BLOCKED' : openTasks.length ? 'WORKING' : 'SLEEPING'
+            const agentKey = employee.name.toLowerCase()
+            const isCurrentWorker = workerStatus?.running === true && workerStatus.currentAgent === agentKey
+            const state: AgentAsciiState = employee.status !== 'ACTIVE'
+              ? 'OFFLINE'
+              : isCurrentWorker
+                ? 'WORKING'
+                : blocked
+                  ? 'BLOCKED'
+                  : 'SLEEPING'
             return (
               <div
   key={employee.id}
@@ -941,6 +950,8 @@ export function IdeasView({
 export function ActivityView({ events }: { events: AuditEvent[] }) {
   const [liveEvents, setLiveEvents] = useState<AgentActivityEvent[]>([])
   const [connected, setConnected] = useState(false)
+  const [mode, setMode] = useState<'timeline' | 'json'>('timeline')
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -974,9 +985,29 @@ export function ActivityView({ events }: { events: AuditEvent[] }) {
     metadata: event.data,
   }))
 
+  const json = JSON.stringify(displayEvents, null, 2)
+  const copyJson = async () => {
+    try {
+      await navigator.clipboard.writeText(json)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1600)
+    } catch {
+      setCopied(false)
+    }
+  }
+
   return (
     <Panel title="Activity" subtitle={`Global agent activity and CEO audit trail · ${connected ? 'LIVE' : 'RECONNECTING'}`}>
-      {displayEvents.length === 0 ? <EmptyState message="No activity recorded yet." /> : displayEvents.map((event) => (
+      <div className="forge-activity-toolbar">
+        <div className="forge-activity-view-toggle" role="tablist" aria-label="Activity view">
+          <button type="button" className={mode === 'timeline' ? 'forge-activity-view-toggle__active' : ''} onClick={() => setMode('timeline')}>Timeline</button>
+          <button type="button" className={mode === 'json' ? 'forge-activity-view-toggle__active' : ''} onClick={() => setMode('json')}>JSON</button>
+        </div>
+        {mode === 'json' && <button type="button" className="forge-activity-copy" onClick={() => void copyJson()} disabled={displayEvents.length === 0}>{copied ? 'Copied ✓' : 'Copy JSON'}</button>}
+      </div>
+      {displayEvents.length === 0 ? <EmptyState message="No activity recorded yet." /> : mode === 'json' ? (
+        <pre className="forge-activity-json">{json}</pre>
+      ) : displayEvents.map((event) => (
         <div key={event.id} className="flex items-start gap-4 border-b border-white/6 px-5 py-4">
           <StatusDot status={event.status === 'FAILED' || event.status === 'BLOCKED' || event.kind.includes('FAILED') ? 'BLOCKED' : event.status === 'COMPLETED' || event.kind.includes('COMPLETED') ? 'EXECUTED' : 'PENDING'} />
           <div className="min-w-0 flex-1">
