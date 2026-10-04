@@ -85,8 +85,8 @@ describe('autonomous Forge lifecycle (e2e)', () => {
     expect(idea.body.projectId).toBe(projectId);
 
     const pitched = await request(app.getHttpServer())
-      .post(`/api/ideas/${idea.body.id}/pitch`)
-      .expect(201);
+      .post(`/api/ideas/${idea.body.id}/pitch`);
+    expect(pitched.status, JSON.stringify(pitched.body)).toBe(201);
 
     expect(pitched.body.status).toBe('PITCHED');
     expect(pitched.body.pitchId).toBeTruthy();
