@@ -150,7 +150,7 @@ jobs:
       - name: Verify production health
         run: |
           for attempt in {1..30}; do
-            if curl --fail --silent --show-error --max-time 10 https://forge.pappmilan.com/api/health; then
+            if curl --fail --silent --show-error --max-time 10 https://forge.pappmilan.com/api/health/ready; then
               exit 0
             fi
             sleep 5
