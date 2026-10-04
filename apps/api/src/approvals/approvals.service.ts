@@ -12,4 +12,17 @@ export class ApprovalsService {
       include: { project: true },
     });
   }
+
+  async pendingTasks(projectId?: string) {
+    return this.prisma.task.findMany({
+      where: {
+        risk: 'LARGE',
+        ceoApprovalAt: null,
+        status: { in: ['TODO', 'IN_PROGRESS', 'BLOCKED'] },
+        ...(projectId ? { feature: { projectId } } : {}),
+      },
+      orderBy: [{ createdAt: 'asc' }],
+      include: { assignee: true, feature: { include: { project: true } } },
+    });
+  }
 }
