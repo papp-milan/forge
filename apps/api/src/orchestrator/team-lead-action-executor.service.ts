@@ -208,11 +208,7 @@ export class TeamLeadActionExecutorService {
       throw new BadRequestException('Feature must be QA-approved and READY_FOR_REVIEW before release.');
     }
 
-    const released = await this.nike.releaseAutonomousReady();
-    const matching = released.find((result) => result.featureId === feature.id);
-    if (!matching || matching.status !== 'RELEASED') {
-      throw new BadRequestException('Nike could not release the approved feature.');
-    }
+    const released = await this.nike.releaseApprovedFeature(feature.id);
 
     return {
       status: 'EXECUTED',
