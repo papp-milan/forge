@@ -11,6 +11,8 @@ import { LeaseService } from '../runtime/lease.service.js';
 import { GovernancePolicyService } from '../governance/governance-policy.service.js';
 import { FeaturesService } from '../features/features.service.js';
 import { AtlasService } from './atlas.service.js';
+import { AgentCommunicationService } from './agent-communication.service.js';
+import { NikeService } from '../workforce/nike.service.js';
 
 @Injectable()
 export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
@@ -36,6 +38,8 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly governance: GovernancePolicyService,
     private readonly features: FeaturesService,
     private readonly atlas: AtlasService,
+    private readonly communications: AgentCommunicationService,
+    private readonly nike: NikeService,
   ) {}
 
   onModuleInit() {
@@ -77,6 +81,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       await this.runEngineerTasks();
       await this.runQaTasks();
       await this.advanceFeatures();
+      await this.nike.releaseAutonomousReady();
     } catch (error) {
       await this.audit.record({
         actor: 'system',
@@ -121,7 +126,8 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
     for (const task of tasks) {
       const latest = latestRuns.get(task.id);
-      if (!latest || latest.attempt >= latest.maxAttempts || latest.status !== 'FAILED') continue;
+      if (!latest || latest.attempt >= latest.maxAttempts || latest.status !== 'FAILED' || !latest.retryable) continue;
+      if (latest.nextAttemptAt && latest.nextAttemptAt > new Date()) continue;
 
       await this.prisma.task.update({
         where: { id: task.id },
@@ -161,6 +167,20 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     }
 
     for (const task of tasks) {
+      if (task.risk === 'LARGE' && !task.ceoApprovalAt) {
+        await this.communications.notifyOnce({
+          fromAgent: task.assignee?.name ?? 'ATHENA',
+          toAgent: 'ATHENA',
+          kind: 'ESCALATION',
+          priority: 'HIGH',
+          subject: 'CEO approval required: ' + task.title,
+          content: { taskId: task.id, risk: task.risk, reason: 'Large work is intentionally gated before autonomous implementation.', nextStep: 'Obtain CEO approval and record it on the task.' },
+          projectId: task.feature.projectId,
+          featureId: task.featureId,
+          taskId: task.id,
+        });
+        continue;
+      }
       if (task.branchName) continue;
 
       if ((governanceByProject.get(task.feature.projectId)?.get(task.featureId)?.length ?? 0) > 0) continue;
@@ -265,6 +285,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     }
 
     for (const task of tasks) {
+      if (task.risk === 'LARGE' && !task.ceoApprovalAt) continue;
       if ((governanceByProject.get(task.feature.projectId)?.get(task.feature.id)?.length ?? 0) > 0) continue;
       const run = await this.agentRuns.start({
         agent: task.assignee?.role === 'UI_UX' ? 'apollo' : task.assignee?.role === 'DEVOPS' ? 'atlas' : 'hephaistos',
@@ -357,7 +378,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
 
         const result = await this.artemis.reviewTask(task.id);
         if (result.status === 'PASSED') await this.agentRuns.complete(run.id, result);
-        else await this.agentRuns.fail(run.id, result);
+        else await this.agentRuns.fail(run.id, result, result, { retryable: false, kind: 'QA' });
       } catch (error) {
         await this.agentRuns.fail(run.id, error);
         await this.audit.record({
@@ -418,6 +439,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       }
 
       if (allTasksDone && feature.status === 'QA') {
+        await this.features.approveQa(feature.id);
         await this.audit.record({
           actor: 'artemis',
           type: 'QA_APPROVED',
