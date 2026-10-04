@@ -323,7 +323,7 @@ function App() {
       </main>
 
 
-      {selectedAgent && <AgentEventLogDialog employee={selectedAgent} events={auditEvents} onClose={() => setSelectedAgent(null)} />}
+      {selectedAgent && <AgentEventLogDialog employee={selectedAgent} onClose={() => setSelectedAgent(null)} />}
 
       {showProjectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm" onMouseDown={() => !creatingProject && setShowProjectModal(false)}>
