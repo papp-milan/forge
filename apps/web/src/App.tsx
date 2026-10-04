@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Activity, AlertTriangle, GitPullRequest, LayoutDashboard, Moon, Plus, RefreshCw, ShieldCheck, Sun, Users, X } from 'lucide-react'
-import type { Decision, Feature, Task } from './types/forge'
+import type { Decision, Employee, Feature, Task } from './types/forge'
 import { useForgeData } from './hooks/useForgeData'
 import { api } from './api/client'
-import { Approvals, ActivityView, DecisionDetails, Development, Employees, FeatureDetails, NavItem, Overview, TaskDetails } from './components/AppViews'
+import { AgentEventLogDialog, Approvals, ActivityView, DecisionDetails, Development, Employees, FeatureDetails, NavItem, Overview, TaskDetails } from './components/AppViews'
 
 type View = 'overview' | 'approvals' | 'employees' | 'development' | 'activity'
 const VIEW_ORDER: View[] = ['overview', 'approvals', 'employees', 'development', 'activity']
@@ -29,6 +29,7 @@ function App() {
   const [projectDescription, setProjectDescription] = useState('')
   const [projectRepository, setProjectRepository] = useState('')
   const [creatingProject, setCreatingProject] = useState(false)
+  const [selectedAgent, setSelectedAgent] = useState<Employee | null>(null)
 
   useEffect(() => {
     window.localStorage.setItem('forge-theme', theme)
@@ -285,6 +286,7 @@ function App() {
                 navigate(nextView)
               }}
               onDecisionOpen={setSelectedDecision}
+              onAgentOpen={setSelectedAgent}
             />
           )}
 
@@ -301,7 +303,7 @@ function App() {
             />
           )}
 
-          {view === 'employees' && <Employees employees={employees} tasks={tasks} />}
+          {view === 'employees' && <Employees employees={employees} tasks={tasks} onAgentOpen={setSelectedAgent} />}
 
           {view === 'development' && (
             <Development
@@ -320,6 +322,8 @@ function App() {
         </div>
       </main>
 
+
+      {selectedAgent && <AgentEventLogDialog employee={selectedAgent} events={auditEvents} onClose={() => setSelectedAgent(null)} />}
 
       {showProjectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm" onMouseDown={() => !creatingProject && setShowProjectModal(false)}>
