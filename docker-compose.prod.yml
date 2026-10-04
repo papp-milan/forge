@@ -67,8 +67,8 @@ services:
       - |
         set -eu
         while true; do
-          stamp="$(date -u +%Y%m%dT%H%M%SZ)"
-          pg_dump -h postgres -U forge -d forge -Fc > "/backups/forge-${stamp}.dump"
+          stamp="$$(date -u +%Y%m%dT%H%M%SZ)"
+          pg_dump -h postgres -U forge -d forge -Fc > "/backups/forge-$${stamp}.dump"
           find /backups -type f -name 'forge-*.dump' -mtime +14 -delete
           sleep 86400
         done
