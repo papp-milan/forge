@@ -4,17 +4,17 @@ import { Activity, AlertTriangle, GitPullRequest, LayoutDashboard, Moon, Plus, R
 import type { Decision, Employee, Feature, Task } from './types/forge'
 import { useForgeData } from './hooks/useForgeData'
 import { api } from './api/client'
-import { AgentEventLogDialog, Approvals, ActivityView, DecisionDetails, Development, Employees, FeatureDetails, NavItem, Overview, TaskDetails } from './components/AppViews'
+import { AgentEventLogDialog, Approvals, ActivityView, DecisionDetails, Development, Employees, FeatureDetails, IdeasView, NavItem, Overview, TaskDetails } from './components/AppViews'
 
-type View = 'overview' | 'approvals' | 'employees' | 'development' | 'activity'
-const VIEW_ORDER: View[] = ['overview', 'approvals', 'employees', 'development', 'activity']
+type View = 'overview' | 'approvals' | 'employees' | 'development' | 'ideas' | 'activity'
+const VIEW_ORDER: View[] = ['overview', 'approvals', 'employees', 'development', 'ideas', 'activity']
 const pathToView = (path: string): View => {
   const candidate = path.replace(/^\//, '').split('/')[0] as View
   return VIEW_ORDER.includes(candidate) ? candidate : 'overview'
 }
 
 function App() {
-  const { projects, decisions, tasks, features, pitches, employees, auditEvents, loading, error, setError, load, pending, pendingPitches } = useForgeData()
+  const { projects, decisions, tasks, features, pitches, ideas, employees, auditEvents, loading, error, setError, load, pending, pendingPitches } = useForgeData()
   const [busyId, setBusyId] = useState<string | null>(null)
   const viewOrder = VIEW_ORDER
   const [view, setView] = useState<View>(() => pathToView(window.location.pathname))
@@ -59,6 +59,46 @@ function App() {
       setError(err instanceof Error ? err.message : 'Project creation failed.')
     } finally {
       setCreatingProject(false)
+    }
+  }
+
+
+  const createIdea = async (title: string, description: string, projectId: string) => {
+    setBusyId('idea:create')
+    setError(null)
+    try {
+      await api('/api/ideas', { method: 'POST', body: JSON.stringify({ title, description, projectId, source: 'CEO' }) })
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Idea creation failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const pitchIdea = async (id: string) => {
+    setBusyId(id)
+    setError(null)
+    try {
+      await api('/api/ideas/' + id + '/pitch', { method: 'POST' })
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Athena pitch failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const archiveIdea = async (id: string) => {
+    setBusyId(id)
+    setError(null)
+    try {
+      await api('/api/ideas/' + id + '/archive', { method: 'POST' })
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Idea archive failed.')
+    } finally {
+      setBusyId(null)
     }
   }
 
@@ -305,7 +345,9 @@ function App() {
 
           {view === 'employees' && <Employees employees={employees} tasks={tasks} onAgentOpen={setSelectedAgent} />}
 
-          {view === 'development' && (
+          {view === 'ideas' && <IdeasView ideas={ideas} projects={projects} busy={busyId !== null} onCreate={createIdea} onPitch={pitchIdea} onArchive={archiveIdea} />}
+
+      {view === 'development' && (
             <Development
               projects={projects}
               features={features}
