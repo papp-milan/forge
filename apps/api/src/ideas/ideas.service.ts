@@ -61,39 +61,41 @@ export class IdeasService {
     if (idea.status === 'ARCHIVED') throw new BadRequestException('Archived ideas cannot be pitched');
     if (idea.pitchId) return this.findOne(id);
 
-    const result = await this.teamLead.run(idea.projectId);
-    if (result.status === 'BLOCKED') {
-      throw new BadRequestException('Athena could not produce a valid pitch for this idea');
-    }
-
-    const action = result.analysis?.decision?.actions?.find((value: any) => value?.type === 'CREATE_PITCH') as any;
-    if (!action) throw new BadRequestException('Athena did not produce a CREATE_PITCH action');
+    const proposal = await this.teamLead.pitchIdea({
+      title: idea.title,
+      description: idea.description,
+      projectId: idea.projectId,
+    });
 
     const pitch = await this.prisma.pitch.create({
       data: {
-        title: action.title ?? idea.title,
-        description: action.description ?? idea.description,
-        rationale: action.rationale ?? null,
-        problem: action.problem ?? idea.description,
-        solution: action.solution ?? null,
-        impact: action.impact ?? null,
-        risks: action.risks ?? null,
+        title: proposal.title,
+        description: proposal.description,
+        rationale: proposal.rationale,
+        problem: proposal.problem,
+        solution: proposal.solution,
+        impact: proposal.impact,
+        risks: proposal.risks,
         projectId: idea.projectId,
         ideaId: idea.id,
         taskSuggestions: {
-          create: Array.isArray(action.tasks) ? action.tasks.map((task: any) => ({
+          create: proposal.tasks.map((task) => ({
             title: task.title,
-            description: task.description ?? null,
-            acceptanceCriteria: task.acceptanceCriteria ?? null,
-            role: task.role ?? 'ENGINEER',
-            risk: task.risk ?? 'SMALL',
-          })) : [],
+            description: task.description,
+            acceptanceCriteria: task.acceptanceCriteria,
+            role: task.role,
+            risk: task.risk,
+          })),
         },
       },
       include: { taskSuggestions: true },
     });
 
-    await this.prisma.idea.update({ where: { id }, data: { status: 'PITCHED', pitchId: pitch.id } });
+    await this.prisma.idea.update({
+      where: { id },
+      data: { status: 'PITCHED', pitchId: pitch.id },
+    });
+
     await this.audit.record({
       actor: 'athena',
       type: 'DECISION_CREATED',
