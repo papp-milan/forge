@@ -259,6 +259,34 @@ export class GithubService {
     };
   }
 
+  async getPullRequestReviewState(owner: string, repo: string, pullNumber: number) {
+    const octokit = await this.getClient();
+    const { data } = await octokit.request(
+      'GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews',
+      { owner, repo, pull_number: pullNumber, per_page: 100 },
+    );
+
+    const latestByReviewer = new Map<number, { login: string; state: string }>();
+    for (const review of data) {
+      if (!review.user?.id || !review.user.login) continue;
+      latestByReviewer.set(review.user.id, {
+        login: review.user.login,
+        state: review.state,
+      });
+    }
+
+    const reviews = [...latestByReviewer.values()];
+    const changesRequested = reviews.filter((review) => review.state === 'CHANGES_REQUESTED');
+    const approved = reviews.filter((review) => review.state === 'APPROVED');
+
+    return {
+      ready: changesRequested.length === 0 && approved.length > 0,
+      approvedBy: approved.map((review) => review.login),
+      changesRequestedBy: changesRequested.map((review) => review.login),
+      reviews,
+    };
+  }
+
   async mergePullRequest(owner: string, repo: string, pullNumber: number) {
     return this.idempotent('MERGE_PULL_REQUEST', { owner, repo, pullNumber }, async () => {
       this.invalidateCycleCache();
