@@ -34,16 +34,30 @@ describe('Hephaistos live coding integration', () => {
       const hephaistos = app.get(HephaistosService);
 
       const projectId = process.env['FORGE_HERMES_TEST_PROJECT_ID'];
-      const project = projectId
-        ? await prisma.project.findUnique({ where: { id: projectId } })
-        : await prisma.project.findFirst({
+      const projects = projectId
+        ? [await prisma.project.findUnique({ where: { id: projectId } })]
+        : await prisma.project.findMany({
             where: { repository: { not: null } },
             orderBy: { createdAt: 'asc' },
           });
 
+      const normalizeRepository = (value: string) =>
+        value
+          .trim()
+          .replace(/^https?:\\/\\/(www\\.)?github\\.com\\//, '')
+          .replace(/\\.git$/, '')
+          .replace(/\\/$/, '');
+
+      const project = projects.find(
+        (candidate) =>
+          candidate?.repository &&
+          normalizeRepository(candidate.repository) === 'papp-milan/forge',
+      );
+
       if (!project?.repository) {
         throw new Error(
-          'No Forge project with a GitHub repository found. Set FORGE_HERMES_TEST_PROJECT_ID to the intended project.',
+          'The live Hephaistos test requires the Forge project repository papp-milan/forge. ' +
+          'Set FORGE_HERMES_TEST_PROJECT_ID to a project pointing to that repository.',
         );
       }
 
@@ -72,7 +86,7 @@ describe('Hephaistos live coding integration', () => {
             'This is a live Forge coding-agent integration test.',
             'In the Ideas view, find the success notification/banner shown after a pitch is created.',
             'Improve its visual contrast so the background, border and text are clearly readable in both light and dark themes.',
-            'Keep the existing component structure and Angular/React design system conventions already used by the project.',
+            'Keep the existing React/Tailwind/shadcn design system conventions already used by the project.',
             'Do not change the behavior, wording, API, routing, or unrelated UI.',
           ].join('\n'),
           acceptanceCriteria: [
