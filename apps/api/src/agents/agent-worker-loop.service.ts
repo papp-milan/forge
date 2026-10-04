@@ -12,6 +12,7 @@ import { GovernancePolicyService } from '../governance/governance-policy.service
 import { FeaturesService } from '../features/features.service.js';
 import { AtlasService } from './atlas.service.js';
 import { AgentCommunicationService } from './agent-communication.service.js';
+import { AgentSessionService } from './agent-session.service.js';
 import { NikeService } from '../workforce/nike.service.js';
 
 @Injectable()
@@ -39,6 +40,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     private readonly features: FeaturesService,
     private readonly atlas: AtlasService,
     private readonly communications: AgentCommunicationService,
+    private readonly sessions: AgentSessionService,
     private readonly nike: NikeService,
   ) {}
 
@@ -331,16 +333,29 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
           continue;
         }
 
+        const agent = task.assignee?.role === 'UI_UX'
+          ? 'apollo'
+          : task.assignee?.role === 'DEVOPS'
+            ? 'atlas'
+            : 'hephaistos';
+        const session = await this.sessions.start({
+          agent,
+          runtime: this.runtime.mode(),
+          projectId: task.feature.projectId,
+          taskId: task.id,
+        });
         const result = task.assignee?.role === 'UI_UX'
           ? await this.apollo.runTask(task.id)
           : task.assignee?.role === 'DEVOPS'
             ? await this.atlas.runTask(task.id)
             : await this.hephaistos.runTask(task.id);
-          if (result.status === 'BLOCKED') {
-            await this.agentRuns.fail(run.id, result.result ?? result);
-          } else {
-            await this.agentRuns.complete(run.id, result);
-          }
+        if (result.status === 'BLOCKED') {
+          await this.sessions.finish(session.id, 'BLOCKED');
+          await this.agentRuns.fail(run.id, result.result ?? result);
+        } else {
+          await this.sessions.finish(session.id, 'COMPLETED');
+          await this.agentRuns.complete(run.id, result);
+        }
       } catch (error) {
         await this.prisma.task.update({ where: { id: task.id }, data: { status: 'BLOCKED' } });
         await this.agentRuns.fail(run.id, error);
