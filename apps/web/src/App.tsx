@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Activity, AlertTriangle, GitPullRequest, LayoutDashboard, Moon, Plus, RefreshCw, ShieldCheck, Sun, Users, X } from 'lucide-react'
-import type { Decision, Feature, Task } from './types/forge'
+import type { Decision, Employee, Feature, Task } from './types/forge'
 import { useForgeData } from './hooks/useForgeData'
 import { api } from './api/client'
 import { AgentEventLogDialog, Approvals, ActivityView, DecisionDetails, Development, Employees, FeatureDetails, NavItem, Overview, TaskDetails } from './components/AppViews'
@@ -29,7 +29,7 @@ function App() {
   const [projectDescription, setProjectDescription] = useState('')
   const [projectRepository, setProjectRepository] = useState('')
   const [creatingProject, setCreatingProject] = useState(false)
-  const [selectedAgent, setSelectedAgent] = useState<import('./types/forge').Employee | null>(null)
+  const [selectedAgent, setSelectedAgent] = useState<Employee | null>(null)
 
   useEffect(() => {
     window.localStorage.setItem('forge-theme', theme)
