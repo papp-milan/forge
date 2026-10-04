@@ -169,6 +169,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       orderBy: { createdAt: 'asc' },
     });
 
+    const latestPreparationRuns = await this.agentRuns.latestForTasks(tasks.map((task) => task.id));
     const governanceByProject = new Map<string, Map<string, string[]>>();
     for (const projectId of new Set(tasks.map((task) => task.feature.projectId))) {
       const subjectIds = tasks.filter((task) => task.feature.projectId === projectId).map((task) => task.featureId);
@@ -254,6 +255,15 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
           where: { id: task.id },
           data: { status: 'BLOCKED' },
         });
+        const prepRun = await this.agentRuns.start({
+          agent: task.assignee?.role === 'UI_UX' ? 'apollo' : task.assignee?.role === 'DEVOPS' ? 'atlas' : 'hephaistos',
+          kind: 'GITHUB_PREPARATION',
+          projectId: task.feature.projectId,
+          taskId: task.id,
+          attempt: (latestPreparationRuns.get(task.id)?.attempt ?? 0) + 1,
+          context: { title: task.title, phase: 'github_preparation' },
+        });
+        await this.agentRuns.fail(prepRun.id, error, undefined, { kind: 'GITHUB_PREPARATION' });
 
         await this.audit.record({
           actor: 'system',
