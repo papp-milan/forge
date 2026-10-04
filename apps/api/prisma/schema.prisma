@@ -225,6 +225,8 @@ model Task {
   description        String?
   acceptanceCriteria String?
   risk               TaskRisk @default(SMALL)
+  ceoApprovalAt      DateTime?
+  ceoApprovalComment String?
   status             TaskStatus @default(TODO)
 
   githubIssueNumber Int?
