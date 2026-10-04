@@ -2,6 +2,13 @@ services:
   postgres:
     image: postgres:18
     restart: unless-stopped
+    mem_limit: 384m
+    cpus: "0.50"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       POSTGRES_DB: forge
       POSTGRES_USER: forge
@@ -17,6 +24,13 @@ services:
   api:
     image: ghcr.io/papp-milan/forge-api:${IMAGE_TAG:-latest}
     restart: unless-stopped
+    mem_limit: 768m
+    cpus: "0.75"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     env_file:
       - .env.production
     environment:
@@ -38,10 +52,24 @@ services:
   web:
     image: ghcr.io/papp-milan/forge-web:${IMAGE_TAG:-latest}
     restart: unless-stopped
+    mem_limit: 128m
+    cpus: "0.25"
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
 
   caddy:
     image: caddy:2.11-alpine
     restart: unless-stopped
+    mem_limit: 128m
+    cpus: "0.25"
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
     ports:
       - "80:80"
       - "443:443"
