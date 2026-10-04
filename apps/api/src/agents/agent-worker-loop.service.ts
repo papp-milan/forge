@@ -414,15 +414,13 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       }
 
       if (allTasksDone && feature.status === 'QA') {
-        await this.features.approveQa(feature.id);
-
         await this.audit.record({
           actor: 'artemis',
           type: 'QA_APPROVED',
           projectId: feature.projectId,
           entityType: 'feature',
           entityId: feature.id,
-          summary: 'Feature "' + feature.title + '" passed task-level QA and is ready for CEO release review',
+          summary: 'Feature "' + feature.title + '" passed task-level QA and is waiting for explicit QA approval',
         });
       }
     }
