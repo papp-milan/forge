@@ -45,8 +45,8 @@ describe('Hephaistos live coding integration', () => {
         value
           .trim()
           .replace(/^https?:\/\/(www\.)?github\.com\//, '')
-          .replace(/\\.git$/, '')
-          .replace(/\\/$/, '');
+          .replace(/\.git$/, '')
+          .replace(/\/$/, '');
 
       const project = projects.find(
         (candidate) =>
