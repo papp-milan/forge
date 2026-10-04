@@ -33,7 +33,7 @@ function App() {
   const [creatingProject, setCreatingProject] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<Employee | null>(null)
   const [workerStatus, setWorkerStatus] = useState<WorkerStatus | null>(null)
-  const [workerStatusTick, setWorkerStatusTick] = useState(Date.now())
+  const [workerStatusTick, setWorkerStatusTick] = useState(0)
 
   useEffect(() => {
     window.localStorage.setItem('forge-theme', theme)
@@ -49,6 +49,7 @@ function App() {
         if (mounted) setWorkerStatus(null)
       }
     }
+    setWorkerStatusTick(Date.now())
     void refresh()
     const timer = window.setInterval(() => {
       setWorkerStatusTick(Date.now())
