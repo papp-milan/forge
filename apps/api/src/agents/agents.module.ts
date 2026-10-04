@@ -13,12 +13,14 @@ import { AgentRunService } from './agent-run.service.js';
 import { GovernanceModule } from '../governance/governance.module.js';
 import { FeaturesModule } from '../features/features.module.js';
 import { AgentSessionService } from './agent-session.service.js';
+import { AgentCommunicationService } from './agent-communication.service.js';
+import { RetryPolicyService } from './retry-policy.service.js';
 import { AtlasService } from './atlas.service.js';
 
 @Module({
   imports: [PrismaModule, GithubModule, RuntimeModule, AuditModule, GovernanceModule, FeaturesModule],
   controllers: [AgentsController],
-  providers: [ArtemisService, HephaistosService, ApolloService, AtlasService, WorkspaceService, AgentRunService, AgentWorkerLoopService, AgentSessionService],
-  exports: [ArtemisService, HephaistosService, ApolloService, AtlasService, AgentRunService, AgentSessionService],
+  providers: [ArtemisService, HephaistosService, ApolloService, AtlasService, WorkspaceService, AgentRunService, AgentWorkerLoopService, AgentSessionService, AgentCommunicationService, RetryPolicyService],
+  exports: [ArtemisService, HephaistosService, ApolloService, AtlasService, AgentRunService, AgentSessionService, AgentCommunicationService, RetryPolicyService],
 })
 export class AgentsModule {}
