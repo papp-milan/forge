@@ -19,6 +19,13 @@ import { NikeService } from '../workforce/nike.service.js';
 export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
   private timer?: NodeJS.Timeout;
   private running = false;
+  private phase: 'IDLE' | 'RECOVERING' | 'PREPARING' | 'ENGINEERING' | 'QA' | 'ADVANCING' | 'RELEASING' = 'IDLE';
+  private currentAgent: string | null = null;
+  private currentTaskId: string | null = null;
+  private lastCycleStartedAt: string | null = null;
+  private lastCycleFinishedAt: string | null = null;
+  private lastError: string | null = null;
+  private nextCycleAt: string | null = null;
 
   private readonly enabled = (() => {
     if (process.env['FORGE_AUTONOMOUS'] === 'false') return false;
@@ -53,6 +60,7 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     if (!this.enabled) return;
 
     void this.cycle();
+    this.nextCycleAt = new Date(Date.now() + this.intervalMs).toISOString();
     this.timer = setInterval(() => void this.cycle(), this.intervalMs);
   }
 
@@ -71,6 +79,14 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
       enabled: this.enabled,
       running: this.running,
       intervalMs: this.intervalMs,
+      runtime: this.runtime.mode(),
+      phase: this.phase,
+      currentAgent: this.currentAgent,
+      currentTaskId: this.currentTaskId,
+      lastCycleStartedAt: this.lastCycleStartedAt,
+      lastCycleFinishedAt: this.lastCycleFinishedAt,
+      lastError: this.lastError,
+      nextCycleAt: this.nextCycleAt,
     };
   }
 
@@ -79,17 +95,27 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     if (!(await this.lease.acquire('forge:agent-worker-loop'))) return;
 
     this.running = true;
+    this.lastCycleStartedAt = new Date().toISOString();
+    this.lastError = null;
+    this.nextCycleAt = new Date(Date.now() + this.intervalMs).toISOString();
     this.github.beginCycle();
 
     try {
+      this.phase = 'RECOVERING';
       await this.recoverStaleRuns();
       await this.recoverRetryableTasks();
+      this.phase = 'PREPARING';
       await this.prepareEngineerTasks();
+      this.phase = 'ENGINEERING';
       await this.runEngineerTasks();
+      this.phase = 'QA';
       await this.runQaTasks();
+      this.phase = 'ADVANCING';
       await this.advanceFeatures();
+      this.phase = 'RELEASING';
       await this.nike.releaseAutonomousReady();
     } catch (error) {
+      this.lastError = error instanceof Error ? error.message : String(error);
       await this.audit.record({
         actor: 'system',
         type: 'ORCHESTRATOR_ERROR',
@@ -102,6 +128,11 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     } finally {
       this.github.endCycle();
       this.running = false;
+      this.phase = 'IDLE';
+      this.currentAgent = null;
+      this.currentTaskId = null;
+      this.lastCycleFinishedAt = new Date().toISOString();
+      this.nextCycleAt = new Date(Date.now() + this.intervalMs).toISOString();
       await this.lease.release('forge:agent-worker-loop');
     }
   }
@@ -185,6 +216,8 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     }
 
     for (const task of tasks) {
+      this.currentTaskId = task.id;
+      this.currentAgent = task.assignee?.role === 'UI_UX' ? 'apollo' : task.assignee?.role === 'DEVOPS' ? 'atlas' : 'hephaistos';
       if (task.risk === 'LARGE' && !task.ceoApprovalAt) {
         await this.communications.notifyOnce({
           fromAgent: 'system',
@@ -312,6 +345,8 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     }
 
     for (const task of tasks) {
+      this.currentTaskId = task.id;
+      this.currentAgent = task.assignee?.role === 'UI_UX' ? 'apollo' : task.assignee?.role === 'DEVOPS' ? 'atlas' : 'hephaistos';
       if (task.risk === 'LARGE' && !task.ceoApprovalAt) continue;
       if ((governanceByProject.get(task.feature.projectId)?.get(task.feature.id)?.length ?? 0) > 0) continue;
       const run = await this.agentRuns.start({
@@ -393,6 +428,8 @@ export class AgentWorkerLoopService implements OnModuleInit, OnModuleDestroy {
     });
 
     for (const task of tasks) {
+      this.currentTaskId = task.id;
+      this.currentAgent = 'artemis';
       const run = await this.agentRuns.start({
         agent: 'artemis',
         kind: 'QA',
