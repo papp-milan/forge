@@ -110,7 +110,14 @@ export class HermesRuntimeService {
         if (settled) return;
         child.kill('SIGTERM');
         setTimeout(() => child.kill('SIGKILL'), 2_000).unref();
-        reject(new Error(`Hermes timed out after ${options.timeoutMs}ms`));
+        const diagnostics = stderr.trim();
+        const output = stdout.trim();
+        const details = [
+          `Hermes timed out after ${options.timeoutMs}ms`,
+          diagnostics ? `stderr: ${diagnostics.slice(-4000)}` : '',
+          output ? `stdout: ${output.slice(-4000)}` : '',
+        ].filter(Boolean).join('\\n\\n');
+        reject(new Error(details));
       }, options.timeoutMs);
 
       child.stdout.on('data', (chunk: Buffer) => {

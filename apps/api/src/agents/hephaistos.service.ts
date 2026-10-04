@@ -109,7 +109,12 @@ export class HephaistosService {
             },
           });
 
-          return { status: 'BLOCKED', taskId: task.id, result };
+          return {
+            status: 'BLOCKED',
+            taskId: task.id,
+            result,
+            error: error instanceof Error ? error.message : String(error),
+          };
         }
       }
       await this.prisma.task.update({ where: { id: task.id }, data: { status: 'BLOCKED' } });
