@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '../api/client'
-import type { AuditEvent, Decision, Employee, Feature, Project, Task } from '../types/forge'
+import type { AuditEvent, Decision, Employee, Feature, Pitch, Project, Task } from '../types/forge'
 
 const DYNAMIC_REFRESH_MS = 10_000
 const STATIC_REFRESH_MS = 60_000
@@ -10,6 +10,7 @@ export function useForgeData() {
   const [decisions, setDecisions] = useState<Decision[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [features, setFeatures] = useState<Feature[]>([])
+  const [pitches, setPitches] = useState<Pitch[]>([])
   const [employees, setEmployees] = useState<Employee[]>([])
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,12 +34,14 @@ export function useForgeData() {
         api<Decision[]>('/api/agent-decisions'),
         api<Task[]>('/api/tasks'),
         api<Feature[]>('/api/features'),
+        api<Pitch[]>('/api/pitches'),
       ])
-      const [decisionResult, taskResult, featureResult] = results
+      const [decisionResult, taskResult, featureResult, pitchResult] = results
       if (results.some((result) => result.status === 'rejected')) setError('Some Forge services are unavailable.')
       if (decisionResult.status === 'fulfilled') setDecisions(decisionResult.value)
       if (taskResult.status === 'fulfilled') setTasks(taskResult.value)
       if (featureResult.status === 'fulfilled') setFeatures(featureResult.value)
+      if (pitchResult.status === 'fulfilled') setPitches(pitchResult.value)
     } finally {
       dynamicLoadingRef.current = false
       setLoadState(false)
@@ -94,5 +97,5 @@ export function useForgeData() {
   }, [load, loadDynamic, loadStatic])
 
   const pending = useMemo(() => decisions.filter((decision) => decision.status === 'PENDING'), [decisions])
-  return { projects, decisions, tasks, features, employees, auditEvents, loading, error, setError, load, pending }
+  return { projects, decisions, tasks, features, pitches, employees, auditEvents, loading, error, setError, load, pending }
 }
