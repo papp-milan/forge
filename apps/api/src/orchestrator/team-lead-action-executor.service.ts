@@ -11,6 +11,7 @@ import { FeaturesService } from '../features/features.service.js';
 import { PermissionPolicyService } from './permission-policy.service.js';
 import { TeamLeadContextService } from './team-lead-context.service.js';
 import { HermesRuntimeService } from '../runtime/hermes-runtime.service.js';
+import { NikeService } from '../workforce/nike.service.js';
 
 export type ActionExecutionStatus = 'EXECUTED' | 'SKIPPED' | 'BLOCKED' | 'FAILED';
 
@@ -31,6 +32,7 @@ export class TeamLeadActionExecutorService {
     private readonly permissions: PermissionPolicyService,
     private readonly contextService: TeamLeadContextService,
     private readonly hermes: HermesRuntimeService,
+    private readonly nike: NikeService,
   ) {}
 
   async execute(projectId: string, decision: TeamLeadDecision): Promise<ActionExecutionResult[]> {
@@ -206,7 +208,11 @@ export class TeamLeadActionExecutorService {
       throw new BadRequestException('Feature must be QA-approved and READY_FOR_REVIEW before release.');
     }
 
-    const released = await this.features.release(feature.id);
+    const released = await this.nike.releaseAutonomousReady();
+    const matching = released.find((result) => result.featureId === feature.id);
+    if (!matching || matching.status !== 'RELEASED') {
+      throw new BadRequestException('Nike could not release the approved feature.');
+    }
 
     return {
       status: 'EXECUTED',
