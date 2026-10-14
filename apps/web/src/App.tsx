@@ -263,19 +263,21 @@ function App() {
         </div>
       )}
       <aside className="forge-sidebar fixed inset-y-0 left-0 hidden w-64 lg:flex lg:flex-col">
-        <div className="forge-brand flex h-16 items-center gap-3 px-5">
-          <div className="forge-brand-mark flex size-9 items-center justify-center overflow-hidden">
+        <div className="forge-brand flex h-20 items-center gap-3 px-5">
+          <div className="forge-brand-mark forge-brand-mark--alive flex size-10 items-center justify-center overflow-hidden">
             <img src="/forge-logo.svg" alt="" className="size-full object-cover" />
           </div>
           <div>
-            <div className="font-semibold tracking-tight">Forge</div>
+            <div className="font-semibold tracking-tight">Forge<span className="forge-brand-period">.</span></div>
             <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">AI company HQ</div>
           </div>
         </div>
 
-        <nav className="forge-nav flex-1 space-y-2 p-3">
+        <nav className="forge-nav flex-1 space-y-1.5 overflow-y-auto p-3" aria-label="Main navigation">
+          <div className="forge-nav-caption"><span>01</span> COMMAND</div>
           <NavItem icon={<LayoutDashboard />} label="Overview" active={view === 'overview'} onClick={() => navigate('overview')} />
           <NavItem icon={<ShieldCheck />} label="Approvals" count={pending.length + pendingPitches.length} active={view === 'approvals'} onClick={() => navigate('approvals')} />
+          <div className="forge-nav-caption forge-nav-caption--spaced"><span>02</span> OPERATIONS</div>
           <NavItem icon={<Users />} label="Employees" active={view === 'employees'} onClick={() => navigate('employees')} />
           <NavItem icon={<GitPullRequest />} label="Development" active={view === 'development'} onClick={() => navigate('development')} />
           <NavItem icon={<Lightbulb />} label="Ideas" active={view === 'ideas'} onClick={() => navigate('ideas')} />
@@ -283,14 +285,17 @@ function App() {
         </nav>
 
         <div className="mt-auto border-t border-white/8 p-3">
+          <div className="forge-nav-caption"><span>03</span> SYSTEM</div>
           <NavItem icon={<Info />} label="About Forge" active={view === 'about'} onClick={() => navigate('about')} />
         </div>
 
-        <div className="border-t border-white/8 p-4">
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
-            <span className={`size-2 rounded-full ${employees.length ? 'bg-emerald-400' : 'bg-red-400'}`} />
-            {employees.some((employee) => !employee.id.startsWith('fallback-')) ? `Crew online · ${employees.length} agents` : `Crew cached · ${employees.length} agents`}
+        <div className="forge-crew-card">
+          <div className="forge-crew-card__top"><span className="forge-crew-orbit"><span /></span><span>CREW NETWORK</span><span className="forge-crew-card__signal">LIVE</span></div>
+          <div className="forge-crew-card__count">{String(employees.length).padStart(2, '0')}<span> AGENTS</span></div>
+          <div className="forge-crew-card__status"><span className={`size-2 rounded-full ${employees.length ? 'bg-emerald-400' : 'bg-red-400'}`} />
+            {employees.some((employee) => !employee.id.startsWith('fallback-')) ? 'Network connected' : 'Cached roster'}
           </div>
+          <div className="forge-crew-card__meter"><span style={{ width: `${Math.min(100, employees.length / 8 * 100)}%` }} /></div>
         </div>
       </aside>
 
@@ -313,16 +318,16 @@ function App() {
             <h1 className="text-lg font-semibold">{view === 'overview' ? 'Company overview' : view === 'approvals' ? 'CEO approvals' : view === 'employees' ? 'Olympus roster' : view === 'development' ? 'Development floor' : 'Activity log'}</h1>
           </div>
 
-          <div className="forge-topbar-actions"><WorkerStatusBadge status={workerStatus} />
-            <button onClick={() => setShowProjectModal(true)} className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-zinc-200">
+          <div className="forge-topbar-actions"><div className="forge-topbar-section-label">SYSTEM STATUS</div><WorkerStatusBadge status={workerStatus} />
+            <button onClick={() => setShowProjectModal(true)} className="forge-button forge-button--primary inline-flex cursor-pointer items-center gap-2 px-4 py-2.5 text-xs font-semibold">
               <Plus className="size-4" />
               New project
             </button>
-            <button onClick={switchTheme} className="forge-theme-toggle cursor-pointer" aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
+            <button onClick={switchTheme} className="forge-theme-toggle forge-button forge-button--utility cursor-pointer" aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
               {theme === 'light' ? <Moon className="size-4" /> : <Sun className="size-4" />}
               {theme === 'light' ? 'Dark' : 'Light'}
             </button>
-            <button onClick={() => void load()} className="forge-refresh cursor-pointer">
+            <button onClick={() => void load()} className="forge-refresh forge-button forge-button--utility cursor-pointer">
               <RefreshCw className={`size-4 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </button>
