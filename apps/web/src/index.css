@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
-@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Pirata+One&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Rye&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -2588,7 +2588,7 @@ main > div::before {
   --forge-amber: #f0a34a;
   --forge-teal: #477f86;
   --forge-muted: #8d9295;
-  --forge-display: 'Pirata One', 'Bebas Neue', Impact, serif;
+  --forge-display: 'Forevs Demo', 'Forevs', 'Rye', Georgia, serif;
   --forge-condensed: 'Barlow Condensed', 'Inter Variable', sans-serif;
 }
 
