@@ -2889,3 +2889,88 @@ main > div::before {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* Deadlock-inspired typography pass: stronger hierarchy, condensed labels, display headlines. */
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=Rye&display=swap");
+
+:root {
+  --font-display: "Rye", "Barlow Condensed", Georgia, serif;
+  --font-ui: "Barlow Condensed", "Inter Variable", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html, body {
+  font-family: "Inter Variable", sans-serif;
+  font-kerning: normal;
+  font-feature-settings: "ss01" on, "cv02" on, "cv03" on;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: .015em;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2.1rem, 4.2vw, 4.25rem);
+  letter-spacing: -.025em;
+  text-shadow: 0 2px 0 rgba(0,0,0,.22);
+}
+
+h2 { font-size: clamp(1.5rem, 2.5vw, 2.4rem); }
+h3 { font-size: clamp(1.15rem, 1.8vw, 1.6rem); }
+
+button, [role="button"], nav, aside, header,
+label, input, textarea, select,
+.badge, [class*="badge"], [class*="Badge"] {
+  font-family: var(--font-ui);
+}
+
+button, [role="button"] {
+  font-weight: 700;
+  letter-spacing: .045em;
+}
+
+nav button, aside button {
+  font-size: .95rem;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+header {
+  letter-spacing: .06em;
+}
+
+small, time, code, pre,
+[class*="text-xs"], [class*="text-[10px]"], [class*="text-[11px]"] {
+  font-family: var(--font-data);
+  letter-spacing: .045em;
+}
+
+main p, main li, main input, main textarea {
+  letter-spacing: .005em;
+}
+
+.forge-live-chip, .forge-status-pill, .forge-agent-chip {
+  font-family: var(--font-data);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.forge-hero h1, .forge-hero h2 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: .015em;
+}
+
+@media (max-width: 640px) {
+  h1 { font-size: clamp(1.8rem, 9vw, 2.8rem); }
+  h2 { font-size: clamp(1.35rem, 6vw, 1.8rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  h1, h2, h3 { text-shadow: none; }
+}
