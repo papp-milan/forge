@@ -3013,3 +3013,408 @@ main > div::before {
 @media (prefers-reduced-motion: reduce) {
   .forge-shell .forge-topbar h1 { text-shadow: none; }
 }
+
+
+/* =========================================================
+   DEADLOCK COMMAND DECK — navigation, controls and motion
+   ========================================================= */
+.forge-shell {
+  --forge-ease-out: cubic-bezier(.16, 1, .3, 1);
+  --forge-ease-inout: cubic-bezier(.76, 0, .24, 1);
+}
+.forge-sidebar {
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 12% 5%, rgba(230,75,50,.13), transparent 18rem),
+    linear-gradient(180deg, #17232b 0%, #10171d 46%, #0b1015 100%) !important;
+  border-right: 1px solid rgba(240,163,74,.2) !important;
+  box-shadow: 18px 0 55px rgba(0,0,0,.25), inset -1px 0 rgba(255,255,255,.025) !important;
+}
+.forge-sidebar::before {
+  content: "F / 01";
+  position: absolute;
+  z-index: -1;
+  right: -1.1rem;
+  top: 27%;
+  writing-mode: vertical-rl;
+  font: 900 4.6rem/1 "Barlow Condensed", sans-serif;
+  letter-spacing: -.07em;
+  color: rgba(245,240,230,.025);
+  pointer-events: none;
+}
+.forge-brand {
+  position: relative;
+  border-bottom: 1px solid rgba(240,163,74,.18) !important;
+  background: linear-gradient(110deg, rgba(230,75,50,.06), transparent 65%);
+}
+.forge-brand::after {
+  content: "";
+  position: absolute;
+  height: 2px;
+  bottom: -1px;
+  left: 1.25rem;
+  width: 3.5rem;
+  background: var(--forge-red);
+  box-shadow: 0 0 14px rgba(230,75,50,.65);
+}
+.forge-brand-mark {
+  position: relative;
+  border-radius: 3px !important;
+  transform: rotate(-3deg);
+  transition: transform 350ms var(--forge-ease-out), box-shadow 350ms ease;
+}
+.forge-brand:hover .forge-brand-mark {
+  transform: rotate(3deg) scale(1.06);
+  box-shadow: 0 0 25px rgba(230,75,50,.2), inset 0 0 20px rgba(230,75,50,.13);
+}
+.forge-brand-period { color: var(--forge-red); }
+.forge-nav {
+  padding-top: 1.2rem !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(230,75,50,.3) transparent;
+}
+.forge-nav-caption {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .35rem .75rem .55rem;
+  color: #7e8b91;
+  font: 700 9px/1 "IBM Plex Mono", monospace;
+  letter-spacing: .2em;
+}
+.forge-nav-caption > span {
+  color: var(--forge-amber);
+  font-size: 9px;
+  letter-spacing: .04em;
+}
+.forge-nav-caption--spaced { margin-top: 1.2rem; }
+.forge-nav-item {
+  position: relative;
+  min-height: 46px;
+  overflow: hidden;
+  padding-inline: .8rem !important;
+  border-radius: 3px !important;
+  color: #9da7a9 !important;
+  isolation: isolate;
+}
+.forge-nav-item::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(100deg, rgba(230,75,50,.18), rgba(230,75,50,.035) 58%, transparent);
+  opacity: 0;
+  transform: translateX(-12px);
+  transition: opacity 220ms ease, transform 300ms var(--forge-ease-out);
+}
+.forge-nav-item::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 3px;
+  background: var(--forge-red);
+  box-shadow: 0 0 15px rgba(230,75,50,.75);
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform 240ms var(--forge-ease-out);
+}
+.forge-nav-item > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  flex: 0 0 29px;
+  border: 1px solid rgba(225,230,222,.08);
+  background: rgba(255,255,255,.025);
+  color: #aeb7b6;
+  transition: color 220ms ease, background 220ms ease, border-color 220ms ease, transform 260ms var(--forge-ease-out);
+}
+.forge-nav-item > span:first-child svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.8;
+  transition: transform 260ms var(--forge-ease-out);
+}
+.forge-nav-item:hover {
+  color: #fff3e4 !important;
+  transform: translateX(3px);
+}
+.forge-nav-item:hover::before { opacity: 1; transform: translateX(0); }
+.forge-nav-item:hover > span:first-child {
+  color: var(--forge-amber);
+  background: rgba(230,75,50,.09);
+  border-color: rgba(230,75,50,.22);
+}
+.forge-nav-item:hover > span:first-child svg { transform: scale(1.1) rotate(-4deg); }
+.forge-nav-item--active {
+  background: rgba(230,75,50,.075) !important;
+  border-color: rgba(230,75,50,.2) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.025), 0 6px 22px rgba(0,0,0,.12) !important;
+  color: #fff1df !important;
+}
+.forge-nav-item--active::before { opacity: 1; transform: translateX(0); }
+.forge-nav-item--active::after { transform: scaleY(1); }
+.forge-nav-item--active > span:first-child {
+  background: var(--forge-red);
+  border-color: var(--forge-red);
+  color: #fff8ed;
+  box-shadow: 0 0 18px rgba(230,75,50,.16);
+}
+.forge-nav-item--active > span:first-child svg { stroke-width: 2.3; }
+.forge-nav-item > span:nth-child(3) {
+  min-width: 23px;
+  text-align: center;
+  border: 1px solid rgba(240,163,74,.34);
+  border-radius: 2px !important;
+  background: rgba(240,163,74,.1) !important;
+  color: #ffc27a;
+  font: 700 10px/1.5 "IBM Plex Mono", monospace;
+}
+.forge-crew-card {
+  margin: .65rem .8rem 1rem;
+  padding: .85rem;
+  border: 1px solid rgba(240,163,74,.18);
+  background:
+    linear-gradient(135deg, rgba(230,75,50,.08), transparent 60%),
+    rgba(0,0,0,.16);
+  position: relative;
+  overflow: hidden;
+}
+.forge-crew-card::after {
+  content: "";
+  position: absolute;
+  width: 70%;
+  height: 1px;
+  top: 0;
+  right: -20%;
+  background: linear-gradient(90deg, transparent, var(--forge-amber), transparent);
+  animation: forge-crew-sweep 4.8s ease-in-out infinite;
+}
+.forge-crew-card__top, .forge-crew-card__status {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font: 700 8px/1.3 "IBM Plex Mono", monospace;
+  letter-spacing: .12em;
+  color: #879397;
+}
+.forge-crew-card__signal {
+  margin-left: auto;
+  color: #8fdb9d;
+  font-size: 8px;
+}
+.forge-crew-orbit {
+  display: grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(143,219,157,.55);
+  border-radius: 50%;
+}
+.forge-crew-orbit > span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #8fdb9d;
+  box-shadow: 0 0 8px #8fdb9d;
+  animation: forge-status-pulse 1.8s ease-in-out infinite;
+}
+.forge-crew-card__count {
+  margin-top: .65rem;
+  color: #f5f0e6;
+  font: 700 2rem/.95 "Barlow Condensed", sans-serif;
+  letter-spacing: -.025em;
+}
+.forge-crew-card__count > span {
+  color: #889397;
+  font: 600 9px/1 "IBM Plex Mono", monospace;
+  letter-spacing: .12em;
+}
+.forge-crew-card__status { margin-top: .65rem; letter-spacing: .025em; }
+.forge-crew-card__meter {
+  margin-top: .65rem;
+  height: 3px;
+  background: rgba(255,255,255,.07);
+  overflow: hidden;
+}
+.forge-crew-card__meter > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--forge-red), var(--forge-amber));
+  box-shadow: 0 0 12px rgba(230,75,50,.5);
+  transition: width 700ms var(--forge-ease-out);
+}
+.forge-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.forge-topbar-section-label {
+  color: #69777c;
+  font: 700 8px/1 "IBM Plex Mono", monospace;
+  letter-spacing: .17em;
+  white-space: nowrap;
+}
+.forge-button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 38px;
+  border: 1px solid rgba(224,225,215,.2);
+  border-radius: 3px !important;
+  transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 240ms var(--forge-ease-out), box-shadow 220ms ease;
+}
+.forge-button::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,.2) 48%, transparent 70%);
+  transform: translateX(-125%) skewX(-18deg);
+  transition: transform 520ms var(--forge-ease-out);
+}
+.forge-button:hover::before { transform: translateX(125%) skewX(-18deg); }
+.forge-button:active:not(:disabled) { transform: translate(1px, 1px) scale(.985); }
+.forge-button--primary {
+  background: var(--forge-red) !important;
+  border-color: #f06a4e !important;
+  color: #fff8ed !important;
+  box-shadow: 3px 3px 0 rgba(0,0,0,.55), 0 0 0 rgba(230,75,50,0);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+.forge-button--primary:hover {
+  transform: translate(-1px, -2px);
+  box-shadow: 5px 6px 0 rgba(0,0,0,.48), 0 0 24px rgba(230,75,50,.2);
+  background: #f05b3e !important;
+}
+.forge-button--utility {
+  padding: .55rem .75rem;
+  background: rgba(255,255,255,.035) !important;
+}
+.forge-button--utility:hover {
+  transform: translateY(-2px);
+  border-color: rgba(240,163,74,.45) !important;
+  color: var(--forge-amber) !important;
+  box-shadow: 0 5px 20px rgba(0,0,0,.14);
+}
+.forge-button:focus-visible, .forge-nav-item:focus-visible {
+  outline: 2px solid var(--forge-amber) !important;
+  outline-offset: 3px;
+}
+.forge-worker-status {
+  border-radius: 3px !important;
+  background: rgba(0,0,0,.18);
+}
+.forge-worker-status--running .size-2 {
+  animation: forge-status-pulse 1.25s ease-in-out infinite;
+}
+.forge-topbar {
+  position: sticky;
+  isolation: isolate;
+}
+.forge-topbar::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(230,75,50,.45) 25%, rgba(240,163,74,.28) 68%, transparent);
+  transform-origin: left;
+  animation: forge-topbar-signal 6s ease-in-out infinite;
+}
+.forge-content > .forge-tab-stage {
+  animation-duration: 420ms;
+  animation-timing-function: var(--forge-ease-out);
+}
+.forge-content section.rounded-2xl,
+.forge-content section.rounded-xl,
+.forge-content .forge-panel,
+.forge-content .forge-metric {
+  transition: transform 260ms var(--forge-ease-out), border-color 220ms ease, box-shadow 260ms ease, background 240ms ease !important;
+}
+.forge-content section.rounded-2xl:hover,
+.forge-content .forge-panel:hover,
+.forge-content .forge-metric:hover {
+  transform: translateY(-2px);
+}
+.forge-shell button:not(:disabled):not(.forge-nav-item) {
+  transition: transform 200ms var(--forge-ease-out), background-color 180ms ease, border-color 180ms ease, box-shadow 220ms ease, color 180ms ease;
+}
+.forge-shell button:disabled { filter: saturate(.55); }
+@keyframes forge-crew-sweep {
+  0%, 20% { transform: translateX(-110%); opacity: 0; }
+  38% { opacity: .9; }
+  70%, 100% { transform: translateX(-15%); opacity: 0; }
+}
+@keyframes forge-status-pulse {
+  0%, 100% { opacity: .65; transform: scale(.86); }
+  50% { opacity: 1; transform: scale(1.14); }
+}
+@keyframes forge-topbar-signal {
+  0%, 100% { opacity: .35; transform: scaleX(.7); }
+  50% { opacity: .9; transform: scaleX(1); }
+}
+.forge-theme-light .forge-sidebar {
+  background:
+    radial-gradient(ellipse at 12% 5%, rgba(230,75,50,.09), transparent 18rem),
+    linear-gradient(180deg, #f7f0e4 0%, #eee5d7 55%, #e5dac9 100%) !important;
+  border-right-color: rgba(60,45,33,.18) !important;
+}
+.forge-theme-light .forge-sidebar::before { color: rgba(45,37,27,.035); }
+.forge-theme-light .forge-brand { border-bottom-color: rgba(45,37,27,.15) !important; }
+.forge-theme-light .forge-nav-caption { color: #827568; }
+.forge-theme-light .forge-nav-item { color: #65594d !important; }
+.forge-theme-light .forge-nav-item::before {
+  background: linear-gradient(100deg, rgba(190,56,39,.12), rgba(190,56,39,.025) 58%, transparent);
+}
+.forge-theme-light .forge-nav-item:hover { color: #282521 !important; }
+.forge-theme-light .forge-nav-item > span:first-child {
+  background: rgba(255,255,255,.35);
+  border-color: rgba(45,37,27,.1);
+  color: #62574d;
+}
+.forge-theme-light .forge-nav-item--active {
+  background: rgba(230,75,50,.065) !important;
+  color: #a53627 !important;
+}
+.forge-theme-light .forge-nav-item--active > span:first-child {
+  background: var(--forge-red);
+  border-color: var(--forge-red);
+  color: #fff8ed;
+}
+.forge-theme-light .forge-crew-card {
+  background: linear-gradient(135deg, rgba(230,75,50,.06), transparent 70%), rgba(255,255,255,.32);
+  border-color: rgba(75,55,38,.17);
+}
+.forge-theme-light .forge-crew-card__count { color: #292723; }
+.forge-theme-light .forge-crew-card__top,
+.forge-theme-light .forge-crew-card__status { color: #716558; }
+.forge-theme-light .forge-topbar-section-label { color: #827568; }
+.forge-theme-light .forge-worker-status { background: rgba(255,255,255,.45); }
+@media (max-width: 1100px) {
+  .forge-topbar-section-label { display: none; }
+  .forge-topbar-actions { gap: .4rem; }
+  .forge-worker-status__detail { display: none; }
+}
+@media (max-width: 700px) {
+  .forge-topbar-actions { gap: .3rem; }
+  .forge-topbar-actions .forge-worker-status { display: none; }
+  .forge-button--utility { padding: .5rem; }
+  .forge-button--utility:not(.forge-refresh) { font-size: 0; gap: 0; }
+  .forge-topbar-actions .forge-refresh { font-size: 0; gap: 0; }
+  .forge-topbar-actions .forge-refresh svg { margin: 0; }
+  .forge-crew-card { margin-inline: .6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .forge-sidebar *, .forge-topbar::before, .forge-crew-card::after,
+  .forge-crew-orbit > span, .forge-worker-status--running .size-2 {
+    animation: none !important;
+    transition-duration: .01ms !important;
+  }
+}
