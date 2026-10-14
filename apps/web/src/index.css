@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
-@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Rye&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=Rye&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -2890,87 +2890,126 @@ main > div::before {
   }
 }
 
-
-/* Deadlock-inspired typography pass: stronger hierarchy, condensed labels, display headlines. */
-@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=Rye&display=swap");
-
-:root {
-  --font-display: "Rye", "Barlow Condensed", Georgia, serif;
-  --font-ui: "Barlow Condensed", "Inter Variable", sans-serif;
-  --font-data: "IBM Plex Mono", ui-monospace, monospace;
+/* =========================================================
+   DEADLOCK TYPOGRAPHY / high-contrast display hierarchy
+   Font imports live at the top of this stylesheet on purpose.
+   ========================================================= */
+.forge-shell {
+  --forge-display: "Rye", "Barlow Condensed", Georgia, serif;
+  --forge-condensed: "Barlow Condensed", "Inter Variable", sans-serif;
+  --forge-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
-html, body {
-  font-family: "Inter Variable", sans-serif;
-  font-kerning: normal;
-  font-feature-settings: "ss01" on, "cv02" on, "cv03" on;
-}
-
-h1, h2, h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  letter-spacing: .015em;
-  line-height: 1.04;
+/* Make the app's real title elements win over Tailwind utility classes. */
+.forge-shell .forge-topbar h1,
+.forge-shell h1,
+.forge-shell h2,
+.forge-shell h3,
+.forge-shell h4 {
+  font-family: var(--forge-display) !important;
+  font-weight: 400 !important;
+  text-transform: uppercase;
+  letter-spacing: .035em;
+  line-height: 1.02;
   text-wrap: balance;
 }
 
-h1 {
-  font-size: clamp(2.1rem, 4.2vw, 4.25rem);
-  letter-spacing: -.025em;
-  text-shadow: 0 2px 0 rgba(0,0,0,.22);
+.forge-shell .forge-topbar h1 {
+  margin-top: .18rem;
+  font-size: clamp(1.65rem, 2.7vw, 2.55rem) !important;
+  letter-spacing: .025em;
+  text-shadow: 0 2px 0 rgba(0,0,0,.2), 0 0 28px rgba(230,75,50,.1);
 }
 
-h2 { font-size: clamp(1.5rem, 2.5vw, 2.4rem); }
-h3 { font-size: clamp(1.15rem, 1.8vw, 1.6rem); }
-
-button, [role="button"], nav, aside, header,
-label, input, textarea, select,
-.badge, [class*="badge"], [class*="Badge"] {
-  font-family: var(--font-ui);
+.forge-shell h2 {
+  font-size: clamp(1.5rem, 2.3vw, 2.2rem);
+  letter-spacing: .025em;
 }
 
-button, [role="button"] {
+.forge-shell h3 {
+  font-size: clamp(1.2rem, 1.7vw, 1.55rem);
+  letter-spacing: .02em;
+}
+
+/* Condensed, emphatic labels across the actual application UI. */
+.forge-shell button,
+.forge-shell [role="button"],
+.forge-shell nav,
+.forge-shell aside,
+.forge-shell header,
+.forge-shell label,
+.forge-shell input,
+.forge-shell textarea,
+.forge-shell select,
+.forge-shell .forge-worker-status,
+.forge-shell .forge-theme-toggle,
+.forge-shell .forge-refresh {
+  font-family: var(--forge-condensed);
+}
+
+.forge-shell button,
+.forge-shell [role="button"] {
   font-weight: 700;
-  letter-spacing: .045em;
+  letter-spacing: .065em;
 }
 
-nav button, aside button {
-  font-size: .95rem;
-  letter-spacing: .075em;
+.forge-shell .forge-nav-item,
+.forge-shell .forge-mobile-nav button,
+.forge-shell .forge-topbar-actions button,
+.forge-shell label > span:first-child {
+  text-transform: uppercase;
+  letter-spacing: .105em;
+  font-weight: 700;
+}
+
+.forge-shell .forge-brand > div:last-child > div:first-child {
+  font-family: var(--forge-display) !important;
+  font-size: 1.8rem;
+  letter-spacing: .035em;
   text-transform: uppercase;
 }
 
-header {
-  letter-spacing: .06em;
+.forge-shell .forge-brand > div:last-child > div:last-child {
+  font-family: var(--forge-mono);
+  font-size: 9px;
+  letter-spacing: .12em;
 }
 
-small, time, code, pre,
-[class*="text-xs"], [class*="text-[10px]"], [class*="text-[11px]"] {
-  font-family: var(--font-data);
-  letter-spacing: .045em;
+/* Technical metadata feels like a real tactical console. */
+.forge-shell code,
+.forge-shell pre,
+.forge-shell time,
+.forge-shell .forge-worker-status,
+.forge-shell .forge-activity-json,
+.forge-shell [class*="text-[10px]"],
+.forge-shell [class*="text-[11px]"] {
+  font-family: var(--forge-mono);
+  letter-spacing: .035em;
 }
 
-main p, main li, main input, main textarea {
+/* Keep body copy readable; only short labels and headings get theatrical. */
+.forge-shell p,
+.forge-shell li,
+.forge-shell input,
+.forge-shell textarea {
+  font-family: "Inter Variable", Inter, sans-serif;
   letter-spacing: .005em;
 }
 
-.forge-live-chip, .forge-status-pill, .forge-agent-chip {
-  font-family: var(--font-data);
-  text-transform: uppercase;
+.forge-shell .forge-live-chip,
+.forge-shell .forge-status-pill,
+.forge-shell .forge-agent-chip {
+  font-family: var(--forge-mono);
   font-weight: 600;
-}
-
-.forge-hero h1, .forge-hero h2 {
-  font-family: var(--font-display);
   text-transform: uppercase;
-  letter-spacing: .015em;
+  letter-spacing: .09em;
 }
 
 @media (max-width: 640px) {
-  h1 { font-size: clamp(1.8rem, 9vw, 2.8rem); }
-  h2 { font-size: clamp(1.35rem, 6vw, 1.8rem); }
+  .forge-shell .forge-topbar h1 { font-size: clamp(1.45rem, 7vw, 2rem) !important; }
+  .forge-shell h2 { font-size: clamp(1.35rem, 6vw, 1.8rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  h1, h2, h3 { text-shadow: none; }
+  .forge-shell .forge-topbar h1 { text-shadow: none; }
 }
